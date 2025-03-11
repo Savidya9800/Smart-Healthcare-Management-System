@@ -1,11 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
+
+//Patient Manager
 const router = require("./Routes/UserRoutes");
 
 const app = express();
-
 //Middleware
 app.use(express.json());
+
+//Patient Manager
 app.use("/users", router);
 
 mongoose
