@@ -5,13 +5,15 @@ import Footer from "../Nav Component/Footer";
 
 function Home() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Nav />
-      <div className="inset-0 flex flex-col items-center text-[#2b2c6c] justify-center px-4 mt-18">
+
+      {/* Main Content */}
+      <div className="flex-grow flex flex-col items-center text-[#2b2c6c] justify-center px-4">
         <h1 className="text-xl font-bold text-center drop-shadow-lg">
           World-Class Medicine with a Personal Touch
         </h1>
-        <div className="mt-6 flex gap-4">
+        <div className="flex gap-4 mt-6">
           <Button
             variant="contained"
             color="secondary"
@@ -28,6 +30,8 @@ function Home() {
           </Button>
         </div>
       </div>
+
+      {/* Footer Stays at Bottom */}
       <Footer />
     </div>
   );
