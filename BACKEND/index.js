@@ -1,20 +1,29 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config(); // Load environment variables
 
-//Patient Manager
-const router = require("./Routes/UserRoutes");
+// Import Routes
+const userRoutes = require("./Routes/UserRoutes");  // ✅ User Management Routes
+const authRoutes = require("./Routes/authRoutes");  // ✅ Authentication Routes
 
 const app = express();
-//Middleware
+
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-//Patient Manager
-app.use("/users", router);
+// API Routes
+app.use("/api/auth", authRoutes); // ✅ Routes for Login/Register
+app.use("/api/users", userRoutes); // ✅ Routes for User CRUD
 
+// Database Connection
 mongoose
-  .connect("mongodb+srv://admin:YAze8rs9t0QLCyGJ@cluster0.mgnkv.mongodb.net/")
-  .then(() => console.log("Connected to MongoDB"))
+  .connect(process.env.MONGO_URI)
   .then(() => {
-    app.listen(5000);
+    console.log("✅ Connected to MongoDB");
+    app.listen(process.env.PORT, () =>
+      console.log(`🚀 Server running on http://localhost:${process.env.PORT}`)
+    );
   })
-  .catch((err) => console.log(err));
+  .catch((err) => console.error("Database connection error:", err));

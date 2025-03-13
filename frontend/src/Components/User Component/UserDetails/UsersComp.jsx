@@ -1,96 +1,115 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import {
+  Box,
+  Collapse,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Paper,
+  Button,
+} from "@mui/material";
+import {
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
+} from "@mui/icons-material";
 
-function createData(name, calories, fat, carbs, protein, price) {
+function createData(name, email, mobile, date, bloodGroup) {
   return {
     name,
-    calories,
-    fat,
-    carbs,
-    protein,
-    price,
+    email,
+    mobile,
+    date,
+    bloodGroup,
     history: [
       {
-        date: "2020-01-05",
-        customerId: "11091700",
-        amount: 3,
+        country: "USA",
+        city: "New York",
+        gender: "Male",
+        dob: "1990-05-14",
       },
       {
-        date: "2020-01-02",
-        customerId: "Anonymous",
-        amount: 1,
+        country: "UK",
+        city: "London",
+        gender: "Female",
+        dob: "1988-09-23",
       },
     ],
   };
 }
 
-function Row(props) {
-  const { row } = props;
+function Row({ row }) {
   const [open, setOpen] = React.useState(false);
 
+  const handleUpdate = (rowData) => {
+    console.log("Updating:", rowData);
+    alert(`Update User: ${rowData.name}`);
+  };
+
   return (
-    <React.Fragment>
-      <TableRow className="transition-all bg-white hover:bg-gray-100">
+    <>
+      <TableRow sx={{ "&:hover": { backgroundColor: "#f9f9f9" } }}>
         <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
+          <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell className="font-semibold text-gray-800">{row.name}</TableCell>
-        <TableCell align="right">{row.calories}</TableCell>
-        <TableCell align="right">{row.fat}</TableCell>
-        <TableCell align="right">{row.carbs}</TableCell>
-        <TableCell align="right">{row.protein}</TableCell>
+        <TableCell sx={{ fontWeight: "600", color: "#333" }}>
+          {row.name}
+        </TableCell>
+        <TableCell align="right">{row.email}</TableCell>
+        <TableCell align="right">{row.mobile}</TableCell>
+        <TableCell align="right">{row.date}</TableCell>
+        <TableCell align="right">{row.bloodGroup}</TableCell>
+        <TableCell align="right">
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#E6317D",
+              "&:hover": { backgroundColor: "#C02568" },
+              textTransform: "none",
+            }}
+            onClick={() => handleUpdate(row)}
+          >
+            Update
+          </Button>
+        </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box className="p-3 m-2 bg-gray-100 rounded-md">
-              <Typography variant="h6" gutterBottom component="div">
-                History
+            <Box sx={{ p: 2, backgroundColor: "#f4f4f4", borderRadius: "8px" }}>
+              <Typography variant="h6" gutterBottom>
+                More Details
               </Typography>
-              <Table size="small" aria-label="purchases">
+              <Table size="small">
                 <TableHead>
-                  <TableRow className="bg-gray-200">
-                    <TableCell className="text-gray-800">Date</TableCell>
-                    <TableCell className="text-gray-800">Customer</TableCell>
-                    <TableCell className="text-gray-800" align="right">
-                      Amount
+                  <TableRow sx={{ backgroundColor: "#e0e0e0" }}>
+                    <TableCell sx={{ fontWeight: "bold" }}>Country</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>City</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }} align="right">
+                      Gender
                     </TableCell>
-                    <TableCell className="text-gray-800" align="right">
-                      Total price ($)
+                    <TableCell sx={{ fontWeight: "bold" }} align="right">
+                      Date of Birth
                     </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.history.map((historyRow) => (
+                  {row.history.map((historyRow, index) => (
                     <TableRow
-                      key={historyRow.date}
-                      className="transition-all hover:bg-gray-50"
+                      key={index}
+                      sx={{ "&:hover": { backgroundColor: "#f1f1f1" } }}
                     >
-                      <TableCell>{historyRow.date}</TableCell>
-                      <TableCell>{historyRow.customerId}</TableCell>
-                      <TableCell align="right">{historyRow.amount}</TableCell>
-                      <TableCell align="right">
-                        {Math.round(historyRow.amount * row.price * 100) / 100}
-                      </TableCell>
+                      <TableCell>{historyRow.country}</TableCell>
+                      <TableCell>{historyRow.city}</TableCell>
+                      <TableCell align="right">{historyRow.gender}</TableCell>
+                      <TableCell align="right">{historyRow.dob}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -99,50 +118,144 @@ function Row(props) {
           </Collapse>
         </TableCell>
       </TableRow>
-    </React.Fragment>
+    </>
   );
 }
 
 Row.propTypes = {
   row: PropTypes.shape({
-    calories: PropTypes.number.isRequired,
-    carbs: PropTypes.number.isRequired,
-    fat: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
+    mobile: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+    bloodGroup: PropTypes.string.isRequired,
     history: PropTypes.arrayOf(
       PropTypes.shape({
-        amount: PropTypes.number.isRequired,
-        customerId: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
+        country: PropTypes.string.isRequired,
+        city: PropTypes.string.isRequired,
+        gender: PropTypes.string.isRequired,
+        dob: PropTypes.string.isRequired,
       })
     ).isRequired,
-    name: PropTypes.string.isRequired,
-    price: PropTypes.number.isRequired,
-    protein: PropTypes.number.isRequired,
   }).isRequired,
 };
 
 const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0, 3.99),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3, 4.99),
-  createData("Eclair", 262, 16.0, 24, 6.0, 3.79),
-  createData("Cupcake", 305, 3.7, 67, 4.3, 2.5),
-  createData("Gingerbread", 356, 16.0, 49, 3.9, 1.5),
+  createData(
+    "John Doe",
+    "john@example.com",
+    "123-456-7890",
+    "2022-01-15",
+    "O+"
+  ),
+  createData(
+    "Jane Smith",
+    "jane@example.com",
+    "987-654-3210",
+    "2021-12-10",
+    "A-"
+  ),
+  createData(
+    "Michael Brown",
+    "michael@example.com",
+    "555-123-6789",
+    "2020-05-20",
+    "B+"
+  ),
+  createData(
+    "Sarah White",
+    "sarah@example.com",
+    "444-987-6543",
+    "2019-11-30",
+    "AB-"
+  ),
+  createData(
+    "David Green",
+    "david@example.com",
+    "222-555-9999",
+    "2023-06-05",
+    "O-"
+  ),
 ];
 
 export default function UsersComp() {
   return (
-    <TableContainer component={Paper} className="rounded-md shadow-lg">
-      <Table aria-label="collapsible table">
+    <TableContainer
+      component={Paper}
+      sx={{ borderRadius: "12px", boxShadow: 3 }}
+    >
+      <Table>
         <TableHead>
-          <TableRow className="text-white bg-blue-500">
-            <TableCell className="font-bold text-white"></TableCell>
-            <TableCell className="font-bold text-white">Dessert (100g serving)</TableCell>
-            <TableCell className="font-bold text-white" align="right">Calories</TableCell>
-            <TableCell className="font-bold text-white" align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell className="font-bold text-white" align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell className="font-bold text-white" align="right">Protein&nbsp;(g)</TableCell>
+          <TableRow sx={{ backgroundColor: "#2FB297" }}>
+            <TableCell />
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                color: "#fff",
+                fontSize: "1.1rem",
+                py: 1.5,
+              }}
+            >
+              Patient Name
+            </TableCell>
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                color: "#fff",
+                fontSize: "1.1rem",
+                py: 1.5,
+              }}
+              align="right"
+            >
+              Email
+            </TableCell>
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                color: "#fff",
+                fontSize: "1.1rem",
+                py: 1.5,
+              }}
+              align="right"
+            >
+              Mobile Number
+            </TableCell>
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                color: "#fff",
+                fontSize: "1.1rem",
+                py: 1.5,
+              }}
+              align="right"
+            >
+              Registered Date
+            </TableCell>
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                color: "#fff",
+                fontSize: "1.1rem",
+                py: 1.5,
+              }}
+              align="right"
+            >
+              Blood Group
+            </TableCell>
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                color: "#fff",
+                fontSize: "1.1rem",
+                py: 1.5,
+              }}
+              align="right"
+            >
+              Action
+            </TableCell>
           </TableRow>
         </TableHead>
+
         <TableBody>
           {rows.map((row) => (
             <Row key={row.name} row={row} />
