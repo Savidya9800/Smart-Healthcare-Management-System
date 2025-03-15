@@ -5,9 +5,11 @@ import Footer from "../Nav Component/Footer";
 
 function AboutUs() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Nav />
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
+
+      {/* Main Content */}
+      <div className="flex flex-col items-center justify-center flex-grow px-4 text-center">
         <Typography variant="h4" gutterBottom>
           Welcome to Material-UI
         </Typography>
@@ -15,6 +17,8 @@ function AboutUs() {
           Click Me
         </Button>
       </div>
+
+      {/* Footer Always at Bottom */}
       <Footer />
     </div>
   );
