@@ -9,6 +9,7 @@ import OurFacilities from "./Components/Main Component/OurFacilities";
 import MyAccount from "./Components/User Component/MyAccount";
 import FindADoctor from "./Components/Doctor Component/FindADoctor";
 import BookAppointent from "./Components/Appointment Component/BookAppointent";
+import UserManagement from "./Components/User Component/UserAdmin/UserManagement";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/User-Account" element={<MyAccount />} />
           <Route path="/Find-Doctor" element={<FindADoctor />} />
           <Route path="/Book-Appointment" element={<BookAppointent />} />
+          <Route path="/User-Management" element={<UserManagement />} />
         </Routes>
       </React.Fragment>
     </div>
