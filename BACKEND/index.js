@@ -6,6 +6,7 @@ require("dotenv").config(); // Load environment variables
 // Import Routes
 const userRoutes = require("./Routes/UserRoutes");  // User Management Routes
 const authRoutes = require("./Routes/authRoutes");  // Authentication Routes
+const appoinmentRoute = require("./Routes/AppoinmentRoutes");// Appoinment Route
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 // API Routes
 app.use("/api/auth", authRoutes); //  Routes for Login/Register
 app.use("/api/users", userRoutes); //  Routes for User CRUD
+app.use("/api/appoinment",appoinmentRoute);
 
 // Database Connection
 mongoose
