@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 function Nav() {
+  
   return (
     <div className="w-full font-['Hanken_Grotesk']">
       {/* Upper Navigation Bar - Now Fixed */}
