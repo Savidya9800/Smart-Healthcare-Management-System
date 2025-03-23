@@ -13,6 +13,9 @@ import MyAccount from "./Components/User Component/UserProfile/MyAccount";
 import Login from "./Components/User Component/Login";
 import Registration from "./Components/User Component/Registration";
 import Example from "./Components/User Component/UserAdmin/example";
+import Dashboard from "./Components/Pharmacy Component/Dashboard";
+import StockAnalytics from "./Components/Pharmacy Component/StockAnalytics";
+import OrderAnalytics from "./Components/Pharmacy Component/OrderAnalytics";
 
 function App() {
   return (
@@ -31,6 +34,10 @@ function App() {
           <Route path="/Login" element={<Login />} />
           <Route path="/Registration" element={<Registration />} />
           <Route path="/example" element={<Example />} />
+          <Route path="/Pharmacy-Dashboard" element={<Dashboard />} />
+          <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
+          <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
+
         </Routes>
       </React.Fragment>
     </div>
