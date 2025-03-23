@@ -27,6 +27,8 @@ import {
   Wc as GenderIcon,
   Opacity as BloodIcon,
   MedicalServices as MedicalIcon,
+  Logout as LogoutIcon,
+  DeleteForever as DeleteIcon,
 } from "@mui/icons-material";
 import UpdatePatientProfile from "./UpdatePatientProfile";
 
@@ -63,6 +65,36 @@ function PatientProfile() {
   const handleProfileUpdate = (updatedUser) => {
     setUser(updatedUser);
     setIsEditing(false);
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  };
+
+  // Handle account deletion
+  const handleDeleteAccount = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      )
+    ) {
+      const token = localStorage.getItem("token");
+
+      axios
+        .delete("http://localhost:5000/api/users/delete", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(() => {
+          localStorage.removeItem("token");
+          window.location.href = "/login"; // Or wherever you want to redirect
+        })
+        .catch((error) => {
+          console.error("Error deleting account:", error);
+          alert("Failed to delete account. Please try again.");
+        });
+    }
   };
 
   if (loading) {
@@ -465,6 +497,61 @@ function PatientProfile() {
                   </Paper>
                 </Grid>
               </Grid>
+            </Grid>
+
+            {/* Account Actions Section */}
+            <Grid item xs={12}>
+              <Paper
+                elevation={1}
+                sx={{ p: 3, borderRadius: 2, bgcolor: "#ffffff" }}
+              >
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="#2b2c6c"
+                  gutterBottom
+                >
+                  Account Actions
+                </Typography>
+                <Divider sx={{ mb: 3, bgcolor: "#e6e6e6" }} />
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: 2,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    startIcon={<LogoutIcon />}
+                    onClick={handleLogout}
+                    sx={{
+                      borderColor: "#2b2c6c",
+                      color: "#2b2c6c",
+                      "&:hover": {
+                        borderColor: "#1e1f4b",
+                        bgcolor: "rgba(43, 44, 108, 0.04)",
+                      },
+                      borderRadius: 2,
+                    }}
+                  >
+                    Log Out
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<DeleteIcon />}
+                    onClick={handleDeleteAccount}
+                    sx={{
+                      bgcolor: "#FF0000",
+                      "&:hover": { bgcolor: "#d32f2f" },
+                      borderRadius: 2,
+                    }}
+                  >
+                    Delete My Account
+                  </Button>
+                </Box>
+              </Paper>
             </Grid>
           </Grid>
         </CardContent>
