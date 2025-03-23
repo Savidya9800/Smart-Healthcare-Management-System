@@ -12,6 +12,7 @@ import UserManagement from "./Components/User Component/UserAdmin/UserManagement
 import MyAccount from "./Components/User Component/UserProfile/MyAccount";
 import Login from "./Components/User Component/Login";
 import Registration from "./Components/User Component/Registration";
+import Example from "./Components/User Component/UserAdmin/example";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/User-Management" element={<UserManagement />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/Registration" element={<Registration />} />
+          <Route path="/example" element={<Example />} />
         </Routes>
       </React.Fragment>
     </div>

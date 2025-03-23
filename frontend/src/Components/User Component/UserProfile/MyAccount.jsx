@@ -1,14 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Nav from "../../Nav Component/Nav";
 import PatientProfile from "./PatientProfile";
-import { Box } from "@mui/material";
 
 function MyAccount() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/Home"); // Redirect to login if not authenticated
+    }
+  }, [navigate]);
+
   return (
-    <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh" }}>
+    <div>
       <Nav />
       <PatientProfile />
-    </Box>
+    </div>
   );
 }
 

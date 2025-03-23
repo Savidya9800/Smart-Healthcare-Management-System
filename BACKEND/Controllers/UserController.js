@@ -80,9 +80,12 @@ const updateUser = async (req, res) => {
 };
 
 // Delete User
+// Delete User (Authenticated User)
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    const userId = req.user.id; // Retrieved from token via authMiddleware
+
+    const user = await User.findByIdAndDelete(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
