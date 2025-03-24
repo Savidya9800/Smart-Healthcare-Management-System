@@ -10,6 +10,7 @@ const appoinmentRoute = require("./Routes/AppoinmentRoutes");// Appoinment Route
 
 const app = express();
 
+
 // Middleware
 app.use(cors());
 app.use(express.json());
