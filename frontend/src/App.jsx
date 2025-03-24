@@ -41,31 +41,31 @@ function App() {
           <Route path="/About-Us" element={<AboutUs />} />
           <Route path="/Contact-Us" element={<ContactUs />} />
           <Route path="/Our-Facilities" element={<OurFacilities />} />
-          <Route path="/User-Account" element={<MyAccount />} />
           <Route path="/Find-Doctor" element={<FindADoctor />} />
 
           {/*User Components*/}
           <Route path="/User-Management" element={<UserManagement />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/Registration" element={<Registration />} />
+          <Route path="/User-Dashboard" element={<UDashboard />} />
+          <Route path="/User-Account" element={<MyAccount />} />
 
-          {/*Doctor Components*/}
+          {/*Pharmacy Components*/}
           <Route path="/Pharmacy-Dashboard" element={<PDashboard />} />
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
-          <Route path="/User-Dashboard" element={<UDashboard />} />
-          <Route path="/Appointment-Dashboard" element={<ADashboard />} />
+
+          {/*Doctor Components*/}
           <Route path="/Doctor-Dashboard" element={<DDashboard />} />
 
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />
           <Route path="/Appoinment-Display" element={<AppoinmentDisplay />} />
-
+          <Route path="/Appointment-Dashboard" element={<ADashboard />} />
           <Route
             path="/Appoinment-Management"
             element={<AppoinmentManagement />}
           />
-          <Route path="/User-Management" element={<UserManagement />} />
         </Routes>
       </React.Fragment>
     </div>
