@@ -1,15 +1,14 @@
 import React from "react";
-import UsersDetails from "./UsersDetails";
 import UAdminLayout from "./UAdminLayout";
 
-function UserManagement() {
+function UDashboard() {
   return (
     <div>
       <UAdminLayout>
-        <UsersDetails />
+        <h1>Welcome My User Dashboard</h1>
       </UAdminLayout>
     </div>
   );
 }
 
-export default UserManagement;
+export default UDashboard;

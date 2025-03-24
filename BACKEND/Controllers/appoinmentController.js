@@ -8,7 +8,7 @@ const getAllAppoinments = async (req, res) => {
         if (!appoinments || appoinments.length === 0) {
             return res.status(404).json({ message: "No appointments found" });
         }
-        
+
         return res.status(200).json({ appoinments });
     } catch (err) {
         console.error("Error fetching appointments:", err.message);
@@ -16,20 +16,35 @@ const getAllAppoinments = async (req, res) => {
     }
 };
 
-//  Add appointment (fix duplicate key error)
+// Add appointment (fix duplicate key error)
 const addAppoinment = async (req, res) => {
     try {
-        const { indexno, name, nic, phone, email, doctorName, specialization, date, time, slip } = req.body;
+        
 
-        // 🔹 Check if indexno already exists
-        const existingAppointment = await Appoinment.findOne({ indexno });
+        // 🔹 Get the last indexno from the collection and generate the next one
+        const lastAppointment = await Appoinment.findOne().sort({ indexno: -1 });
+        
+        let newIndex = 'A0001'; // Default index if no appointment exists
 
-        if (existingAppointment) {
-            return res.status(400).json({ error: "Appointment with this index number already exists" });
+        if (lastAppointment) {
+            const lastIndex = lastAppointment.indexno.substring(1);
+            const nextIndex = parseInt(lastIndex) + 1;
+            newIndex = 'A' + nextIndex.toString().padStart(4, '0');
         }
-
-        // 🔹 Create a new appointment
-        const newAppointment = new Appoinment({ indexno, name, nic, phone, email, doctorName, specialization, date, time, slip });
+        const { name, address, nic, phone, email, doctorName, specialization, date, time, slip } = req.body;
+        const newAppointment = new Appoinment({ 
+            indexno: newIndex, 
+            name, 
+            address, 
+            nic, 
+            phone, 
+            email, 
+            doctorName, 
+            specialization, 
+            date, 
+            time, 
+            slip 
+        });
 
         await newAppointment.save();
 
@@ -39,64 +54,83 @@ const addAppoinment = async (req, res) => {
         return res.status(500).json({ error: "Internal server error" });
     }
 };
-//Get by id
-const getById = async (req, res, next)=>{
-    const id =req.params.id;
 
-    let appoinment;
 
-    try{
-        appoinment=await Appoinment.findById(id);
-    }catch (err){
-        console.log(err);
-    }
+// Get appointment by ID
+const getById = async (req, res) => {
+    const id = req.params.id;
 
-    //not available appoinment
-    if(!appoinment){
-        return res.status(404).json({message:"User Not Found"});
-    }
-    return res.status(200).json({appoinment});
-}
-//Update appoinment details
-const updateAppoinment =async (req,res, next) =>{
+    try {
+        const appoinment = await Appoinment.findById(id);
 
-    const id =req.params.id;
-    const { indexno, name, nic, phone, email, doctorName, specialization, date, time, slip } = req.body;
+        if (!appoinment) {
+            return res.status(404).json({ message: "Appointment not found" });
+        }
 
-    let appoinment;
-
-    try{
-        appoinment = await Appoinment.findByIdAndUpdate(id,
-            {indexno:indexno, name:name, nic:nic, phone:phone, email:email, doctorName:doctorName, specialization:specialization, date:date, time:time, slip:slip});
-            appoinment =await appoinment.save();
-    }catch(err){
-        console.log(err);
-        //not update appoinment
-    if(!appoinment){
-        return res.status(404).json({message:"Unable to update"});
-    }
-    return res.status(200).json({appoinment});
-
+        return res.status(200).json({ appoinment });
+    } catch (err) {
+        console.error("Error fetching appointment by ID:", err.message);
+        return res.status(500).json({ error: "Internal server error" });
     }
 };
-//Delete appoinment
-const deleteAppoinment = async (req, res, next) => {
-    const id =req.params.id;
 
-    let appoinment
+// Update appointment details
+const updateAppoinment = async (req, res) => {
+    const id = req.params.id;
+    const { indexno, name, address, nic, phone, email, doctorName, specialization, date, time, slip } = req.body;
 
-    try{
-        appoinment=await Appoinment.findByIdAndDelete(id)
-    }catch(err) {
-      console.log(err);
-       //not delete appoinment
-    if(!appoinment){
-        return res.status(404).json({message:"Unable to delete"});
+    try {
+        const appoinment = await Appoinment.findByIdAndUpdate(id, 
+            {
+                indexno,
+                name,
+                address,
+                nic,
+                phone,
+                email,
+                doctorName,
+                specialization,
+                date,
+                time,
+                slip
+            }, 
+            { new: true }
+        );
+
+        if (!appoinment) {
+            return res.status(404).json({ message: "Unable to update appointment" });
+        }
+
+        return res.status(200).json({ appoinment });
+    } catch (err) {
+        console.error("Error updating appointment:", err.message);
+        return res.status(500).json({ error: "Internal server error" });
     }
-    return res.status(200).json({appoinment});
+};
 
+// Delete appointment
+const deleteAppoinment = async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const appoinment = await Appoinment.findByIdAndDelete(id);
+
+        if (!appoinment) {
+            return res.status(404).json({ message: "Unable to delete appointment" });
+        }
+
+        return res.status(200).json({ message: "Appointment deleted successfully", appoinment });
+    } catch (err) {
+        console.error("Error deleting appointment:", err.message);
+        return res.status(500).json({ error: "Internal server error" });
     }
+};
 
-}
-//  Export functions
-module.exports = { getAllAppoinments, addAppoinment ,getById, updateAppoinment, deleteAppoinment};
+// Export functions
+module.exports = { 
+    getAllAppoinments, 
+    addAppoinment, 
+    getById, 
+    updateAppoinment, 
+    deleteAppoinment 
+};

@@ -3,7 +3,6 @@ import {
   Home,
   BarChart2,
   Package,
-  FileText,
   Search,
   Menu,
   Bell,
@@ -13,42 +12,56 @@ import {
   HelpCircle,
   LogOut,
 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
-function AdminLayout({ children }) {
-  const [activeItem, setActiveItem] = useState("Dashboard");
+function AAdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const menuItems = [
-    { name: "Dashboard", icon: <Home size={20} /> },
-    { name: "Analytics", icon: <BarChart2 size={20} /> },
-    { name: "Inventory", icon: <Package size={20} /> },
-    { name: "Reports", icon: <FileText size={20} /> },
-    { name: "Users", icon: <Users size={20} /> },
+    {
+      name: "Dashboard",
+      icon: <Home size={20} />,
+      path: "/Appointment-Dashboard",
+    },
+    {
+      name: "Stock Analytics",
+      icon: <BarChart2 size={20} />,
+      path: "#",
+    },
+    { name: "Orders", icon: <Package size={20} />, path: "#" },
   ];
 
+  const currentPage = menuItems.find((item) => item.path === location.pathname);
+  const activeItem = currentPage ? currentPage.name : "";
+
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* === Sidebar === */}
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300 ease-in-out bg-white border-r border-gray-100 shadow-sm ${
+        className={`flex flex-col justify-between fixed inset-y-0 left-0 z-50 transition-all duration-300 ease-in-out bg-white border-r border-gray-100 shadow-sm ${
           isSidebarOpen ? "w-64" : "w-20"
         }`}
       >
-        {/* Logo */}
-        <div className="flex items-center justify-center h-20 border-b border-gray-100">
-          <div className="flex items-center justify-center w-10 h-10 font-bold text-white bg-indigo-600 rounded-lg">
-            P
+        {/* Top Logo */}
+        <div>
+          <div className="flex items-center justify-center h-20 border-b border-gray-100">
+            <div className="flex items-center justify-center w-10 h-10 font-bold text-white bg-indigo-600 rounded-lg">
+              R
+            </div>
+            {isSidebarOpen && (
+              <span className="ml-3 text-xl font-bold text-gray-800">
+                Receptionist
+              </span>
+            )}
           </div>
-          {isSidebarOpen && (
-            <span className="ml-3 text-xl font-bold text-gray-800">PHARMACIST</span>
-          )}
-        </div>
 
-        {/* Menu */}
-        <div className="flex-1 pt-5 overflow-y-auto">
+          {/* Menu */}
           <nav
-            className={`px-4 ${
+            className={`mt-5 px-4 ${
               isSidebarOpen ? "" : "flex flex-col items-center"
             }`}
           >
@@ -56,9 +69,9 @@ function AdminLayout({ children }) {
               {menuItems.map((item) => (
                 <li key={item.name}>
                   <button
-                    onClick={() => setActiveItem(item.name)}
+                    onClick={() => navigate(item.path)}
                     className={`flex items-center w-full px-3 py-3 rounded-xl text-sm transition-all duration-200 group ${
-                      activeItem === item.name
+                      location.pathname === item.path
                         ? "bg-indigo-50 text-indigo-600 font-medium"
                         : "text-gray-600 hover:bg-gray-50"
                     }`}
@@ -78,9 +91,14 @@ function AdminLayout({ children }) {
           </nav>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 mt-auto border-t border-gray-100">
-          <div className="flex items-center p-3 cursor-pointer rounded-xl hover:bg-gray-50">
+        {/* Footer - Support Icon */}
+        {/* Footer - Support Icon */}
+        <div className="px-4 py-3 border-t border-gray-100">
+          <div
+            className={`flex items-center w-full cursor-pointer rounded-xl hover:bg-gray-50 p-2 transition ${
+              isSidebarOpen ? "justify-start" : "justify-center"
+            }`}
+          >
             <div className="flex items-center justify-center w-8 h-8 text-pink-600 bg-pink-100 rounded-lg">
               <HelpCircle size={18} />
             </div>
@@ -94,15 +112,14 @@ function AdminLayout({ children }) {
         </div>
       </div>
 
-      {/* === Main Content === */}
+      {/* Main Content */}
       <div
-        className={`flex flex-col flex-1 transition-all duration-300 ${
+        className={`flex flex-col flex-1 h-screen overflow-hidden transition-all duration-300 ${
           isSidebarOpen ? "pl-64" : "pl-20"
         }`}
       >
-        {/* TopBar */}
+        {/* Topbar */}
         <div className="sticky top-0 z-40 flex items-center justify-between h-16 px-6 bg-white border-b border-gray-100 shadow-sm">
-          {/* Left */}
           <div className="flex items-center">
             <button
               className="p-2 mr-4 transition-all rounded-lg hover:bg-gray-100"
@@ -110,7 +127,6 @@ function AdminLayout({ children }) {
             >
               <Menu size={20} className="text-gray-600" />
             </button>
-
             <div className="items-center hidden md:flex">
               <span className="font-medium text-gray-600">{activeItem}</span>
               <span className="mx-2 text-gray-400">/</span>
@@ -118,10 +134,9 @@ function AdminLayout({ children }) {
             </div>
           </div>
 
-          {/* Right */}
           <div className="flex items-center space-x-2">
             <div className="relative hidden md:block">
-              <div className="flex items-center px-4 py-2 transition-all border border-gray-100 rounded-lg bg-gray-50 focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100">
+              <div className="flex items-center px-4 py-2 border border-gray-100 rounded-lg bg-gray-50">
                 <Search size={18} className="text-gray-400" />
                 <input
                   type="text"
@@ -134,11 +149,11 @@ function AdminLayout({ children }) {
               </div>
             </div>
 
-            <button className="p-2 transition-all rounded-lg hover:bg-gray-100">
+            <button className="p-2 rounded-lg hover:bg-gray-100">
               <Settings size={20} className="text-gray-600" />
             </button>
 
-            <button className="relative p-2 transition-all rounded-lg hover:bg-gray-100">
+            <button className="relative p-2 rounded-lg hover:bg-gray-100">
               <Bell size={20} className="text-gray-600" />
               <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-pink-500 rounded-full ring-2 ring-white"></span>
             </button>
@@ -146,15 +161,15 @@ function AdminLayout({ children }) {
             {/* Profile Dropdown */}
             <div className="relative">
               <button
-                className="flex items-center p-2 transition-all rounded-lg hover:bg-gray-100"
+                className="flex items-center p-2 rounded-lg hover:bg-gray-100"
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
               >
                 <div className="flex items-center justify-center w-8 h-8 font-medium text-white bg-indigo-600 rounded-lg">
-                  M
+                  A
                 </div>
                 <div className="items-center hidden ml-2 md:flex">
                   <span className="text-sm font-medium text-gray-700">
-                    Musharof
+                    Admin
                   </span>
                   <ChevronDown
                     size={16}
@@ -196,19 +211,15 @@ function AdminLayout({ children }) {
         </div>
 
         {/* Page Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
-          <div
-            onClick={() => {
-              if (isProfileMenuOpen) setIsProfileMenuOpen(false);
-            }}
-            className="h-full"
-          >
-            {children}
-          </div>
+        <div
+          className="flex-1 p-6 overflow-y-auto"
+          onClick={() => setIsProfileMenuOpen(false)}
+        >
+          {children}
         </div>
       </div>
     </div>
   );
 }
 
-export default AdminLayout;
+export default AAdminLayout;

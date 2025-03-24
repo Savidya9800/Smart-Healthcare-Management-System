@@ -1,11 +1,11 @@
 import React from "react";
-import AdminLayout from "./AdminLayout";
+import PAdminLayout from "./PAdminLayout";
 
 function OrderAnalytics() {
   return (
-    <AdminLayout>
+    <PAdminLayout>
       <h1>Orders</h1>
-    </AdminLayout>
+    </PAdminLayout>
   );
 }
 
