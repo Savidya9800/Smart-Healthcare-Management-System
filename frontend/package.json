@@ -20,6 +20,7 @@
     "@tailwindcss/vite": "^4.0.12",
     "axios": "^1.8.3",
     "bootstrap": "^5.3.3",
+    "lucide-react": "^0.483.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@types/axios": "^0.9.36",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
