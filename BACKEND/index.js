@@ -13,6 +13,7 @@ const router = require("./Routes/StockRoutes");
 
 const app = express();//initialize express application
 
+
 // Middleware
 app.use(cors());
 app.use(express.json());
