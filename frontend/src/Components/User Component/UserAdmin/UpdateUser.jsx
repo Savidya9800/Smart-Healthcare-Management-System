@@ -98,13 +98,14 @@ function UpdateUser({ user, onClose }) {
 
       if (response.status === 200) {
         alert("Patient details updated successfully!");
+        window.location.reload();
 
         if (onUpdate) {
-            onUpdate(response.data); // Call onUpdate to refresh UI
-          }
-  
-          onClose(); // Close modal
+          onUpdate(response.data); // Call onUpdate to refresh UI
         }
+
+        onClose(); // Close modal
+      }
     } catch (error) {
       console.error("Error updating user:", error);
     }
