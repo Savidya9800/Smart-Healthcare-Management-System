@@ -2,26 +2,15 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-<<<<<<< HEAD
-=======
 
 //Main Components
->>>>>>> e9ea91d410e8dba479996a63c91f26789c6a73f7
 import Home from "./Components/Main Component/Home";
 import AboutUs from "./Components/Main Component/AboutUs";
 import ContactUs from "./Components/Main Component/ContactUs";
 import OurFacilities from "./Components/Main Component/OurFacilities";
 import FindADoctor from "./Components/Doctor Component/FindADoctor";
-<<<<<<< HEAD
-import BookAppointent from "./Components/Appointment Component/BookAppointent"; //BookAppointent
-
-import AppoinmentManagement from "./Components/Appointment Component/AppoinmentAdmin/AppoinmentManagement"; //AppoinmentManagement
-import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinment"; //BookAppointent
-=======
-import BookAppointent from "./Components/Appointment Component/BookAppointent";
 
 //User Components
->>>>>>> e9ea91d410e8dba479996a63c91f26789c6a73f7
 import UserManagement from "./Components/User Component/UserAdmin/UserManagement";
 import MyAccount from "./Components/User Component/UserProfile/MyAccount";
 import Login from "./Components/User Component/Login";
@@ -35,6 +24,9 @@ import OrderAnalytics from "./Components/Pharmacy Component/OrderAnalytics";
 
 //Appointment Components
 import ADashboard from "./Components/Appointment Component/ADashboard";
+import BookAppointent from "./Components/Appointment Component/BookAppointent";
+import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinment"; //BookAppointent
+import AppoinmentManagement from "./Components/Appointment Component/AppoinmentAdmin/AppoinmentManagement";
 
 //Doctor Components
 import DDashboard from "./Components/Doctor Component/DDashboard";
@@ -51,29 +43,29 @@ function App() {
           <Route path="/Our-Facilities" element={<OurFacilities />} />
           <Route path="/User-Account" element={<MyAccount />} />
           <Route path="/Find-Doctor" element={<FindADoctor />} />
-<<<<<<< HEAD
-          <Route path="/Book-Appointment" element={<BookAppointent />} />{/*BookAppointment*/}
-          
-          
-          
-          <Route path="/Appoinment-Display" element={<AppoinmentDisplay />} />{/*BookAppointment*/}
-          
-          <Route path="/Appoinment-Management" element={<AppoinmentManagement />}/>{/*BookAppointment(Admin)*/}
-          
-          
-          <Route path="/User-Management" element={<UserManagement />} />{/*AppoinmentManagement (Admin)*/}
-=======
-          <Route path="/Book-Appointment" element={<BookAppointent />} />
+
+          {/*User Components*/}
           <Route path="/User-Management" element={<UserManagement />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/Registration" element={<Registration />} />
+
+          {/*Doctor Components*/}
           <Route path="/Pharmacy-Dashboard" element={<PDashboard />} />
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
           <Route path="/User-Dashboard" element={<UDashboard />} />
           <Route path="/Appointment-Dashboard" element={<ADashboard />} />
           <Route path="/Doctor-Dashboard" element={<DDashboard />} />
->>>>>>> e9ea91d410e8dba479996a63c91f26789c6a73f7
+
+          {/*Appoinment Components*/}
+          <Route path="/Book-Appointment" element={<BookAppointent />} />
+          <Route path="/Appoinment-Display" element={<AppoinmentDisplay />} />
+
+          <Route
+            path="/Appoinment-Management"
+            element={<AppoinmentManagement />}
+          />
+          <Route path="/User-Management" element={<UserManagement />} />
         </Routes>
       </React.Fragment>
     </div>
