@@ -1,13 +1,13 @@
 import React from "react";
-import AdminLayout from "./AdminLayout";
+import PAdminLayout from "./PAdminLayout";
 
-function Dashboard() {
+function PDashboard() {
   return (
-        <AdminLayout>
+    <PAdminLayout>
       <h1 className="mb-4 text-2xl font-bold">Dashboard</h1>
       <p>Welcome to the dashboard overview.</p>
-      </AdminLayout>
+    </PAdminLayout>
   );
 }
 
-export default Dashboard;
+export default PDashboard;
