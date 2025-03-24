@@ -1,13 +1,13 @@
 import React from 'react'
-import AdminLayout from './AdminLayout'
+import PAdminLayout from './PAdminLayout'
 
 function StockAnalytics() {
   return (
     <div>
-      <AdminLayout>
+      <PAdminLayout>
       <h1 className="mb-4 text-2xl font-bold">Stocks</h1>
       <p>This is your stock management page.</p>
-    </AdminLayout>
+    </PAdminLayout>
     </div>
   )
 }
