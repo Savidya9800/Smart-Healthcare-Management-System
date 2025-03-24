@@ -1,16 +1,21 @@
 const mongoose = require("mongoose");
-const Schema=mongoose.Schema;
+const Schema = mongoose.Schema;
 
-const appoinmentSchema=new Schema({
-    indexno: { type: String, required: true, unique: true },
+const appoinmentSchema = new Schema({
+    indexno: { type: String, unique: true, },
     name: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    address: {
         type: String,
         required: true,
         trim: true,
     },
     nic: {
         type: String,
-        require:true,
+        required: true,
         trim: true,
     },
     phone: {
@@ -18,11 +23,9 @@ const appoinmentSchema=new Schema({
         required: true,
         trim: true,
     },
-    email:{
+    email: {
         type: String,
         required: true,
-        unique: true,
-        trim: true,
         lowercase: true,
     },
     doctorName: {
@@ -42,13 +45,9 @@ const appoinmentSchema=new Schema({
         required: true,
     },
     slip: {
-        data: Buffer, // Stores binary image data
-        contentType: String, // Stores image type (e.g., "image/png", "image/jpeg")
+        data: { type: Buffer, default: null }, // Stores binary image data
+        contentType: { type: String, default: null }, // Stores image type (e.g., "image/png", "image/jpeg")
     }
-
 });
 
-module.exports =mongoose.model(
-    "Appoinment",//file name
-    appoinmentSchema //function name
-)
+module.exports = mongoose.model("Appoinment", appoinmentSchema);
