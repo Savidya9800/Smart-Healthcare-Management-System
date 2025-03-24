@@ -1,10 +1,33 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 function Nav() {
+  const location = useLocation();
+
+  // Track login state using localStorage
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("isLoggedIn") === "true"
+  );
+
+  // Re-check login status every time the route changes
+  useEffect(() => {
+    setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
+  }, [location]);
+
+  // Navigation links
+  const navLinks = [
+    { name: "Home", path: "/Home" },
+    { name: "Contact Us", path: "/Contact-Us" },
+    { name: "Our Facilities", path: "/Our-Facilities" },
+    { name: "About Us", path: "/About-Us" },
+    isLoggedIn
+      ? { name: "My Account", path: "/User-Account" }
+      : { name: "Sign In", path: "/Login" },
+  ];
+
   return (
     <div className="w-full font-['Hanken_Grotesk']">
-      {/* Upper Navigation Bar - Now Fixed */}
+      {/* Top Bar Navigation */}
       <div className="w-full h-[50px] flex fixed top-0 left-0 z-50 shadow-md">
         <div className="w-[1440px] bg-[#2b2c6c] flex items-center">
           <Link
@@ -42,11 +65,12 @@ function Nav() {
         </div>
       </div>
 
-      {/* Space for Fixed Navbar - Prevent Content Overlap */}
+      {/* Spacer to prevent content being hidden under fixed navbar */}
       <div className="h-[50px]"></div>
 
       {/* Main Navigation Bar */}
       <div className="w-full h-[70px] flex items-center mt-0">
+        {/* Logo */}
         <div className="flex items-center ml-[60px]">
           <Link to="/Home" className="flex items-center cursor-pointer">
             <img src="/Logo.png" alt="Logo" className="h-[70px]" />
@@ -57,14 +81,9 @@ function Nav() {
           </Link>
         </div>
 
+        {/* Right Side Navigation Links */}
         <div className="ml-auto mr-[50px] flex space-x-10 font-semibold">
-          {[
-            { name: "Home", path: "/Home" },
-            { name: "Contact Us", path: "/Contact-Us" },
-            { name: "Our Facilities", path: "/Our-Facilities" },
-            { name: "About Us", path: "/About-Us" },
-            { name: "My Account", path: "/User-Account" },
-          ].map((link, index) => (
+          {navLinks.map((link, index) => (
             <Link
               key={index}
               to={link.path}

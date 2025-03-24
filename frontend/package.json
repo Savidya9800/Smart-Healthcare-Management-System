@@ -20,6 +20,7 @@
     "@tailwindcss/vite": "^4.0.12",
     "axios": "^1.8.3",
     "bootstrap": "^5.3.3",
+    "lucide-react": "^0.483.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
