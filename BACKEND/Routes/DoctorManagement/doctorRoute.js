@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const {getDoctorProfile,getAllDoctors,getDoctorById,updateDoctor,deleteDoctor,} = require("../Controllers/DoctorController");
-const authMiddleware = require("../Middleware/authMiddleware");
+const {getDoctorProfile,getAllDoctors,getDoctorById,updateDoctor,deleteDoctor,} = require("../../Controllers/DoctorManagement/doctorController");
+const authMiddleware = require("../../Middleware/authMiddleware");
 
 router.get("/profile", authMiddleware, getDoctorProfile); // Protected Route
 router.get("/", getAllDoctors);
