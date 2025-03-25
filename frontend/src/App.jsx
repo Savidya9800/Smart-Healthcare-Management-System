@@ -25,7 +25,7 @@ import OrderAnalytics from "./Components/Pharmacy Component/OrderAnalytics";
 //Appointment Components
 import ADashboard from "./Components/Appointment Component/ADashboard";
 import BookAppointent from "./Components/Appointment Component/BookAppointent";
-import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinment"; //BookAppointent
+import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinment"; 
 import AppoinmentManagement from "./Components/Appointment Component/AppoinmentAdmin/AppoinmentManagement";
 
 //Doctor Components
