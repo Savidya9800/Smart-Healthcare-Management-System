@@ -9,6 +9,7 @@ const authRoutes = require("./Routes/authRoutes");  // Authentication Routes
 const appoinmentRoute = require("./Routes/AppoinmentRoutes");// Appoinment Route
 const doctorRoute = require("./Routes/DoctorManagement/doctorRoute");// Doctor Route
 const prescriptionRoute = require("./Routes/DoctorManagement/prescriptionRoute");// Prescription Route
+const doctorLeaveRoutes = require("./Routes/DoctorManagement/doctorLeaveRoutes");// Doctor Leave Route
 const router = require("./Routes/StockRoutes");
 
 
@@ -24,6 +25,7 @@ app.use("/api/users", userRoutes); //  Routes for User CRUD
 app.use("/api/appoinment",appoinmentRoute);
 app.use("/api/doctor",doctorRoute); // Routes for Doctor Management
 app.use("/api/prescription",prescriptionRoute); // Routes for Prescription Management
+app.use("/api/doctorLeave",doctorLeaveRoutes); // Routes for Doctor Leave Management
 app.use("/api/stock",router); // Routes for Stock Management
 
 // Database Connection
