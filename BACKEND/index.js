@@ -7,7 +7,7 @@ require("dotenv").config(); // Load environment variables
 const userRoutes = require("./Routes/UserRoutes"); // User Management Routes
 const authRoutes = require("./Routes/authRoutes"); // Authentication Routes
 const appoinmentRoute = require("./Routes/AppoinmentRoutes"); // Appoinment Route
-const doctorRoute = require("./Routes/doctorRoute"); // Doctor Route
+const doctorRoute = require("./Routes/DoctorManagement/doctorRoute"); // Doctor Route
 const router = require("./Routes/StockRoutes");
 
 const app = express(); //initialize express application
