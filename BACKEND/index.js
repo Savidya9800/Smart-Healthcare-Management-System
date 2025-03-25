@@ -13,8 +13,7 @@ const doctorLeaveRoutes = require("./Routes/DoctorManagement/doctorLeaveRoutes")
 const diagnosisRoute = require("./Routes/DoctorManagement/diagnosisRoute");// Diagnosis Route
 const router = require("./Routes/StockRoutes");
 
-
-const app = express();//initialize express application
+const app = express(); //initialize express application
 
 // Middleware
 app.use(cors());

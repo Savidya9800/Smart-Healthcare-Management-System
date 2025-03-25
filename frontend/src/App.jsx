@@ -9,7 +9,6 @@ import AboutUs from "./Components/Main Component/AboutUs";
 import ContactUs from "./Components/Main Component/ContactUs";
 import OurFacilities from "./Components/Main Component/OurFacilities";
 import FindADoctor from "./Components/Doctor Component/FindADoctor";
-import BookAppointent from "./Components/Appointment Component/BookAppointent";
 
 //User Components
 import UserManagement from "./Components/User Component/UserAdmin/UserManagement";
@@ -25,6 +24,9 @@ import OrderAnalytics from "./Components/Pharmacy Component/OrderAnalytics";
 
 //Appointment Components
 import ADashboard from "./Components/Appointment Component/ADashboard";
+import BookAppointent from "./Components/Appointment Component/BookAppointent";
+import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinment"; 
+import AppoinmentManagement from "./Components/Appointment Component/AppoinmentAdmin/AppoinmentManagement";
 
 //Doctor Components
 import DDashboard from "./Components/Doctor Component/DDashboard";
@@ -39,18 +41,31 @@ function App() {
           <Route path="/About-Us" element={<AboutUs />} />
           <Route path="/Contact-Us" element={<ContactUs />} />
           <Route path="/Our-Facilities" element={<OurFacilities />} />
-          <Route path="/User-Account" element={<MyAccount />} />
           <Route path="/Find-Doctor" element={<FindADoctor />} />
-          <Route path="/Book-Appointment" element={<BookAppointent />} />
+
+          {/*User Components*/}
           <Route path="/User-Management" element={<UserManagement />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/Registration" element={<Registration />} />
+          <Route path="/User-Dashboard" element={<UDashboard />} />
+          <Route path="/User-Account" element={<MyAccount />} />
+
+          {/*Pharmacy Components*/}
           <Route path="/Pharmacy-Dashboard" element={<PDashboard />} />
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
-          <Route path="/User-Dashboard" element={<UDashboard />} />
-          <Route path="/Appointment-Dashboard" element={<ADashboard />} />
+
+          {/*Doctor Components*/}
           <Route path="/Doctor-Dashboard" element={<DDashboard />} />
+
+          {/*Appoinment Components*/}
+          <Route path="/Book-Appointment" element={<BookAppointent />} />
+          <Route path="/Appoinment-Display" element={<AppoinmentDisplay />} />
+          <Route path="/Appointment-Dashboard" element={<ADashboard />} />
+          <Route
+            path="/Appoinment-Management"
+            element={<AppoinmentManagement />}
+          />
         </Routes>
       </React.Fragment>
     </div>
