@@ -5,11 +5,9 @@ function Nav() {
   const location = useLocation();
 
   // Track login state using localStorage
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isLoggedIn") === "true"
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem("isLoggedIn") === "true");
 
-  // Re-check login status every time the route changes
+  // Re-check login status whenever the route changes
   useEffect(() => {
     setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
   }, [location]);
@@ -21,8 +19,8 @@ function Nav() {
     { name: "Our Facilities", path: "/Our-Facilities" },
     { name: "About Us", path: "/About-Us" },
     isLoggedIn
-      ? { name: "My Account", path: "/User-Account" }
-      : { name: "Sign In", path: "/Login" },
+      ? { name: "My Account", path: "/User-Account" } // If logged in, show "My Account"
+      : { name: "Sign In", path: "/Login" }, // If not logged in, show "Sign In"
   ];
 
   return (

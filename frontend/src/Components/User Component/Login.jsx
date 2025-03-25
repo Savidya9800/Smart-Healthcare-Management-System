@@ -32,14 +32,18 @@ function Login() {
         formData
       );
 
-      // Save token and login status
+      // Save token and login status in localStorage
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("isLoggedIn", "true"); // ✅ Set login state
 
       alert("Login successful!");
       navigate("/User-Account"); // Redirect to user account page
     } catch (error) {
-      setError("Invalid email or password.");
+      if (error.response) {
+        setError(error.response.data.message || "Invalid email or password.");
+      } else {
+        setError("An error occurred. Please try again later.");
+      }
       console.error("Login error:", error);
     } finally {
       setLoading(false);
@@ -72,6 +76,8 @@ function Login() {
           onChange={handleChange}
           margin="normal"
           required
+          type="email" // Adding email type validation
+          autoComplete="email" // Help browser autofill
         />
         <TextField
           fullWidth
@@ -82,13 +88,14 @@ function Login() {
           onChange={handleChange}
           margin="normal"
           required
+          autoComplete="current-password" // Help browser autofill
         />
         <Button
           type="submit"
           variant="contained"
           color="primary"
           fullWidth
-          disabled={loading}
+          disabled={loading} // Disable button during loading
           sx={{ mt: 2 }}
         >
           {loading ? <CircularProgress size={24} /> : "Sign In"}
