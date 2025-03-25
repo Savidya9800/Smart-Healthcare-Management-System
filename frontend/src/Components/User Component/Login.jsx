@@ -7,6 +7,7 @@ import {
   Button,
   Typography,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 
 function Login() {
@@ -20,9 +21,20 @@ function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Client-side form validation
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setError("Both fields are required.");
+      return false;
+    }
+    return true;
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return; // Prevent submission if form is invalid
+
     setLoading(true);
     setError("");
 
@@ -31,18 +43,14 @@ function Login() {
         "http://localhost:5000/api/auth/login",
         formData
       );
-
-      // Save token and login status in localStorage
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("isLoggedIn", "true"); // ✅ Set login state
-
       alert("Login successful!");
       navigate("/User-Account"); // Redirect to user account page
     } catch (error) {
-      if (error.response) {
-        setError(error.response.data.message || "Invalid email or password.");
+      if (error.response && error.response.status === 401) {
+        setError("Invalid email or password.");
       } else {
-        setError("An error occurred. Please try again later.");
+        setError("An error occurred. Please try again.");
       }
       console.error("Login error:", error);
     } finally {
@@ -64,9 +72,7 @@ function Login() {
       <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
         Sign In
       </Typography>
-
-      {error && <Typography color="error">{error}</Typography>}
-
+      {error && <Alert severity="error">{error}</Alert>}
       <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
@@ -76,8 +82,6 @@ function Login() {
           onChange={handleChange}
           margin="normal"
           required
-          type="email" // Adding email type validation
-          autoComplete="email" // Help browser autofill
         />
         <TextField
           fullWidth
@@ -88,20 +92,18 @@ function Login() {
           onChange={handleChange}
           margin="normal"
           required
-          autoComplete="current-password" // Help browser autofill
         />
         <Button
           type="submit"
           variant="contained"
           color="primary"
           fullWidth
-          disabled={loading} // Disable button during loading
+          disabled={loading}
           sx={{ mt: 2 }}
         >
           {loading ? <CircularProgress size={24} /> : "Sign In"}
         </Button>
       </form>
-
       <Typography sx={{ mt: 2, textAlign: "center" }}>
         Don't have an account?{" "}
         <Button onClick={() => navigate("/Registration")}>Sign Up</Button>
