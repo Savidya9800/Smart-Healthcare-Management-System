@@ -28,9 +28,9 @@ function AAdminLayout({ children }) {
       path: "/Appointment-Dashboard",
     },
     {
-      name: "Stock Analytics",
+      name: "Appoinments",
       icon: <BarChart2 size={20} />,
-      path: "#",
+      path: "/Appoinment-Management",
     },
     { name: "Orders", icon: <Package size={20} />, path: "#" },
   ];
@@ -135,19 +135,6 @@ function AAdminLayout({ children }) {
           </div>
 
           <div className="flex items-center space-x-2">
-            <div className="relative hidden md:block">
-              <div className="flex items-center px-4 py-2 border border-gray-100 rounded-lg bg-gray-50">
-                <Search size={18} className="text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-48 ml-2 text-sm bg-transparent border-none outline-none"
-                />
-                <div className="hidden ml-2 px-1.5 py-0.5 bg-gray-200 rounded text-xs text-gray-600 font-medium lg:flex items-center">
-                  ⌘K
-                </div>
-              </div>
-            </div>
 
             <button className="p-2 rounded-lg hover:bg-gray-100">
               <Settings size={20} className="text-gray-600" />
