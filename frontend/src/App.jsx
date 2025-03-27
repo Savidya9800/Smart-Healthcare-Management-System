@@ -29,7 +29,10 @@ import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinm
 import AppoinmentManagement from "./Components/Appointment Component/AppoinmentAdmin/AppoinmentManagement";
 
 //Doctor Components
+import DoctorLogin from "./Components/Doctor Component/DoctorLogin";
+import DoctorRegistration from "./Components/Doctor Component/DoctorRegistration";
 import DDashboard from "./Components/Doctor Component/DDashboard";
+import ViewAppointments from "./Components/Doctor Component/ViewAppoinments";
 
 function App() {
   return (
@@ -56,7 +59,10 @@ function App() {
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
 
           {/*Doctor Components*/}
+          <Route path="/login-doctor" element={<DoctorLogin />} />
+          <Route path="/register-doctor" element={<DoctorRegistration />} />
           <Route path="/Doctor-Dashboard" element={<DDashboard />} />
+          <Route path="/Doctor-Dashboard/View-Appointment" element={<ViewAppointments />} />
 
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />
