@@ -21,7 +21,7 @@ router.get("/:id", getById);
 // Update user by ID
 router.put("/:id", updateUser);
 
-// ✅ Delete currently logged-in user (uses token for ID)
+// Delete currently logged-in user (uses token for ID)
 router.delete("/delete", authMiddleware, deleteUser);
 
 module.exports = router;
