@@ -22,6 +22,7 @@ import ForgotPassword from "./Components/User Component/UserProfile/ForgotPasswo
 import PDashboard from "./Components/Pharmacy Component/PDashboard";
 import StockAnalytics from "./Components/Pharmacy Component/StockAnalytics";
 import OrderAnalytics from "./Components/Pharmacy Component/OrderAnalytics";
+import StockAdding from "./Components/Pharmacy Component/StockAdding";
 
 //Appointment Components
 import ADashboard from "./Components/Appointment Component/ADashboard";
@@ -59,12 +60,16 @@ function App() {
           <Route path="/Pharmacy-Dashboard" element={<PDashboard />} />
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
+          <Route path="/Stock-Adding" element={<StockAdding />} />
 
           {/*Doctor Components*/}
           <Route path="/login-doctor" element={<DoctorLogin />} />
           <Route path="/register-doctor" element={<DoctorRegistration />} />
           <Route path="/Doctor-Dashboard" element={<DDashboard />} />
-          <Route path="/Doctor-Dashboard/View-Appointment" element={<ViewAppointments />} />
+          <Route
+            path="/Doctor-Dashboard/View-Appointment"
+            element={<ViewAppointments />}
+          />
 
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />
