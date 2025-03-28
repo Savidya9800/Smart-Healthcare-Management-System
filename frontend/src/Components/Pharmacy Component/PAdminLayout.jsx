@@ -28,6 +28,11 @@ function PAdminLayout({ children }) {
       path: "/Pharmacy-Dashboard",
     },
     {
+      name: "Stock Adding",
+      icon: <BarChart2 size={20} />,
+      path: "/Stock-Adding",
+    },
+    {
       name: "Stock Analytics",
       icon: <BarChart2 size={20} />,
       path: "/Pharmacy-Stocks",
