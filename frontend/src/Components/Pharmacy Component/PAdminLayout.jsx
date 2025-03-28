@@ -43,6 +43,11 @@ function PAdminLayout({ children }) {
   const currentPage = menuItems.find((item) => item.path === location.pathname);
   const activeItem = currentPage ? currentPage.name : "";
 
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/Home";
+  };
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       {/* Sidebar */}
@@ -202,13 +207,14 @@ function PAdminLayout({ children }) {
                     <span>Settings</span>
                   </a>
                   <div className="h-px my-2 bg-gray-100"></div>
-                  <a
-                    href="/Home"
-                    className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
                   >
                     <LogOut size={16} className="mr-3 text-red-500" />
                     <span>Logout</span>
-                  </a>
+                  </button>
                 </div>
               )}
             </div>
