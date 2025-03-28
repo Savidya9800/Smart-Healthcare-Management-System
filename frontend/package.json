@@ -20,11 +20,14 @@
     "@tailwindcss/vite": "^4.0.12",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.483.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.3.0",
+    "react-router-dom": "^7.4.0",
+    "react-to-pdf": "^1.0.1",
     "tailwindcss": "^4.0.12"
   },
   "devDependencies": {
