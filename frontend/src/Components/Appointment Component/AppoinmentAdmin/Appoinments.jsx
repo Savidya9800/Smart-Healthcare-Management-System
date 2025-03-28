@@ -8,7 +8,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   IconButton,
   Snackbar,
   Alert,
@@ -18,7 +17,8 @@ import {
   Button,
   Card,
   Divider,
-  Container,
+  TextField,
+  InputAdornment
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -30,9 +30,9 @@ import PersonIcon from "@mui/icons-material/Person";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
-import CreditCardIcon from "@mui/icons-material/CreditCard"; // For NIC
-import HomeIcon from "@mui/icons-material/Home"; // For Address
-import CopyrightIcon from "@mui/icons-material/Copyright";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
+import HomeIcon from "@mui/icons-material/Home";
+import SearchIcon from "@mui/icons-material/Search";
 
 // Color palette
 const colors = {
@@ -41,7 +41,8 @@ const colors = {
   pink: "#E6317D",
   white: "#FFFFFF",
   blue: "#2B2C6C",
-  green: "#2FB297"
+  green: "#2FB297",
+  lightblue: "#2B2C6C"
 };
 
 const URL = "http://localhost:5000/api/appoinment";
@@ -50,7 +51,7 @@ const fetchHandler = async () => {
   return await axios.get(URL).then((res) => res.data);
 };
 
-// Individual appointment row component with collapse functionality
+// Individual appointment row component
 function AppointmentRow({ appointment, index, onAccept, onReject }) {
   const [open, setOpen] = useState(false);
 
@@ -282,23 +283,32 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
   );
 }
 
-
-  
- 
-
-
 function Appointments() {
   const [appointments, setAppointments] = useState([]);
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchHandler().then((data) => {
       console.log("Fetched Appointments:", data.appoinments);
       setAppointments(data.appoinments);
+      setFilteredAppointments(data.appoinments);
     });
   }, []);
+
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredAppointments(appointments);
+    } else {
+      const filtered = appointments.filter(appointment =>
+        appointment.nic.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredAppointments(filtered);
+    }
+  }, [searchTerm, appointments]);
 
   const handleAccept = (index) => {
     setSnackbarMessage("Appointment accepted successfully!");
@@ -312,28 +322,82 @@ function Appointments() {
     setOpenSnackbar(true);
   };
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "67vh" }}>
       <Box sx={{ p: 3, flexGrow: 1 }}>
-        <Typography 
-          variant="h4" 
-          sx={{ 
-            mb: 3, 
-            fontWeight: "600", 
-            color: colors.blue,
-            borderBottom: `3px solid ${colors.pink}`,
-            display: "inline-block",
-            pb: 1
-          }}
-        >
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontWeight: "600", 
+              color: colors.blue,
+              borderBottom: `3px solid ${colors.pink}`,
+              display: "inline-block",
+              pb: 1
+            }}
+          >
+            
+          </Typography>
           
-        </Typography>
+          <Box sx={{ 
+            display: "flex", 
+            alignItems: "center",
+            width: { xs: "100%", sm: "auto" }
+          }}>
+            <Box sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              px: 2, 
+              py: 1, 
+              border: "1px solid", 
+              borderColor: "divider", 
+              borderRadius: "12px", 
+              bgcolor: "background.paper",
+              width: "100%",
+              maxWidth: 300
+            }}>
+              <SearchIcon sx={{ color: "text.disabled", fontSize: 20 }} />
+              <input
+                type="text"
+                placeholder="Search by NIC..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                style={{
+                  marginLeft: "8px",
+                  border: "none",
+                  outline: "none",
+                  background: "transparent",
+                  width: "100%",
+                  fontSize: "0.875rem"
+                }}
+              />
+              <Box sx={{ 
+                ml: 1, 
+                px: 1, 
+                py: 0.5, 
+                bgcolor: "action.selected", 
+                borderRadius: "4px", 
+                color: "text.secondary",
+                fontSize: "0.75rem",
+                fontWeight: "500",
+                display: { xs: "none", lg: "flex" },
+                alignItems: "center"
+              }}>
+                ⌘K
+              </Box>
+            </Box>
+          </Box>
+        </Box>
         
         <Card sx={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 6px 18px rgba(0,0,0,0.06)" }}>
           <TableContainer component={Box}>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: colors.green }}>
+                <TableRow sx={{ backgroundColor: colors.lightblue }}>
                   <TableCell width="50px" sx={{ color: colors.white }}></TableCell>
                   <TableCell sx={{ fontWeight: "600", fontSize: "1.1rem", color: colors.white }}>Appointment ID</TableCell>
                   <TableCell sx={{ fontWeight: "600", fontSize: "1.1rem", color: colors.white }}>Patient Name</TableCell>
@@ -345,8 +409,8 @@ function Appointments() {
               </TableHead>
 
               <TableBody>
-                {appointments.length > 0 ? (
-                  appointments.map((appointment, index) => (
+                {filteredAppointments.length > 0 ? (
+                  filteredAppointments.map((appointment, index) => (
                     <AppointmentRow 
                       key={index} 
                       appointment={appointment} 
@@ -371,10 +435,10 @@ function Appointments() {
                           <EventIcon sx={{ fontSize: 40, color: colors.gray }} />
                         </Box>
                         <Typography variant="h6" sx={{ color: colors.darkGray }}>
-                          No Appointments Found
+                          {searchTerm ? "No matching appointments found" : "No Appointments Found"}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          New appointment requests will appear here
+                          {searchTerm ? "Try a different NIC number" : "New appointment requests will appear here"}
                         </Typography>
                       </Box>
                     </TableCell>
@@ -385,7 +449,6 @@ function Appointments() {
           </TableContainer>
         </Card>
 
-        {/* Snackbar for Success / Error Messages */}
         <Snackbar 
           open={openSnackbar} 
           autoHideDuration={3000} 
@@ -407,8 +470,6 @@ function Appointments() {
           </Alert>
         </Snackbar>
       </Box>
-      
-     
     </Box>
   );
 }
