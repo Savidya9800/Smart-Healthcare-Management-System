@@ -6,7 +6,8 @@ const getDoctorProfile = async (req, res) => {
   try {
     console.log("Doctor ID from token:", req.user.id); // Debugging line
 
-    const doctor = await Doctor.findById(mongoose.Types.ObjectId(req.user.id)).select("-password");
+
+    const doctor = await Doctor.findById(req.user.id).select("-password");;
 
     if (!doctor) {
       console.log("Doctor not found in database"); // Debugging line
@@ -19,6 +20,7 @@ const getDoctorProfile = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
 
 // Get All Doctors
 const getAllDoctors = async (req, res) => {
@@ -49,12 +51,34 @@ const getDoctorById = async (req, res) => {
 // Update Doctor
 const updateDoctor = async (req, res) => {
   const id = req.params.id;
-  const { name, email, phone, specialization, qualifications, experience, address, availability, gender, dateOfBirth } = req.body;
+  const {
+    name,
+    email,
+    phone,
+    specialization,
+    qualifications,
+    experience,
+    address,
+    availability,
+    gender,
+    dateOfBirth,
+  } = req.body;
 
   try {
     const updatedDoctor = await Doctor.findByIdAndUpdate(
       id,
-      { name, email, phone, specialization, qualifications, experience, address, availability, gender, dateOfBirth },
+      {
+        name,
+        email,
+        phone,
+        specialization,
+        qualifications,
+        experience,
+        address,
+        availability,
+        gender,
+        dateOfBirth,
+      },
       { new: true }
     );
 

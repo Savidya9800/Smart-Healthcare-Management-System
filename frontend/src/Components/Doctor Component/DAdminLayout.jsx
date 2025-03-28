@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Home,
   BarChart2,
@@ -17,9 +17,24 @@ import { useNavigate, useLocation } from "react-router-dom";
 function DAdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [doctor, setDoctor] = useState(null); // Store doctor data
+
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Load doctor data from sessionStorage
+  useEffect(() => {
+    const storedDoctor = sessionStorage.getItem("doctor");
+    if (storedDoctor) {
+      const parsedDoctor = JSON.parse(storedDoctor);
+      setDoctor(parsedDoctor);
+      console.log(parsedDoctor); // Log the parsed value
+    }
+  }, []);
+  
+
+
 
   const menuItems = [
     {
@@ -28,11 +43,11 @@ function DAdminLayout({ children }) {
       path: "/Doctor-Dashboard",
     },
     {
-      name: "Stock Analytics",
+      name: "Appoinments",
       icon: <BarChart2 size={20} />,
-      path: "#",
+      path: "/Doctor-Dashboard/View-Appointment",
     },
-    { name: "Orders", icon: <Package size={20} />, path: "#" },
+    { name: "Patients", icon: <Package size={20} />, path: "#" },
   ];
 
   const currentPage = menuItems.find((item) => item.path === location.pathname);
@@ -169,7 +184,7 @@ function DAdminLayout({ children }) {
                 </div>
                 <div className="items-center hidden ml-2 md:flex">
                   <span className="text-sm font-medium text-gray-700">
-                    Admin
+                    {doctor ? doctor.name : "Not logged in"}
                   </span>
                   <ChevronDown
                     size={16}
@@ -198,7 +213,7 @@ function DAdminLayout({ children }) {
                   </a>
                   <div className="h-px my-2 bg-gray-100"></div>
                   <a
-                    href="#"
+                    href="/login"
                     className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
                   >
                     <LogOut size={16} className="mr-3 text-red-500" />

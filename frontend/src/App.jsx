@@ -16,20 +16,25 @@ import MyAccount from "./Components/User Component/UserProfile/MyAccount";
 import Login from "./Components/User Component/Login";
 import Registration from "./Components/User Component/Registration";
 import UDashboard from "./Components/User Component/UserAdmin/Udashboard";
+import ForgotPassword from "./Components/User Component/UserProfile/ForgotPassword";
 
 //Pharmacy Components
 import PDashboard from "./Components/Pharmacy Component/PDashboard";
 import StockAnalytics from "./Components/Pharmacy Component/StockAnalytics";
 import OrderAnalytics from "./Components/Pharmacy Component/OrderAnalytics";
+import StockAdding from "./Components/Pharmacy Component/StockAdding";
 
 //Appointment Components
 import ADashboard from "./Components/Appointment Component/ADashboard";
 import BookAppointent from "./Components/Appointment Component/BookAppointent";
-import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinment"; //BookAppointent
+import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinment";
 import AppoinmentManagement from "./Components/Appointment Component/AppoinmentAdmin/AppoinmentManagement";
 
 //Doctor Components
+import DoctorLogin from "./Components/Doctor Component/DoctorLogin";
+import DoctorRegistration from "./Components/Doctor Component/DoctorRegistration";
 import DDashboard from "./Components/Doctor Component/DDashboard";
+import ViewAppointments from "./Components/Doctor Component/ViewAppoinments";
 
 function App() {
   return (
@@ -47,6 +52,7 @@ function App() {
           <Route path="/User-Management" element={<UserManagement />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/Registration" element={<Registration />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/User-Dashboard" element={<UDashboard />} />
           <Route path="/User-Account" element={<MyAccount />} />
 
@@ -54,9 +60,16 @@ function App() {
           <Route path="/Pharmacy-Dashboard" element={<PDashboard />} />
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
+          <Route path="/Stock-Adding" element={<StockAdding />} />
 
           {/*Doctor Components*/}
+          <Route path="/login-doctor" element={<DoctorLogin />} />
+          <Route path="/register-doctor" element={<DoctorRegistration />} />
           <Route path="/Doctor-Dashboard" element={<DDashboard />} />
+          <Route
+            path="/Doctor-Dashboard/View-Appointment"
+            element={<ViewAppointments />}
+          />
 
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />

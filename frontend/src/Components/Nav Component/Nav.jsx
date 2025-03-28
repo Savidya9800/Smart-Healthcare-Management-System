@@ -1,33 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function Nav() {
-  const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Track login state using localStorage
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isLoggedIn") === "true"
-  );
-
-  // Re-check login status every time the route changes
   useEffect(() => {
-    setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
-  }, [location]);
-
-  // Navigation links
-  const navLinks = [
-    { name: "Home", path: "/Home" },
-    { name: "Contact Us", path: "/Contact-Us" },
-    { name: "Our Facilities", path: "/Our-Facilities" },
-    { name: "About Us", path: "/About-Us" },
-    isLoggedIn
-      ? { name: "My Account", path: "/User-Account" }
-      : { name: "Sign In", path: "/Login" },
-  ];
+    // Check if there is a token in localStorage when the component mounts
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsAuthenticated(true); // Set to true if the token exists
+    }
+  }, []);
 
   return (
     <div className="w-full font-['Hanken_Grotesk']">
-      {/* Top Bar Navigation */}
+      {/* Upper Navigation Bar - Now Fixed */}
       <div className="w-full h-[50px] flex fixed top-0 left-0 z-50 shadow-md">
         <div className="w-[1440px] bg-[#2b2c6c] flex items-center">
           <Link
@@ -65,12 +52,11 @@ function Nav() {
         </div>
       </div>
 
-      {/* Spacer to prevent content being hidden under fixed navbar */}
+      {/* Space for Fixed Navbar - Prevent Content Overlap */}
       <div className="h-[50px]"></div>
 
       {/* Main Navigation Bar */}
       <div className="w-full h-[70px] flex items-center mt-0">
-        {/* Logo */}
         <div className="flex items-center ml-[60px]">
           <Link to="/Home" className="flex items-center cursor-pointer">
             <img src="/Logo.png" alt="Logo" className="h-[70px]" />
@@ -81,9 +67,14 @@ function Nav() {
           </Link>
         </div>
 
-        {/* Right Side Navigation Links */}
         <div className="ml-auto mr-[50px] flex space-x-10 font-semibold">
-          {navLinks.map((link, index) => (
+          {[{ name: "Home", path: "/Home" },
+            { name: "Contact Us", path: "/Contact-Us" },
+            { name: "Our Facilities", path: "/Our-Facilities" },
+            { name: "About Us", path: "/About-Us" },
+            isAuthenticated ? { name: "My Account", path: "/User-Account" } :
+            { name: "Sign In", path: "/Login" }
+          ].map((link, index) => (
             <Link
               key={index}
               to={link.path}
