@@ -111,12 +111,24 @@ function Login() {
                 variant="h4" 
                 sx={{ 
                   fontWeight: 700, 
+                  marginBottom: 1,
+                  textAlign: 'center',
+                  color: '#1976d2'
+                }}
+              >
+                Welcome
+              </Typography>
+              <Typography 
+                component="h2" 
+                variant="h5" 
+                sx={{ 
+                  fontWeight: 500, 
                   marginBottom: 3,
                   textAlign: 'center',
                   color: '#1976d2'
                 }}
               >
-                Welcome Back
+                MEDI FLOW
               </Typography>
 
               {error && (
