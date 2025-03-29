@@ -48,14 +48,49 @@ function BookAppointment() {
     time: "",
   });
 
+  const validateStep1 = () => {
+    let tempErrors = {};
+    let isValid = true;
+
+    if (!input.doctorName) {
+      tempErrors.doctorName = "Please select a doctor";
+      isValid = false;
+    }
+    if (!input.specialization) {
+      tempErrors.specialization = "Please select a specialization";
+      isValid = false;
+    }
+    if (!input.date) {
+      tempErrors.date = "Please select a date";
+      isValid = false;
+    } else {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(input.date);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      if (selectedDate < today) {
+        tempErrors.date = "Appointment date cannot be in the past";
+        isValid = false;
+      }
+    }
+    if (!input.time) {
+      tempErrors.time = "Please select a time slot";
+      isValid = false;
+    }
+
+    setErrors(tempErrors);
+    return isValid;
+  };
+
   const validate = () => {
     let tempErrors = {};
     
     if (!/^[A-Za-z\s]+$/.test(input.name)) {
       tempErrors.name = "Name cannot contain numbers";
     }
-    if (!/^[0-9]{10}$/.test(input.phone)) {
-      tempErrors.phone = "Phone number not correct";
+    if (!/^0[0-9]{9}$/.test(input.phone)) {
+      tempErrors.phone = "Phone number must start with 0 and be 10 digits";
     }
     if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(input.email)) {
       tempErrors.email = "Enter a valid email";
@@ -63,40 +98,8 @@ function BookAppointment() {
     if (!/^[0-9]{11}[0-9V]$/.test(input.nic)) {
       tempErrors.nic = "Invalid NIC";
     }
-
-    if (!input.doctorName) {
-      tempErrors.doctorName = "Please select a doctor";
-    }
-    if (!input.specialization) {
-      tempErrors.specialization = "Please select a specialization";
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (!input.date) {
-      tempErrors.date = "Please select a date";
-    } else {
-      const selectedDate = new Date(input.date);
-      selectedDate.setHours(0, 0, 0, 0);
-
-      if (selectedDate < today) {
-        tempErrors.date = "Appointment date cannot be in the past";
-      }
-    }
-
-    if (!input.time) {
-      tempErrors.time = "Please select a time slot";
-    } else {
-      const selectedDate = new Date(input.date);
-      const selectedTime = new Date(`${input.date}T${input.time}`);
-
-      if (
-        selectedDate.toDateString() === today.toDateString() &&
-        selectedTime < today
-      ) {
-        tempErrors.time = "Time cannot be in the past";
-      }
+    if (input.address.length > 30) {
+      tempErrors.address = "Address must be 30 characters or less";
     }
 
     setErrors(tempErrors);
@@ -321,14 +324,25 @@ function BookAppointment() {
 
                   {/* Next Button - Full Width */}
                   <div className="md:col-span-2 mt-4">
-                    <button
-                      onClick={() => setStep(2)}
-                      className="w-full py-2.5 bg-[#2b2c6c] hover:bg-[#71717d] text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center"
-                      style={{ borderRadius: "7px" }}
-                    >
-                      Continue to Patient Details
-                      <CheckCircle size={24} className="ml-2" />
-                    </button>
+                  <div className="md:col-span-2 mt-4">
+  <button
+    onClick={() => {
+      if (validateStep1()) {
+        setStep(2);
+      }
+    }}
+    className={`w-full py-2.5 ${
+      !input.doctorName || !input.specialization || !input.date || !input.time
+        ? "bg-[#2b2c6c] hover:bg-gray-400 cursor-not-allowed"
+        : "bg-[#2b2c6c] hover:bg-gray-400"
+    } text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center`}
+    style={{ borderRadius: "7px" }}
+    type="button"
+  >
+    Continue to Patient Details
+    <CheckCircle size={24} className="ml-2" />
+  </button>
+</div>
                   </div>
                 </div>
               )}
@@ -443,23 +457,30 @@ function BookAppointment() {
 
                     {/* Address - Full Width */}
                     <div className="md:col-span-2">
-                      <label className="block text-gray-700 text-sm font-medium mb-2">
-                        Address
-                      </label>
-                      <div className="relative">
-                        <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
-                          <MapPin size={24} className="text-[#2b2c6c]" />
-                        </div>
-                        <textarea
-                          name="address"
-                          value={input.address}
-                          onChange={handleChange}
-                          required
-                          placeholder="Enter your address"
-                          className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent h-12 resize-none"
-                        />
-                      </div>
-                    </div>
+  <label className="block text-gray-700 text-sm font-medium mb-2">
+    Address <span className="text-xs text-gray-500">(max 30 characters)</span>
+  </label>
+  <div className="relative">
+    <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
+      <MapPin size={24} className="text-[#2b2c6c]" />
+    </div>
+    <textarea
+      name="address"
+      value={input.address}
+      onChange={handleChange}
+      required
+      maxLength={30}
+      placeholder="Enter your address (max 30 characters)"
+      className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent h-12 resize-none"
+    />
+    <div className="absolute bottom-2 right-2 text-xs text-gray-500">
+      {input.address.length}/30
+    </div>
+  </div>
+  {errors.address && (
+    <p className="text-[#e6317d] text-xs mt-1">{errors.address}</p>
+  )}
+</div>
 
                     {/* Buttons - Full Width */}
                     <div className="md:col-span-2 mt-4 flex gap-4">

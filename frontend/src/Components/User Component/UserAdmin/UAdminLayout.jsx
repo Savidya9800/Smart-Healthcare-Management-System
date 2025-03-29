@@ -36,9 +36,9 @@ function UAdminLayout({ children }) {
       path: "/User-Management",
     },
     {
-      name: "Security",
+      name: "Add Patients",
       icon: <Shield size={20} />,
-      path: "#gg2",
+      path: "/Add-New-Patient",
     },
     {
       name: "API",
