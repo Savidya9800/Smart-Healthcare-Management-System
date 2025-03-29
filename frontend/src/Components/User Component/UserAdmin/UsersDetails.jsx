@@ -19,24 +19,30 @@ import {
   FormControl,
   TextField,
   CircularProgress,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 import User from "./User";
 import UpdateUser from "./UpdateUser";
 
 export default function UsersDetails({ onAddPatientClick }) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-
-  // Loading state
   const [loading, setLoading] = useState(true);
-
-  // Filters
   const [bloodGroupFilter, setBloodGroupFilter] = useState("");
   const [genderFilter, setGenderFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const adminEmails = [
+    "useradmin@gmail.com",
+    "pharmacyadmin@gmail.com",
+    "doctoradmin@gmail.com",
+    "appointmentadmin@gmail.com",
+  ];
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -62,12 +68,23 @@ export default function UsersDetails({ onAddPatientClick }) {
   };
 
   const filteredUsers = users.filter((user) => {
+    if (adminEmails.includes(user.email)) return false;
+
     const matchBlood = bloodGroupFilter
       ? user.bloodGroup === bloodGroupFilter
       : true;
     const matchGender = genderFilter ? user.gender === genderFilter : true;
     const matchDate = dateFilter ? user.registeredDate === dateFilter : true;
-    return matchBlood && matchGender && matchDate;
+    
+    // Enhanced search functionality
+    const matchSearch = searchQuery
+      ? user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.mobileNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.bloodGroup?.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+
+    return matchBlood && matchGender && matchDate && matchSearch;
   });
 
   if (loading) {
@@ -89,7 +106,6 @@ export default function UsersDetails({ onAddPatientClick }) {
 
   return (
     <Box>
-      {/* Header */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -99,8 +115,28 @@ export default function UsersDetails({ onAddPatientClick }) {
         <Typography variant="h5" fontWeight={600} color="#1F295A">
           Registered Patients
         </Typography>
+        <Box display="flex" alignItems="center">
+          {/* Tailwind CSS Search Bar */}
+          <div className="relative hidden mr-2 md:block">
+            <div className="flex items-center px-4 py-2 border border-gray-100 rounded-lg bg-gray-50">
+              <SearchIcon
+                className="text-gray-400 "
+                style={{ width: 18, height: 18 }}
+              />
+              <input
+                type="text"
+                placeholder="Search ..."
+                className="w-48 ml-2 text-sm bg-transparent border-none outline-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <div className="hidden ml-2 px-1.5 py-0.5 bg-gray-200 rounded text-xs text-gray-600 font-medium lg:flex items-center">
+                ⌘K
+              </div>
+            </div>
+          </div>
 
-        <Stack direction="row" spacing={2}>
+          {/* Filter Button */}
           <Button
             variant="outlined"
             startIcon={<FilterListIcon />}
@@ -114,11 +150,9 @@ export default function UsersDetails({ onAddPatientClick }) {
           >
             Filter
           </Button>
-          
-        </Stack>
+        </Box>
       </Box>
 
-      {/* Filters */}
       {showFilters && (
         <Stack direction="row" spacing={2} mb={3} mt={1}>
           <FormControl size="small" sx={{ minWidth: 150 }}>
@@ -129,15 +163,21 @@ export default function UsersDetails({ onAddPatientClick }) {
               label="Blood Group"
             >
               <MenuItem value="">All</MenuItem>
-              <MenuItem value="O+">O+</MenuItem>
-              <MenuItem value="O-">O-</MenuItem>
-              <MenuItem value="A+">A+</MenuItem>
-              <MenuItem value="A-">A-</MenuItem>
-              <MenuItem value="B+">B+</MenuItem>
-              <MenuItem value="B-">B-</MenuItem>
-              <MenuItem value="AB+">AB+</MenuItem>
-              <MenuItem value="AB-">AB-</MenuItem>
-              <MenuItem value="Not Specified">Not Specified</MenuItem>
+              {[
+                "O+",
+                "O-",
+                "A+",
+                "A-",
+                "B+",
+                "B-",
+                "AB+",
+                "AB-",
+                "Not Specified",
+              ].map((bg) => (
+                <MenuItem key={bg} value={bg}>
+                  {bg}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -149,9 +189,11 @@ export default function UsersDetails({ onAddPatientClick }) {
               label="Gender"
             >
               <MenuItem value="">All</MenuItem>
-              <MenuItem value="Male">Male</MenuItem>
-              <MenuItem value="Female">Female</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
+              {["Male", "Female", "Other"].map((g) => (
+                <MenuItem key={g} value={g}>
+                  {g}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -166,7 +208,6 @@ export default function UsersDetails({ onAddPatientClick }) {
         </Stack>
       )}
 
-      {/* Table */}
       <TableContainer
         component={Paper}
         sx={{ borderRadius: "12px", boxShadow: 3 }}
@@ -195,7 +236,6 @@ export default function UsersDetails({ onAddPatientClick }) {
               </TableCell>
             </TableRow>
           </TableHead>
-
           <TableBody>
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
@@ -216,7 +256,6 @@ export default function UsersDetails({ onAddPatientClick }) {
         </Table>
       </TableContainer>
 
-      {/* Footer */}
       <Box
         mt={2}
         display="flex"
@@ -237,7 +276,6 @@ export default function UsersDetails({ onAddPatientClick }) {
         </Stack>
       </Box>
 
-      {/* Update Modal */}
       {selectedUser && (
         <UpdateUser
           user={selectedUser}
