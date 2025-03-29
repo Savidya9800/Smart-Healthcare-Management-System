@@ -28,9 +28,9 @@ function AAdminLayout({ children }) {
       path: "/Appointment-Dashboard",
     },
     {
-      name: "Stock Analytics",
+      name: "Appoinments",
       icon: <BarChart2 size={20} />,
-      path: "#",
+      path: "/Appoinment-Management",
     },
     { name: "Orders", icon: <Package size={20} />, path: "#" },
   ];
@@ -38,6 +38,11 @@ function AAdminLayout({ children }) {
   const currentPage = menuItems.find((item) => item.path === location.pathname);
   const activeItem = currentPage ? currentPage.name : "";
 
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/Home";
+  };
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       {/* Sidebar */}
@@ -135,20 +140,6 @@ function AAdminLayout({ children }) {
           </div>
 
           <div className="flex items-center space-x-2">
-            <div className="relative hidden md:block">
-              <div className="flex items-center px-4 py-2 border border-gray-100 rounded-lg bg-gray-50">
-                <Search size={18} className="text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-48 ml-2 text-sm bg-transparent border-none outline-none"
-                />
-                <div className="hidden ml-2 px-1.5 py-0.5 bg-gray-200 rounded text-xs text-gray-600 font-medium lg:flex items-center">
-                  ⌘K
-                </div>
-              </div>
-            </div>
-
             <button className="p-2 rounded-lg hover:bg-gray-100">
               <Settings size={20} className="text-gray-600" />
             </button>
@@ -197,13 +188,14 @@ function AAdminLayout({ children }) {
                     <span>Settings</span>
                   </a>
                   <div className="h-px my-2 bg-gray-100"></div>
-                  <a
-                    href="#"
-                    className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
                   >
                     <LogOut size={16} className="mr-3 text-red-500" />
                     <span>Logout</span>
-                  </a>
+                  </button>
                 </div>
               )}
             </div>

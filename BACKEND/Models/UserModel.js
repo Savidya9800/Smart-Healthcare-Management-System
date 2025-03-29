@@ -51,6 +51,15 @@ const userSchema = new Schema({
     type: Date,
     default: null, // Optional during registration
   },
+  // Fields for password reset functionality
+  resetPasswordToken: {
+    type: String,
+    default: null,
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: null,
+  },
 });
 
 // Enforce required fields **ONLY during Profile Update**

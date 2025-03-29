@@ -13,6 +13,12 @@ const appoinmentSchema = new Schema({
         required: true,
         trim: true,
     },
+        patient_id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User", // References the user (patient)
+          default: null, // Set default to null if not provided
+
+        },
     nic: {
         type: String,
         required: true,
@@ -30,7 +36,14 @@ const appoinmentSchema = new Schema({
     },
     doctorName: {
         type: String,
-        required: true,
+       default: null, // Set default to null if not provided
+    },
+  
+    doctor_id: {
+      type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Doctor", // References the doctor
+    default: null, // Set default to null if not provided
+
     },
     specialization: {
         type: String,
@@ -47,7 +60,12 @@ const appoinmentSchema = new Schema({
     slip: {
         data: { type: Buffer, default: null }, // Stores binary image data
         contentType: { type: String, default: null }, // Stores image type (e.g., "image/png", "image/jpeg")
-    }
+    },
+    status: {
+        type: String,
+        enum: ["Pending", "Reviewed","Timeouted"],
+        default: "Pending",
+    },
 });
 
 module.exports = mongoose.model("Appoinment", appoinmentSchema);

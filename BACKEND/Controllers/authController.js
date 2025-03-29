@@ -169,5 +169,3 @@ exports.loginUser = loginUser;
 exports.registerDoctor = registerDoctor;
 exports.loginDoctor = loginDoctor;
 
-
-

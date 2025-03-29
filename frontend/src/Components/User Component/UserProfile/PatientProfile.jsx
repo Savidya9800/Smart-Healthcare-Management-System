@@ -70,7 +70,7 @@ function PatientProfile() {
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    window.location.href = "/Home";
   };
 
   // Handle account deletion

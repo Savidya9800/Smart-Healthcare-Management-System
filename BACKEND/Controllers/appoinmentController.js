@@ -31,7 +31,7 @@ const addAppoinment = async (req, res) => {
             const nextIndex = parseInt(lastIndex) + 1;
             newIndex = 'A' + nextIndex.toString().padStart(4, '0');
         }
-        const { name, address, nic, phone, email, doctorName, specialization, date, time, slip } = req.body;
+        const { name, address, nic, phone, email, doctorName, specialization, date, time, slip, doctor_id , patient_id } = req.body;
         const newAppointment = new Appoinment({ 
             indexno: newIndex, 
             name, 
@@ -43,7 +43,9 @@ const addAppoinment = async (req, res) => {
             specialization, 
             date, 
             time, 
-            slip 
+            slip,
+            doctor_id,
+            patient_id
         });
 
         await newAppointment.save();
@@ -77,7 +79,7 @@ const getById = async (req, res) => {
 // Update appointment details
 const updateAppoinment = async (req, res) => {
     const id = req.params.id;
-    const { indexno, name, address, nic, phone, email, doctorName, specialization, date, time, slip } = req.body;
+    const { indexno, name, address, nic, phone, email, doctorName, specialization, date, time, slip,doctor_id } = req.body;
 
     try {
         const appoinment = await Appoinment.findByIdAndUpdate(id, 
@@ -92,7 +94,8 @@ const updateAppoinment = async (req, res) => {
                 specialization,
                 date,
                 time,
-                slip
+                slip,
+                doctor_id
             }, 
             { new: true }
         );
@@ -126,11 +129,42 @@ const deleteAppoinment = async (req, res) => {
     }
 };
 
+
+// Update appointment status
+const updateAppointmentStatus = async (req, res) => {
+    try {
+        const { id } = req.params; // Get appointment ID from URL params
+        const { status } = req.body; // Get status from request body
+
+        // Validate status value
+        if (!["Pending", "Completed"].includes(status)) {
+            return res.status(400).json({ message: "Invalid status value" });
+        }
+
+        // Find and update the appointment
+        const updatedAppointment = await Appoinment.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedAppointment) {
+            return res.status(404).json({ message: "Appointment not found" });
+        }
+
+        res.status(200).json({ message: "Status updated successfully", updatedAppointment });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+
 // Export functions
 module.exports = { 
     getAllAppoinments, 
     addAppoinment, 
     getById, 
     updateAppoinment, 
-    deleteAppoinment 
+    deleteAppoinment,
+    updateAppointmentStatus
 };

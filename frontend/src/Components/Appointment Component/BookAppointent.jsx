@@ -2,7 +2,19 @@ import React, { useState,useEffect } from "react";
 import Nav from "../Nav Component/Nav";
 import SectionHeader from "../Nav Component/SectionHeader";
 import Footer from "../Nav Component/Footer";
-import { Calendar, Stethoscope, PhoneCall, AtSign, MapPin, UserCircle, Clock, Award, ChevronLeft, CheckCircle } from "lucide-react";
+import {
+  Calendar,
+  Stethoscope,
+  PhoneCall,
+  Mail,
+  MapPin,
+  UserCircle,
+  Clock,
+  Award,
+  ChevronLeft,
+  CheckCircle,
+  IdCard,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -24,35 +36,58 @@ function BookAppointment() {
     time: "",
   });
 
-  const validate = () => {
+  const validateStep1 = () => {
     let tempErrors = {};
-
-    if (!/^[0-9]{10}$/.test(input.phone)) {
-      tempErrors.phone = "Phone number must be exactly 10 digits";
-    }
-
-    if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(input.email)) {
-      tempErrors.email = "Enter a valid email in lowercase";
-    }
-
-    if (!/^[0-9]{11}[0-9V]$/.test(input.nic)) {
-      tempErrors.nic = "NIC must be 12 characters with first 11 numbers and last character as 'V' or a number";
-    }
+    let isValid = true;
 
     if (!input.doctorName) {
       tempErrors.doctorName = "Please select a doctor";
+      isValid = false;
     }
-
     if (!input.specialization) {
       tempErrors.specialization = "Please select a specialization";
+      isValid = false;
     }
-
     if (!input.date) {
       tempErrors.date = "Please select a date";
+      isValid = false;
+    } else {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(input.date);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      if (selectedDate < today) {
+        tempErrors.date = "Appointment date cannot be in the past";
+        isValid = false;
+      }
+    }
+    if (!input.time) {
+      tempErrors.time = "Please select a time slot";
+      isValid = false;
     }
 
-    if (!input.time) {
-      tempErrors.time = "Please select a time";
+    setErrors(tempErrors);
+    return isValid;
+  };
+
+  const validate = () => {
+    let tempErrors = {};
+    
+    if (!/^[A-Za-z\s]+$/.test(input.name)) {
+      tempErrors.name = "Name cannot contain numbers";
+    }
+    if (!/^0[0-9]{9}$/.test(input.phone)) {
+      tempErrors.phone = "Phone number must start with 0 and be 10 digits";
+    }
+    if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(input.email)) {
+      tempErrors.email = "Enter a valid email";
+    }
+    if (!/^[0-9]{11}[0-9V]$/.test(input.nic)) {
+      tempErrors.nic = "Invalid NIC";
+    }
+    if (input.address.length > 30) {
+      tempErrors.address = "Address must be 30 characters or less";
     }
 
     setErrors(tempErrors);
@@ -112,73 +147,100 @@ const handleSubmit = async (e) => {
   const [step, setStep] = useState(1);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-[#ffffff] min-h-screen">
       <Nav />
       <SectionHeader title="Book An Appointment" />
-      
+
       <div className="container mx-auto px-4 py-8 flex justify-center">
-        {/* Form Container */}
         <div className="w-full max-w-2xl">
-          {/* Progress Steps */}
           <div className="flex justify-center mb-6">
             <div className="flex items-center w-full max-w-md">
               <div className="flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 1 ? "bg-indigo-600 text-white" : "bg-indigo-800 text-white"}`}>
-                  <Calendar size={18} />
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    step === 1
+                      ? "bg-[#2b2c6c] text-white"
+                      : "bg-[#828487] text-white"
+                  }`}
+                >
+                  <Calendar size={24} />
                 </div>
-                <span className={`text-sm mt-2 ${step === 1 ? "text-indigo-600 font-medium" : "text-gray-600"}`}>Appointment</span>
+                <span
+                  className={`text-sm mt-2 ${
+                    step === 1 ? "text-[#2b2c6c] font-medium" : "text-[#828487]"
+                  }`}
+                >
+                  Appointment
+                </span>
               </div>
-              <div className="w-full h-1 mx-4 bg-gray-300 relative">
-                <div className={`absolute top-0 left-0 h-full bg-indigo-600 transition-all duration-300 ${step === 2 ? "w-full" : "w-0"}`}></div>
+              <div className="w-full h-1 mx-4 bg-[#828487] relative">
+                <div
+                  className={`absolute top-0 left-0 h-full bg-[#2b2c6c] transition-all duration-300 ${
+                    step === 2 ? "w-full" : "w-0"
+                  }`}
+                ></div>
               </div>
               <div className="flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 2 ? "bg-indigo-600 text-white" : "bg-gray-400 text-white"}`}>
-                  <UserCircle size={18} />
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    step === 2
+                      ? "bg-[#2b2c6c] text-white"
+                      : "bg-[#828487] text-white"
+                  }`}
+                >
+                  <UserCircle size={24} />
                 </div>
-                <span className={`text-sm mt-2 ${step === 2 ? "text-indigo-600 font-medium" : "text-gray-600"}`}>Patient Details</span>
+                <span
+                  className={`text-sm mt-2 ${
+                    step === 2 ? "text-[#2b2c6c] font-medium" : "text-[#828487]"
+                  }`}
+                >
+                  Patient Details
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Card */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-            {/* Card Header */}
-            <div className="bg-gradient-to-r from-indigo-800 to-indigo-600 py-5 px-6">
+          <div className="bg-[#eaecee] rounded-xl shadow-lg overflow-hidden border border-[#2fb297#2fb297]">
+            <div className="bg-gradient-to-r from-[#2b2c6c] to-[#e6317d] py-5 px-6">
               <h2 className="text-xl font-bold text-white flex items-center">
                 {step === 1 ? (
                   <>
-                    <Calendar size={20} className="mr-2" />
+                    <Calendar size={24} className="mr-2" />
                     Select Your Appointment
                   </>
                 ) : (
                   <>
-                    <UserCircle size={20} className="mr-2" />
+                    <UserCircle size={24} className="mr-2" />
                     Complete Your Details
                   </>
                 )}
               </h2>
-              <p className="text-indigo-100 text-sm mt-1">
-                {step === 1 ? "Choose your preferred doctor and time" : "Please provide your personal information"}
+              <p className="text-gray-200 mt-1">
+                {step === 1
+                  ? "Choose your preferred doctor and time"
+                  : "Please provide your personal information"}
               </p>
             </div>
 
-            {/* Steps Container */}
             <div className="p-6">
               {/* Step 1 Form */}
               {step === 1 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {/* Doctor Selection */}
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">Select Doctor</label>
+                    <label className="block text-gray-700 text-base font-medium mb-2">
+                      Select Doctor
+                    </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <UserCircle size={18} className="text-indigo-500" />
+                        <UserCircle size={24} className="text-[#2b2c6c]" />
                       </div>
                       <select
                         name="doctorName"
                         value={input.doctor_id}  // Use doctor_id instead
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       >
                         <option value="">Select a doctor</option>
                         {doctors.map((doctor) => (
@@ -190,22 +252,26 @@ const handleSubmit = async (e) => {
 
                     </div>
                     {errors.doctorName && (
-                      <p className="text-rose-500 text-xs mt-1">{errors.doctorName}</p>
+                      <p className="text-[#e6317d] text-xs mt-1">
+                        {errors.doctorName}
+                      </p>
                     )}
                   </div>
 
                   {/* Specialization */}
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">Specialization</label>
+                    <label className="block text-gray-700 text-base font-medium mb-2">
+                      Specialization
+                    </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Stethoscope size={18} className="text-indigo-500" />
+                        <Stethoscope size={24} className="text-[#2b2c6c]" />
                       </div>
                       <select
                         name="specialization"
                         value={input.specialization}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       >
                         <option value="">Select specialization</option>
                         <option value="Cardiology">Cardiology</option>
@@ -217,64 +283,88 @@ const handleSubmit = async (e) => {
                       </select>
                     </div>
                     {errors.specialization && (
-                      <p className="text-rose-500 text-xs mt-1">{errors.specialization}</p>
+                      <p className="text-[#e6317d] text-xs mt-1">
+                        {errors.specialization}
+                      </p>
                     )}
                   </div>
 
                   {/* Date Selection */}
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">Select Date</label>
+                    <label className="block text-gray-700 text-base font-medium mb-2">
+                      Select Date
+                    </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Calendar size={18} className="text-indigo-500" />
+                        <Calendar size={24} className="text-[#2b2c6c]" />
                       </div>
                       <input
                         type="date"
                         name="date"
                         value={input.date}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       />
                     </div>
                     {errors.date && (
-                      <p className="text-rose-500 text-xs mt-1">{errors.date}</p>
+                      <p className="text-[#e6317d] text-xs mt-1">
+                        {errors.date}
+                      </p>
                     )}
                   </div>
 
                   {/* Time Selection */}
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">Select Time</label>
+                    <label className="block text-gray-700 text-base font-medium mb-2">
+                      Select Time
+                    </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Clock size={18} className="text-indigo-500" />
+                        <Clock size={24} className="text-[#2b2c6c]" />
                       </div>
                       <select
                         name="time"
                         value={input.time}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       >
                         <option value="">Select time slot</option>
-                        <option value="09:00 AM">09:00 AM</option>
-                        <option value="11:00 AM">11:00 AM</option>
-                        <option value="02:00 PM">02:00 PM</option>
-                        <option value="04:00 PM">04:00 PM</option>
+                        <option value="07:00 AM">06:00 AM - 07:00 AM</option>
+                        <option value="11:00 AM">07:00 AM - 08:00 AM</option>
+                        <option value="05:00 PM">05:00 PM - 06:00 PM</option>
+                        <option value="06:00 PM">06:00 PM - 07:00 PM</option>
+                        <option value="07:00 PM">07:00 PM - 08:00 PM</option>
                       </select>
                     </div>
                     {errors.time && (
-                      <p className="text-rose-500 text-xs mt-1">{errors.time}</p>
+                      <p className="text-[#e6317d] text-xs mt-1">
+                        {errors.time}
+                      </p>
                     )}
                   </div>
 
                   {/* Next Button - Full Width */}
                   <div className="md:col-span-2 mt-4">
-                    <button
-                      onClick={() => setStep(2)}
-                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 flex items-center justify-center"
-                    >
-                      Continue to Patient Details
-                      <CheckCircle size={18} className="ml-2" />
-                    </button>
+                  <div className="md:col-span-2 mt-4">
+  <button
+    onClick={() => {
+      if (validateStep1()) {
+        setStep(2);
+      }
+    }}
+    className={`w-full py-2.5 ${
+      !input.doctorName || !input.specialization || !input.date || !input.time
+        ? "bg-[#2b2c6c] hover:bg-gray-400 cursor-not-allowed"
+        : "bg-[#2b2c6c] hover:bg-gray-400"
+    } text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center`}
+    style={{ borderRadius: "7px" }}
+    type="button"
+  >
+    Continue to Patient Details
+    <CheckCircle size={24} className="ml-2" />
+  </button>
+</div>
                   </div>
                 </div>
               )}
@@ -285,10 +375,12 @@ const handleSubmit = async (e) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Full Name */}
                     <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-2">Full Name</label>
+                      <label className="block text-gray-700 text-sm font-medium mb-2">
+                        Full Name
+                      </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                          <UserCircle size={18} className="text-indigo-500" />
+                          <UserCircle size={24} className="text-[#2b2c6c]" />
                         </div>
                         <input
                           type="text"
@@ -297,17 +389,24 @@ const handleSubmit = async (e) => {
                           onChange={handleChange}
                           required
                           placeholder="Enter your full name"
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                         />
                       </div>
+                      {errors.name && (
+                        <p className="text-[#e6317d] text-xs mt-1">
+                          {errors.name}
+                        </p>
+                      )}
                     </div>
 
                     {/* Phone Number */}
                     <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-2">Phone Number</label>
+                      <label className="block text-gray-700 text-sm font-medium mb-2">
+                        Phone Number
+                      </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                          <PhoneCall size={18} className="text-indigo-500" />
+                          <PhoneCall size={24} className="text-[#2b2c6c]" />
                         </div>
                         <input
                           type="text"
@@ -316,20 +415,24 @@ const handleSubmit = async (e) => {
                           onChange={handleChange}
                           required
                           placeholder="Enter your phone number"
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                         />
                       </div>
                       {errors.phone && (
-                        <p className="text-rose-500 text-xs mt-1">{errors.phone}</p>
+                        <p className="text-[#e6317d] text-xs mt-1">
+                          {errors.phone}
+                        </p>
                       )}
                     </div>
 
                     {/* NIC */}
                     <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-2">NIC</label>
+                      <label className="block text-gray-700 text-sm font-medium mb-2">
+                        NIC
+                      </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                          <Award size={18} className="text-indigo-500" />
+                          <IdCard size={24} className="text-[#2b2c6c]" />
                         </div>
                         <input
                           type="text"
@@ -338,20 +441,24 @@ const handleSubmit = async (e) => {
                           onChange={handleChange}
                           required
                           placeholder="Enter your NIC"
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                         />
                       </div>
                       {errors.nic && (
-                        <p className="text-rose-500 text-xs mt-1">{errors.nic}</p>
+                        <p className="text-[#e6317d] text-xs mt-1">
+                          {errors.nic}
+                        </p>
                       )}
                     </div>
 
                     {/* Email */}
                     <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                      <label className="block text-gray-700 text-sm font-medium mb-2">
+                        Email
+                      </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                          <AtSign size={18} className="text-indigo-500" />
+                          <Mail size={24} className="text-[#2b2c6c]" />
                         </div>
                         <input
                           type="email"
@@ -360,48 +467,61 @@ const handleSubmit = async (e) => {
                           onChange={handleChange}
                           required
                           placeholder="Enter your email"
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                         />
                       </div>
                       {errors.email && (
-                        <p className="text-rose-500 text-xs mt-1">{errors.email}</p>
+                        <p className="text-[#e6317d] text-xs mt-1">
+                          {errors.email}
+                        </p>
                       )}
                     </div>
 
                     {/* Address - Full Width */}
                     <div className="md:col-span-2">
-                      <label className="block text-gray-700 text-sm font-medium mb-2">Address</label>
-                      <div className="relative">
-                        <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
-                          <MapPin size={18} className="text-indigo-500" />
-                        </div>
-                        <textarea
-                          name="address"
-                          value={input.address}
-                          onChange={handleChange}
-                          required
-                          placeholder="Enter your address"
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent h-20 resize-none"
-                        />
-                      </div>
-                    </div>
+  <label className="block text-gray-700 text-sm font-medium mb-2">
+    Address <span className="text-xs text-gray-500">(max 30 characters)</span>
+  </label>
+  <div className="relative">
+    <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
+      <MapPin size={24} className="text-[#2b2c6c]" />
+    </div>
+    <textarea
+      name="address"
+      value={input.address}
+      onChange={handleChange}
+      required
+      maxLength={30}
+      placeholder="Enter your address (max 30 characters)"
+      className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent h-12 resize-none"
+    />
+    <div className="absolute bottom-2 right-2 text-xs text-gray-500">
+      {input.address.length}/30
+    </div>
+  </div>
+  {errors.address && (
+    <p className="text-[#e6317d] text-xs mt-1">{errors.address}</p>
+  )}
+</div>
 
                     {/* Buttons - Full Width */}
                     <div className="md:col-span-2 mt-4 flex gap-4">
                       <button
                         type="button"
                         onClick={() => setStep(1)}
-                        className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 flex items-center justify-center"
+                        className="flex-1 py-2.5 bg-[#828487] hover:bg-[#71717d] text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center"
+                        style={{ borderRadius: "7px" }}
                       >
-                        <ChevronLeft size={18} className="mr-1" />
+                        <ChevronLeft size={24} className="mr-1" />
                         Back
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-opacity-50 flex items-center justify-center"
+                        className="flex-1 py-2.5 bg-[#e6317d] hover:bg-[#2b2c6c] text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center"
+                        style={{ borderRadius: "7px" }}
                       >
                         Book Appointment
-                        <CheckCircle size={18} className="ml-2" />
+                        <CheckCircle size={24} className="ml-2" />
                       </button>
                     </div>
                   </div>
@@ -411,18 +531,23 @@ const handleSubmit = async (e) => {
           </div>
 
           {/* Additional Info - More Compact */}
-          <div className="mt-4 bg-white rounded-lg p-4 shadow-sm border-l-4 border-teal-500 flex items-start">
-            <div className="mr-3 text-teal-500 mt-1">
-              <Calendar size={20} />
+          <div className="mt-4 bg-white rounded-lg p-4 shadow-sm border-l-4 border-[#2fb297] flex items-start">
+            <div className="mr-3 text-[#2fb297] mt-1">
+              <Calendar size={24} />
             </div>
             <div>
-              <h3 className="text-indigo-800 font-medium text-sm">Important Information</h3>
-              <p className="text-xs text-gray-600 mt-1">Please arrive 15 minutes before your appointment time. Bring your ID and insurance information if applicable.</p>
+              <h3 className="text-[#2b2c6c] font-medium text-sm">
+                Important Information
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Please arrive 15 minutes before your appointment time. Bring
+                your ID and insurance information if applicable.
+              </p>
             </div>
           </div>
         </div>
       </div>
-      
+
       <Footer />
     </div>
   );
