@@ -3,7 +3,7 @@ import axios from "axios";
 import { jsPDF } from "jspdf";
 import Nav from "../Nav Component/Nav";
 import SectionHeader from "../Nav Component/SectionHeader";
-import Logo22 from "../../Components/Appointment Component/images/Logo2.png"
+import Logo22 from "../../Components/Appointment Component/images/Logo2.png";
 import Footer from "../Nav Component/Footer";
 import {
   PhoneCall,
@@ -57,19 +57,25 @@ function DisplayAppointment() {
 
   const validate = () => {
     let tempErrors = {};
+    
+  
     if (!/^[A-Za-z\s]+$/.test(formData.name)) {
       tempErrors.name = "Name cannot contain numbers";
     }
-    if (!/^[0-9]{10}$/.test(formData.phone)) {
-      tempErrors.phone = "Phone number not correct";
+    
+  
+    if (!/^0[1-9][0-9]{8}$/.test(formData.phone)) {
+      tempErrors.phone = "Phone must start with 0 and be 10 digits";
     }
 
+  
     if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(formData.email)) {
       tempErrors.email = "Enter a valid email";
     }
 
-    if (!/^[0-9]{11}[0-9V]$/.test(formData.nic)) {
-      tempErrors.nic = "Invalid NIC";
+    
+    if (!/^([0-9]{9}[vVxX]|[0-9]{12})$/.test(formData.nic)) {
+      tempErrors.nic = "Invalid NIC (e.g., 123456789V or 123456789012)";
     }
 
     setErrors(tempErrors);
@@ -121,145 +127,190 @@ function DisplayAppointment() {
 
   const generateAppointmentPDF = (patientDetails) => {
     if (!patientDetails) return;
-  
-    // Load jsPDF dynamically
-    import('jspdf').then(({ default: jsPDF }) => {
-      import('../Appointment Component/images/Logo2.png').then((logoImport) => {
-        // Create a new jsPDF instance
+
+   
+    import("jspdf").then(({ default: jsPDF }) => {
+      import("../Appointment Component/images/Logo2.png").then((logoImport) => {
+       
         const doc = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4'
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
         });
-  
-        // Modern color palette
+
+       
         const colors = {
-          primary: '#2C3E50',      // Deep midnight blue
-          accent: '#3498DB',       // Bright azure blue
-          background: '#ECF0F1',   // Light subtle gray
-          text: '#2C3E50',         // Dark charcoal
-          highlight: '#27AE60'     // Vibrant green
+          primary: "#2C3E50", 
+          accent: "#3498DB", 
+          background: "#ECF0F1", 
+          text: "#2C3E50", 
+          highlight: "#27AE60", 
         };
-  
-        // Page dimensions
+
+        
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 20;
-  
-        // Background design
+
+        
         doc.setFillColor(colors.background);
-        doc.rect(0, 0, pageWidth, pageHeight, 'F');
-  
-        // Header Design
+        doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+        
         doc.setFillColor(colors.primary);
-        doc.rect(0, 0, pageWidth, 30, 'F');
-  
-        // Logo
+        doc.rect(0, 0, pageWidth, 30, "F");
+
+        
         const logoWidth = 30;
         const logoHeight = 30;
-        doc.addImage(logoImport.default, 'PNG', margin, 5, logoWidth, logoHeight);
-  
-        // Header Text
-        doc.setTextColor(255, 255, 255);  // White text
+        doc.addImage(
+          logoImport.default,
+          "PNG",
+          margin,
+          5,
+          logoWidth,
+          logoHeight
+        );
+
+        
+        doc.setTextColor(255, 255, 255); 
         doc.setFontSize(18);
-        doc.setFont('helvetica', 'bold');
-        doc.text('MEDI FLOW', margin + logoWidth + 10, 18);
-  
-        // Subtitle
+        doc.setFont("helvetica", "bold");
+        doc.text("MEDI FLOW", margin + logoWidth + 10, 18);
+
+        
         doc.setFontSize(13);
-        doc.text('Appointment Confirmation', margin + logoWidth + 10, 24);
-  
-        // Patient Details Section
+        doc.text("Appointment Confirmation", margin + logoWidth + 10, 24);
+
+        
         doc.setFontSize(18);
         doc.setTextColor(colors.primary);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Patient Information', margin, 50);
+        doc.setFont("helvetica", "bold");
+        doc.text("Patient Information", margin, 50);
+
         
-        // Decorative Line
         doc.setLineWidth(0.5);
         doc.setDrawColor(colors.accent);
         doc.line(margin, 55, pageWidth - margin, 55);
-  
-        // Patient Details
-        doc.setFont('helvetica', 'normal');
+
+       
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
         doc.setTextColor(colors.text);
-        
+
         const detailsStartY = 65;
         const lineHeight = 7;
         const labelColor = colors.accent;
+
         
-        // Structured Patient Details
         const patientDetailsLayout = [
-          { label: 'Appoinment ID', value: patientDetails.indexno },
-          { label: 'Full Name', value: patientDetails.name },
-          { label: 'Phone Number', value: patientDetails.phone },
-          { label: 'National ID', value: patientDetails.nic },
-          { label: 'Email', value: patientDetails.email },
-          { label: 'Address', value: patientDetails.address }
+          { label: "Appoinment ID", value: patientDetails.indexno },
+          { label: "Full Name", value: patientDetails.name },
+          { label: "Phone Number", value: patientDetails.phone },
+          { label: "National ID", value: patientDetails.nic },
+          { label: "Email", value: patientDetails.email },
+          { label: "Address", value: patientDetails.address },
         ];
-  <br />
+
         patientDetailsLayout.forEach((detail, index) => {
           doc.setTextColor(labelColor);
-          doc.setFont('helvetica', 'bold');
-          doc.text(detail.label + ':', margin, detailsStartY + index * lineHeight);
-          
+          doc.setFont("helvetica", "bold");
+          doc.text(
+            detail.label + ":",
+            margin,
+            detailsStartY + index * lineHeight
+          );
+
           doc.setTextColor(colors.text);
-          doc.setFont('helvetica', 'normal');
-          doc.text(detail.value, margin + 40, detailsStartY + index * lineHeight);
+          doc.setFont("helvetica", "normal");
+          doc.text(
+            detail.value,
+            margin + 40,
+            detailsStartY + index * lineHeight
+          );
         });
-  
-        // Appointment Details Section
+
+        
         doc.setFontSize(18);
         doc.setTextColor(colors.primary);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Appointment Details', margin, detailsStartY + patientDetailsLayout.length * lineHeight + 10);
+        doc.setFont("helvetica", "bold");
+        doc.text(
+          "Appointment Details",
+          margin,
+          detailsStartY + patientDetailsLayout.length * lineHeight + 10
+        );
+
         
-        // Decorative Line
         doc.setLineWidth(0.5);
         doc.setDrawColor(colors.accent);
-        doc.line(margin, detailsStartY + patientDetailsLayout.length * lineHeight + 15, pageWidth - margin, detailsStartY + patientDetailsLayout.length * lineHeight + 15);
-  
-        // Appointment Details
-        doc.setFont('helvetica', 'normal');
+        doc.line(
+          margin,
+          detailsStartY + patientDetailsLayout.length * lineHeight + 15,
+          pageWidth - margin,
+          detailsStartY + patientDetailsLayout.length * lineHeight + 15
+        );
+
+        
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
         doc.setTextColor(colors.text);
-        
-        const appointmentDetailsStartY = detailsStartY + patientDetailsLayout.length * lineHeight + 25;
+
+        const appointmentDetailsStartY =
+          detailsStartY + patientDetailsLayout.length * lineHeight + 25;
         const appointmentDetailsLayout = [
-          { label: 'Doctor', value: patientDetails.doctorName },
-          { label: 'Specialization', value: patientDetails.specialization },
-          { label: 'Date', value: new Date(patientDetails.date).toLocaleDateString('en-GB') },
-          { label: 'Time', value: patientDetails.time }
+          { label: "Doctor", value: patientDetails.doctorName },
+          { label: "Specialization", value: patientDetails.specialization },
+          {
+            label: "Date",
+            value: new Date(patientDetails.date).toLocaleDateString("en-GB"),
+          },
+          { label: "Time", value: patientDetails.time },
         ];
-  
+
         appointmentDetailsLayout.forEach((detail, index) => {
           doc.setTextColor(labelColor);
-          doc.setFont('helvetica', 'bold');
-          doc.text(detail.label + ':', margin, appointmentDetailsStartY + index * lineHeight);
-          
+          doc.setFont("helvetica", "bold");
+          doc.text(
+            detail.label + ":",
+            margin,
+            appointmentDetailsStartY + index * lineHeight
+          );
+
           doc.setTextColor(colors.text);
-          doc.setFont('helvetica', 'normal');
-          doc.text(detail.value, margin + 40, appointmentDetailsStartY + index * lineHeight);
+          doc.setFont("helvetica", "normal");
+          doc.text(
+            detail.value,
+            margin + 40,
+            appointmentDetailsStartY + index * lineHeight
+          );
         });
-  
-        
-  
+
         // Footer
         doc.setLineWidth(0.2);
         doc.setDrawColor(colors.primary);
         doc.line(margin, pageHeight - 20, pageWidth - margin, pageHeight - 20);
-  
+
         doc.setFontSize(8);
         doc.setTextColor(colors.text);
-        doc.text(`Generated: ${new Date().toLocaleString()}`, margin, pageHeight - 10);
-        doc.text('Confidential Document', pageWidth - margin - 40, pageHeight - 10);
-  
+        doc.text(
+          `Generated: ${new Date().toLocaleString()}`,
+          margin,
+          pageHeight - 10
+        );
+        doc.text(
+          "Confidential Document",
+          pageWidth - margin - 40,
+          pageHeight - 10
+        );
+
         // Save PDF
-        doc.save(`MediFlow_Appointment_${patientDetails.name}_${Date.now()}.pdf`);
+        doc.save(
+          `MediFlow_Appointment_${patientDetails.name}_${Date.now()}.pdf`
+        );
       });
     });
   };
+
   if (!patientDetails) {
     return (
       <div className="bg-[#ffffff] min-h-screen">
@@ -319,8 +370,8 @@ function DisplayAppointment() {
                   : `Appointment with ${patientDetails.doctorName} - ${patientDetails.specialization}`}
               </p>
             </div>
-{/* Appointment Summary */}
-{!isEditing && (
+            {/* Appointment Summary */}
+            {!isEditing && (
               <div className="bg-indigo-50 p-4 border-b border-gray-200">
                 <div className="flex justify-between items-center">
                   <div>
@@ -343,8 +394,11 @@ function DisplayAppointment() {
             {/* Form Content */}
             {isEditing ? (
               <div className="p-6">
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* Full Name */}
+                <form
+                  onSubmit={handleSubmit}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                >
+                  
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Full Name
@@ -370,13 +424,13 @@ function DisplayAppointment() {
                     )}
                   </div>
 
-                  {/* Phone Number */}
+                  
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Phone Number
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none ">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <PhoneCall size={24} className="text-[#2b2c6c]" />
                       </div>
                       <input
@@ -385,7 +439,7 @@ function DisplayAppointment() {
                         value={formData.phone}
                         onChange={handleChange}
                         required
-                        placeholder="Enter your phone number"
+                        placeholder="Enter your phone number (e.g., 0712345678)"
                         className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       />
                     </div>
@@ -396,7 +450,7 @@ function DisplayAppointment() {
                     )}
                   </div>
 
-                  {/* NIC */}
+                 
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       NIC
@@ -411,7 +465,7 @@ function DisplayAppointment() {
                         value={formData.nic}
                         onChange={handleChange}
                         required
-                        placeholder="Enter your NIC"
+                        placeholder="Enter your NIC (e.g., 123456789V or 123456789012)"
                         className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       />
                     </div>
@@ -422,7 +476,7 @@ function DisplayAppointment() {
                     )}
                   </div>
 
-                  {/* Email */}
+                 
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Email
@@ -448,7 +502,7 @@ function DisplayAppointment() {
                     )}
                   </div>
 
-                  {/* Address */}
+                  
                   <div className="md:col-span-2">
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Address
@@ -468,7 +522,7 @@ function DisplayAppointment() {
                     </div>
                   </div>
 
-                  {/* Buttons */}
+                 
                   <div className="md:col-span-2 mt-4 flex gap-4">
                     <button
                       type="button"
@@ -492,14 +546,14 @@ function DisplayAppointment() {
             ) : (
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {/* Patient Information Header */}
+                
                   <div className="md:col-span-2">
                     <h3 className="text-lg font-semibold text-[#2b2c6c]">
                       Patient Information
                     </h3>
                   </div>
 
-                  {/* Name */}
+                  
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-2">
                       Full Name
@@ -512,7 +566,7 @@ function DisplayAppointment() {
                     </div>
                   </div>
 
-                  {/* Phone */}
+                 
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-2">
                       Phone
@@ -525,7 +579,7 @@ function DisplayAppointment() {
                     </div>
                   </div>
 
-                  {/* NIC */}
+                 
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-2">
                       NIC
@@ -538,7 +592,7 @@ function DisplayAppointment() {
                     </div>
                   </div>
 
-                  {/* Email */}
+                  
                   <div>
                     <label className="block text-gray-700 text-sm font-medium mb-2">
                       Email
@@ -551,7 +605,7 @@ function DisplayAppointment() {
                     </div>
                   </div>
 
-                  {/* Address */}
+                  
                   <div className="md:col-span-2">
                     <label className="block text-gray-700 text-sm font-medium mb-2">
                       Address
@@ -566,7 +620,7 @@ function DisplayAppointment() {
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
+                  
                   <div className="md:col-span-2 mt-4 grid grid-cols-3 gap-4">
                     <button
                       onClick={() => setIsEditing(true)}
@@ -584,17 +638,17 @@ function DisplayAppointment() {
                       <Trash2 size={18} className="mr-2" />
                       Cancel Appointment
                     </button>
-                   <button
-  onClick={() => generateAppointmentPDF(patientDetails)}
-  className="py-2.5 bg-[#2fb297] hover:bg-[#71717d] text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2fb297] focus:ring-opacity-50 flex items-center justify-center"
-  style={{ borderRadius: "7px" }}
->
-  <Download size={18} className="mr-2" />
-  Download PDF
-</button>
+                    <button
+                      onClick={() => generateAppointmentPDF(patientDetails)}
+                      className="py-2.5 bg-[#2fb297] hover:bg-[#71717d] text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2fb297] focus:ring-opacity-50 flex items-center justify-center"
+                      style={{ borderRadius: "7px" }}
+                    >
+                      <Download size={18} className="mr-2" />
+                      Download PDF
+                    </button>
                   </div>
 
-                  {/* Confirm Button */}
+                  
                   <div className="md:col-span-2">
                     <button
                       onClick={handleConfirm}
@@ -610,7 +664,7 @@ function DisplayAppointment() {
             )}
           </div>
 
-          {/* Additional Info Box */}
+          
           <div className="mt-4 bg-white rounded-lg p-4 shadow-sm border-l-4 border-[#2fb297] flex items-start">
             <div className="mr-3 text-[#2fb297] mt-1">
               <Calendar size={24} />

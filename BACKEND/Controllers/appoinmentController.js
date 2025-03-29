@@ -21,10 +21,10 @@ const addAppoinment = async (req, res) => {
     try {
         
 
-        // 🔹 Get the last indexno from the collection and generate the next one
+       
         const lastAppointment = await Appoinment.findOne().sort({ indexno: -1 });
         
-        let newIndex = 'A0001'; // Default index if no appointment exists
+        let newIndex = 'A0001'; 
 
         if (lastAppointment) {
             const lastIndex = lastAppointment.indexno.substring(1);
@@ -126,7 +126,7 @@ const deleteAppoinment = async (req, res) => {
     }
 };
 
-// Export functions
+
 module.exports = { 
     getAllAppoinments, 
     addAppoinment, 

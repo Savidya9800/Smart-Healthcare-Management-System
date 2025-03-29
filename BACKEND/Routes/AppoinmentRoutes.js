@@ -15,5 +15,5 @@ router.delete("/:id",appoinmentController.deleteAppoinment);
 
 
 
-//export
+
 module.exports = router;
