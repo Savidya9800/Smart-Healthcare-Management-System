@@ -35,6 +35,7 @@ import DoctorLogin from "./Components/Doctor Component/DoctorLogin";
 import DoctorRegistration from "./Components/Doctor Component/DoctorRegistration";
 import DDashboard from "./Components/Doctor Component/DDashboard";
 import ViewAppointments from "./Components/Doctor Component/ViewAppoinments";
+import AddNewUser from "./Components/User Component/UserAdmin/AddNewUser";
 
 function App() {
   return (
@@ -55,7 +56,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/User-Dashboard" element={<UDashboard />} />
           <Route path="/User-Account" element={<MyAccount />} />
-
+          <Route path="/Add-New-Patient" element={<AddNewUser />} />
           {/*Pharmacy Components*/}
           <Route path="/Pharmacy-Dashboard" element={<PDashboard />} />
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
