@@ -11,7 +11,7 @@ function AppoinmentManagement() {
       <AAdminLayout>
        
         
-          <Appointments /> {/* Table Component */}
+          <Appointments /> 
           </AAdminLayout>
 
        

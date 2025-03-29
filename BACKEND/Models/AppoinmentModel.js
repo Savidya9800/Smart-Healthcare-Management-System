@@ -45,8 +45,8 @@ const appoinmentSchema = new Schema({
         required: true,
     },
     slip: {
-        data: { type: Buffer, default: null }, // Stores binary image data
-        contentType: { type: String, default: null }, // Stores image type (e.g., "image/png", "image/jpeg")
+        data: { type: Buffer, default: null }, 
+        contentType: { type: String, default: null }, 
     }
 });
 
