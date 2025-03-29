@@ -25,7 +25,7 @@ import AddIcon from "@mui/icons-material/Add";
 import User from "./User";
 import UpdateUser from "./UpdateUser";
 
-export default function UsersDetails() {
+export default function UsersDetails({ onAddPatientClick }) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -55,12 +55,16 @@ export default function UsersDetails() {
 
   const handleUserUpdate = (updatedUser) => {
     setUsers((prevUsers) =>
-      prevUsers.map((user) => (user._id === updatedUser._id ? updatedUser : user))
+      prevUsers.map((user) =>
+        user._id === updatedUser._id ? updatedUser : user
+      )
     );
   };
 
   const filteredUsers = users.filter((user) => {
-    const matchBlood = bloodGroupFilter ? user.bloodGroup === bloodGroupFilter : true;
+    const matchBlood = bloodGroupFilter
+      ? user.bloodGroup === bloodGroupFilter
+      : true;
     const matchGender = genderFilter ? user.gender === genderFilter : true;
     const matchDate = dateFilter ? user.registeredDate === dateFilter : true;
     return matchBlood && matchGender && matchDate;
@@ -86,7 +90,12 @@ export default function UsersDetails() {
   return (
     <Box>
       {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
         <Typography variant="h5" fontWeight={600} color="#1F295A">
           Registered Patients
         </Typography>
@@ -105,19 +114,7 @@ export default function UsersDetails() {
           >
             Filter
           </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            sx={{
-              backgroundColor: "#2FB297",
-              "&:hover": { backgroundColor: "#28a68b" },
-              borderRadius: "8px",
-              textTransform: "none",
-              fontWeight: 600,
-            }}
-          >
-            Add New Patient
-          </Button>
+          
         </Stack>
       </Box>
 
@@ -170,12 +167,17 @@ export default function UsersDetails() {
       )}
 
       {/* Table */}
-      <TableContainer component={Paper} sx={{ borderRadius: "12px", boxShadow: 3 }}>
+      <TableContainer
+        component={Paper}
+        sx={{ borderRadius: "12px", boxShadow: 3 }}
+      >
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "#2FB297" }}>
               <TableCell />
-              <TableCell sx={{ color: "#fff", fontWeight: 600 }}>Patient Name</TableCell>
+              <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
+                Patient Name
+              </TableCell>
               <TableCell align="right" sx={{ color: "#fff", fontWeight: 600 }}>
                 Email
               </TableCell>
@@ -197,7 +199,11 @@ export default function UsersDetails() {
           <TableBody>
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
-                <User key={user._id} row={user} onUpdate={() => setSelectedUser(user)} />
+                <User
+                  key={user._id}
+                  row={user}
+                  onUpdate={() => setSelectedUser(user)}
+                />
               ))
             ) : (
               <TableRow>
@@ -211,7 +217,12 @@ export default function UsersDetails() {
       </TableContainer>
 
       {/* Footer */}
-      <Box mt={2} display="flex" justifyContent="space-between" alignItems="center">
+      <Box
+        mt={2}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
         <Typography variant="body2" color="gray">
           Showing {filteredUsers.length} patients
         </Typography>
