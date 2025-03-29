@@ -9,6 +9,7 @@ export default {
       fontFamily: {
         hanken: ["Hanken Grotesk", "sans-serif"], // ✅ Added Hanken Grotesk
       },
+
     },
   },
   plugins: [],

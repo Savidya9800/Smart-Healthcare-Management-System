@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Nav from "../Nav Component/Nav";
 import SectionHeader from "../Nav Component/SectionHeader";
 import Footer from "../Nav Component/Footer";
@@ -9,6 +9,7 @@ import axios from "axios";
 function BookAppointment() {
   const [errors, setErrors] = useState({});
   const history = useNavigate();
+  const [doctors, setDoctors] = useState([]);
 
   const [input, setInputs] = useState({
     name: "",
@@ -17,6 +18,7 @@ function BookAppointment() {
     phone: "",
     email: "",
     doctorName: "",
+    doctor_id: "",
     specialization: "",
     date: "",
     time: "",
@@ -58,32 +60,56 @@ function BookAppointment() {
   };
 
   const handleChange = (e) => {
-    setInputs({ ...input, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validate()) {
-      return;
-    }
-
-    try {
-      await axios.post("http://localhost:5000/api/appoinment", input);
-      history("/Appoinment-Display");
-    } catch (error) {
-      console.error("Error submitting appointment:", error);
+    const { name, value } = e.target;
+  
+    // If doctor is selected, set both doctor_id and doctorName
+    if (name === "doctorName") {
+      const selectedDoctor = doctors.find((doctor) => doctor._id === value);
+      setInputs({
+        ...input,
+        doctor_id: selectedDoctor ? selectedDoctor._id : "",
+        doctorName: selectedDoctor ? selectedDoctor.name : "",
+      });
+    } else {
+      setInputs({ ...input, [name]: value });
     }
   };
+  
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!validate()) {
+    return;
+  }
+
+  try {
+    await axios.post("http://localhost:5000/api/appoinment", {
+      ...input,
+      doctor_id: input.doctor_id, // Ensure doctor_id is sent
+    });
+
+    history("/Appoinment-Display");
+  } catch (error) {
+    console.error("Error submitting appointment:", error);
+  }
+};
+
+
+    // Fetch doctors from API
+    useEffect(() => {
+      const fetchDoctors = async () => {
+        try {
+          const response = await axios.get("http://localhost:5000/api/doctor/");
+          setDoctors(response.data);
+        } catch (error) {
+          console.error("Error fetching doctors:", error);
+        }
+      };
+  
+      fetchDoctors();
+    }, []);
 
   const [step, setStep] = useState(1);
-
-  const doctors = [
-    "Dr. John Doe",
-    "Dr. Jane Smith",
-    "Dr. Michael Brown",
-    "Dr. Sarah Davis",
-  ];
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -150,17 +176,18 @@ function BookAppointment() {
                       </div>
                       <select
                         name="doctorName"
-                        value={input.doctorName}
+                        value={input.doctor_id}  // Use doctor_id instead
                         onChange={handleChange}
                         className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                       >
                         <option value="">Select a doctor</option>
-                        {doctors.map((doctor, index) => (
-                          <option key={index} value={doctor}>
-                            {doctor}
+                        {doctors.map((doctor) => (
+                          <option key={doctor._id} value={doctor._id}>
+                            {doctor.name}
                           </option>
                         ))}
                       </select>
+
                     </div>
                     {errors.doctorName && (
                       <p className="text-rose-500 text-xs mt-1">{errors.doctorName}</p>

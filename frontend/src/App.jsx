@@ -33,6 +33,8 @@ import DoctorLogin from "./Components/Doctor Component/DoctorLogin";
 import DoctorRegistration from "./Components/Doctor Component/DoctorRegistration";
 import DDashboard from "./Components/Doctor Component/DDashboard";
 import ViewAppointments from "./Components/Doctor Component/ViewAppoinments";
+import DoctorLeave from "./Components/Doctor Component/DoctorLeave";
+
 
 function App() {
   return (
@@ -63,6 +65,7 @@ function App() {
           <Route path="/register-doctor" element={<DoctorRegistration />} />
           <Route path="/Doctor-Dashboard" element={<DDashboard />} />
           <Route path="/Doctor-Dashboard/View-Appointment" element={<ViewAppointments />} />
+          <Route path="/Doctor-Dashboard/Leave" element={<DoctorLeave />} />
 
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />

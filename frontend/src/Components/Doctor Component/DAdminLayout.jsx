@@ -47,6 +47,11 @@ function DAdminLayout({ children }) {
       icon: <BarChart2 size={20} />,
       path: "/Doctor-Dashboard/View-Appointment",
     },
+    {
+      name: "Leave",
+      icon: <BarChart2 size={20} />,
+      path: "/Doctor-Dashboard/Leave",
+    },
     { name: "Patients", icon: <Package size={20} />, path: "#" },
   ];
 

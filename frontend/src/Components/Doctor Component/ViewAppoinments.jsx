@@ -19,11 +19,12 @@ function ViewAppointments() {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/appointment"); // Update with actual backend URL
+        const response = await fetch("http://localhost:5000/api/appoinment"); // Update with actual backend URL
         if (!response.ok) {
           throw new Error("Failed to fetch appointments");
         }
         const data = await response.json();
+        console.log(data);
 
         // Store all appointments
         setAppointments(data.appoinments);
@@ -41,7 +42,7 @@ function ViewAppointments() {
     if (doctor && appointments.length > 0) {
       // Filter appointments for the logged-in doctor
       const assignedAppointments = appointments.filter(
-        (appointment) => appointment.doctorName === doctor.name
+        (appointment) => appointment.doctor_id === doctor._id
       );
       setFilteredAppointments(assignedAppointments);
     }
@@ -66,6 +67,8 @@ function ViewAppointments() {
               <th className="border p-2">Date</th>
               <th className="border p-2">Time</th>
               <th className="border p-2">Phone</th>
+              <th className="border p-2">Status</th>
+              <th className="border p-2">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -79,6 +82,7 @@ function ViewAppointments() {
                 </td>
                 <td className="border p-2">{appointment.time}</td>
                 <td className="border p-2">{appointment.phone}</td>
+                <td className="border p-2">{appointment.status}</td>
               </tr>
             ))}
           </tbody>
