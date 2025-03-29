@@ -3,7 +3,6 @@ import {
   Home,
   BarChart2,
   Package,
-  Search,
   Menu,
   Bell,
   ChevronDown,
@@ -155,8 +154,9 @@ function DAdminLayout({ children }) {
             </div>
           </div>
 
+          
           <div className="flex items-center space-x-2">
-            <div className="relative hidden md:block">
+            {/* <div className="relative hidden md:block">
               <div className="flex items-center px-4 py-2 border border-gray-100 rounded-lg bg-gray-50">
                 <Search size={18} className="text-gray-400" />
                 <input
@@ -168,7 +168,7 @@ function DAdminLayout({ children }) {
                   ⌘K
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <button className="p-2 rounded-lg hover:bg-gray-100">
               <Settings size={20} className="text-gray-600" />

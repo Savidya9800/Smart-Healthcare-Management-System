@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DAdminLayout from "./DAdminLayout";
+
 import { 
   TextField, 
   MenuItem, 
@@ -45,6 +46,7 @@ const DoctorLeave = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [currentLeaveId, setCurrentLeaveId] = useState(null);
   
+  
   // Table states
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -60,14 +62,21 @@ const DoctorLeave = () => {
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/doctorLeave')
+    if(doctor){
+    fetch(`http://localhost:5000/api/doctorLeave/filterBydoc/${doctor._id}`)
       .then((response) => response.json())
       .then((data) => {
-        setLeaves(data);
-        setFilteredLeaves(data);
+        if (data.length === 0) {
+            console.log("No leave records found.");
+            setLeaves([]);
+            setFilteredLeaves([]);
+          } else {
+            setLeaves(data);
+            setFilteredLeaves(data);
+          }
       })
-      .catch((error) => console.error('Error fetching leaves:', error));
-  }, [status]);
+      .catch((error) => console.error('Error fetching leaves:', error));}
+  }, [doctor,status]);
 
   useEffect(() => {
     const results = leaves.filter(leave =>
@@ -325,6 +334,7 @@ const DoctorLeave = () => {
     
     doc.save('doctor_leave_report.pdf');
   };
+
 
   return (
     <DAdminLayout>

@@ -7,6 +7,7 @@ function ViewAppointments() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [doctor, setDoctor] = useState(null);
+  
 
   useEffect(() => {
     // Retrieve doctor data from sessionStorage
