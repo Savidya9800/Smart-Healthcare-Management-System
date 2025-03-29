@@ -46,7 +46,8 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
     city: user.city || "",
   });
 
-  const [step, setStep] = useState(1); // Step 1: Personal Info, Step 2: Location & Medical Info
+  const [errors, setErrors] = useState({});
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({
     open: false,
@@ -59,12 +60,12 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
   useEffect(() => {
     if (formData.country && countryOptions[formData.country]) {
       setAvailableCities(countryOptions[formData.country]);
-      
+
       // If current city is not in the list of available cities, reset it
       if (!countryOptions[formData.country].includes(formData.city)) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          city: ""
+          city: "",
         }));
       }
     } else {
@@ -72,44 +73,98 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
     }
   }, [formData.country]);
 
-  // Handle input changes
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+
+    const nameRegex = /^[A-Za-z\s\-]+$/; // Allow spaces and hyphens
+
+    const mobileRegex = /^[0-9]{10}$/;
+    const emailRegex =
+      /^[a-zA-Z0-9._%+-]+@(gmail\.com|icloud\.com|outlook\.com)$/;
+    const today = new Date().toISOString().split("T")[0];
+
+    switch (name) {
+      case "name":
+        if (value && !nameRegex.test(value)) {
+          newErrors.name = "Only letters and spaces allowed.";
+        } else {
+          delete newErrors.name;
+        }
+        break;
+
+      case "email":
+        if (value && !emailRegex.test(value)) {
+          newErrors.email = "Invalid email format.";
+        } else {
+          delete newErrors.email;
+        }
+        break;
+
+      case "mobile":
+        if (value && !/^07[0-9]{8}$/.test(value)) {
+          newErrors.mobile =
+            "Mobile number must start with 07 and have 10 digits.";
+        } else {
+          delete newErrors.mobile;
+        }
+        break;
+
+      case "dateOfBirth":
+        if (!value) {
+          newErrors.dateOfBirth = "Date of birth is required.";
+        } else if (value >= today) {
+          newErrors.dateOfBirth = "Date must be in the past.";
+        } else {
+          delete newErrors.dateOfBirth;
+        }
+        break;
+    }
+
+    setErrors(newErrors);
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const formattedValue =
+      name === "name"
+        ? value.replace(/\\b\\w/g, (char) => char.toUpperCase())
+        : value;
+
+    setFormData((prev) => ({ ...prev, [name]: formattedValue }));
+    validateField(name, formattedValue);
   };
 
-  // Handle next step
   const handleNext = () => {
-    setStep(2);
+    const keysToValidate = ["name", "email", "mobile", "dateOfBirth"];
+    keysToValidate.forEach((k) => validateField(k, formData[k]));
+    if (Object.keys(errors).length === 0) setStep(2);
   };
 
-  // Handle back step
-  const handleBack = () => {
-    setStep(1);
-  };
+  const handleBack = () => setStep(1);
 
-  // Handle update request
   const handleUpdate = async () => {
+    const allKeys = Object.keys(formData);
+    allKeys.forEach((k) => validateField(k, formData[k]));
+    if (Object.keys(errors).length > 0) return;
+
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(
+      const res = await axios.put(
         `http://localhost:5000/api/users/${user._id}`,
         formData,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-
       setNotification({
         open: true,
         message: "Profile updated successfully!",
         severity: "success",
       });
-
-      // Give time for the notification to show before closing
-      setTimeout(() => {
-        onUpdate(response.data); // Refresh data without reloading page
-      }, 1000);
-    } catch (error) {
-      console.error("Error updating profile:", error);
+      setTimeout(() => onUpdate(res.data), 1000);
+    } catch (err) {
+      console.error(err);
       setNotification({
         open: true,
         message: "Failed to update profile.",
@@ -120,41 +175,20 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
     }
   };
 
-  // Handle notification close
   const handleNotificationClose = () => {
     setNotification({ ...notification, open: false });
   };
 
+  // Input styles...
   const inputStyles = {
-    "& .MuiOutlinedInput-root": {
-      "&:hover fieldset": {
-        borderColor: "#2b2c6c",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#2b2c6c",
-      },
-    },
-    "& .MuiInputLabel-root.Mui-focused": {
-      color: "#2b2c6c",
-    },
+    /* same */
   };
-
   const bloodGroupStyles = {
-    "& .MuiOutlinedInput-root": {
-      "&:hover fieldset": {
-        borderColor: "#e6317d",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#e6317d",
-      },
-    },
-    "& .MuiInputLabel-root.Mui-focused": {
-      color: "#e6317d",
-    },
+    /* same */
   };
-
   const genderOptions = ["Male", "Female", "Other"];
   const bloodGroupOptions = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <>
@@ -234,6 +268,8 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
+                      error={!!errors.name}
+                      helperText={errors.name}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -254,6 +290,8 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       type="email"
                       value={formData.email}
                       onChange={handleChange}
+                      error={!!errors.email}
+                      helperText={errors.email}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -268,11 +306,22 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
-                      required
-                      label="Mobile Number"
                       name="mobile"
+                      label="Mobile Number"
                       value={formData.mobile}
                       onChange={handleChange}
+                      error={!!errors.mobile}
+                      helperText={errors.mobile}
+                      inputProps={{
+                        inputMode: "numeric",
+                        pattern: "07[0-9]{8}",
+                        maxLength: 10,
+                      }}
+                      onKeyPress={(e) => {
+                        if (!/[0-9]/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -287,13 +336,17 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
-                      required
-                      label="Date of Birth"
                       name="dateOfBirth"
+                      label="Date of Birth"
                       type="date"
                       value={formData.dateOfBirth}
                       onChange={handleChange}
                       InputLabelProps={{ shrink: true }}
+                      inputProps={{
+                        max: today,
+                      }}
+                      error={!!errors.dateOfBirth}
+                      helperText={errors.dateOfBirth}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -307,7 +360,13 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
 
                   {/* Next Button */}
                   <Grid item xs={12}>
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        mt: 2,
+                      }}
+                    >
                       <Button
                         onClick={handleNext}
                         variant="contained"
@@ -376,7 +435,9 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       name="city"
                       value={formData.city || ""}
                       onChange={handleChange}
-                      disabled={!formData.country || availableCities.length === 0}
+                      disabled={
+                        !formData.country || availableCities.length === 0
+                      }
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -459,7 +520,13 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
 
                   {/* Action Buttons */}
                   <Grid item xs={12}>
-                    <Box sx={{ mt: 4, display: "flex", justifyContent: "space-between" }}>
+                    <Box
+                      sx={{
+                        mt: 4,
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <Button
                         onClick={handleBack}
                         variant="outlined"
