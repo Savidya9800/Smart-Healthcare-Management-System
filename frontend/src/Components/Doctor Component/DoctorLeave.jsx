@@ -26,6 +26,7 @@ import {
 import { Search, PictureAsPdf } from '@mui/icons-material';
 import { jsPDF } from 'jspdf';
 import { autoTable } from 'jspdf-autotable';
+import Logo22 from "../../Components/Appointment Component/images/Logo2.png"
 
 
 const DoctorLeave = () => {
@@ -244,21 +245,83 @@ const DoctorLeave = () => {
 
   // Generate PDF report
   const generateReport = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      // Modern color palette
+      const colors = {
+        primary: '#2C3E50',      // Deep midnight blue
+        accent: '#3498DB',       // Bright azure blue
+        background: '#ECF0F1',   // Light subtle gray
+        text: '#2C3E50',         // Dark charcoal
+        highlight: '#27AE60'     // Vibrant green
+      };
+        // Page dimensions
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 20;
+  
+        // Background design
+        doc.setFillColor(colors.background);
+        doc.rect(0, 0, pageWidth, pageHeight, 'F');
+  
+        // Header Design
+        doc.setFillColor(colors.primary);
+        doc.rect(0, 0, pageWidth, 30, 'F');
+  
+        // Logo
+        const logoWidth = 30;
+        const logoHeight = 30;
+        doc.addImage(Logo22, 'PNG', margin, 5, logoWidth, logoHeight);
+  
+        // Header Text
+        doc.setTextColor(255, 255, 255);  // White text
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('MEDI FLOW', margin + logoWidth + 10, 18);
+  
+        // Subtitle
+        doc.setFontSize(13);
+        doc.text('Leaves Statement', margin + logoWidth + 10, 24);      
 
+     
     // Add the table using the autoTable plugin
-    autoTable(doc,{
-      startY: 30,
-      head: [['Leave Type', 'Start Date', 'End Date', 'Status']],
-      body: filteredLeaves.map(leave => [
-        leave.leaveType,
-        new Date(leave.startDate).toLocaleDateString(),
-        new Date(leave.endDate).toLocaleDateString(),
-        leave.status
-      ]),
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [79, 57, 246] }
+    autoTable(doc, {
+        startY: 50,
+        margin: { top: 50 },
+        head: [['Leave Type', 'Start Date', 'End Date', 'Status']],
+        body: filteredLeaves.map((leave, index) => [
+            leave.leaveType,
+            new Date(leave.startDate).toLocaleDateString(),
+            new Date(leave.endDate).toLocaleDateString(),
+            leave.status
+        ]),
+        styles: { 
+            font: 'helvetica', 
+            fontSize: 12, 
+            textColor: colors.text, 
+            cellPadding: 3, 
+            lineWidth: 0.2, 
+            lineColor: colors.primary 
+        },
+        headStyles: { 
+            fillColor: colors.primary, 
+            textColor: 255, 
+            fontStyle: 'bold' 
+        },
+        alternateRowStyles: { 
+            fillColor: colors.background 
+        },
+        columnStyles: {
+            0: { halign: 'left' }, // Align first column (Leave Type) to left
+            1: { halign: 'center' },
+            2: { halign: 'center' },
+            3: { halign: 'center' }  // Align status to right
+        }
     });
+    
     
     doc.save('doctor_leave_report.pdf');
   };
