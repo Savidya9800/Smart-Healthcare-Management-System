@@ -41,11 +41,15 @@ function Registration() {
 
   const validateForm = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (!formData.name) {
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    // Name validation
+    if (!formData.name.trim()) {
       setError('Name is required');
       return false;
     }
+    
+    // Email validation
     if (!formData.email) {
       setError('Email is required');
       return false;
@@ -54,6 +58,8 @@ function Registration() {
       setError('Invalid email format');
       return false;
     }
+    
+    // Password validation
     if (!formData.password) {
       setError('Password is required');
       return false;
@@ -62,10 +68,17 @@ function Registration() {
       setError('Password must be at least 8 characters');
       return false;
     }
+    if (!passwordRegex.test(formData.password)) {
+      setError('Password must contain at least one letter, one number, and one special character');
+      return false;
+    }
+    
+    // Confirm password validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return false;
     }
+    
     return true;
   };
 
