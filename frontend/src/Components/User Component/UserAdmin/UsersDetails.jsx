@@ -19,11 +19,12 @@ import {
   FormControl,
   TextField,
   CircularProgress,
-  InputAdornment,
-  IconButton,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchIcon from "@mui/icons-material/Search";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import User from "./User";
 import UpdateUser from "./UpdateUser";
 
@@ -75,7 +76,7 @@ export default function UsersDetails({ onAddPatientClick }) {
       : true;
     const matchGender = genderFilter ? user.gender === genderFilter : true;
     const matchDate = dateFilter ? user.registeredDate === dateFilter : true;
-    
+
     // Enhanced search functionality
     const matchSearch = searchQuery
       ? user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -87,6 +88,64 @@ export default function UsersDetails({ onAddPatientClick }) {
     return matchBlood && matchGender && matchDate && matchSearch;
   });
 
+  const handleGeneratePDF = () => {
+    if (filteredUsers.length === 0) {
+      alert("No matching patients found for the PDF.");
+      return;
+    }
+  
+    // Create a new jsPDF instance
+    const doc = new jsPDF();
+  
+    // Add Logo to Header
+    const logoUrl = '/Logo2.png'; // Path to your logo (assuming it's in the public folder)
+    doc.addImage(logoUrl, "PNG", 10, 10, 30, 30); // Adjust the size and position as necessary
+  
+    // Add Title to the Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Registered Patients", 50, 20);
+  
+    // Add some space between the title and the table
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+  
+    const headers = [
+      "Name",
+      "Email",
+      "Mobile Number",
+      "Gender",
+      "Blood Group",
+    ];
+  
+    // Ensure filteredUsers contains the necessary data
+    const data = filteredUsers.map((user) => [
+      user.name,
+      user.email,
+      user.mobile,
+      user.gender,
+      user.bloodGroup 
+    ]);
+  
+    // Add table to PDF
+    autoTable(doc, {
+      head: [headers],
+      body: data,
+      startY: 40, // Starting position for the table
+      margin: { horizontal: 10 },
+      theme: "grid",
+      didDrawPage: function (data) {
+        // Add footer (page number)
+        const pageCount = doc.internal.getNumberOfPages();
+        doc.setFontSize(10);
+        doc.text(`Page ${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10, null, null, "right");
+      },
+    });
+  
+    // Save the generated PDF
+    doc.save("registered_patients.pdf");
+  };
+
   if (loading) {
     return (
       <Box
@@ -96,8 +155,8 @@ export default function UsersDetails({ onAddPatientClick }) {
         height="60vh"
         flexDirection="column"
       >
-        <CircularProgress color="primary" />
-        <Typography mt={2} color="gray">
+        <CircularProgress sx={{ color: "#2FB297" }} />
+        <Typography mt={2} color="#71717D">
           Loading patients...
         </Typography>
       </Box>
@@ -105,36 +164,79 @@ export default function UsersDetails({ onAddPatientClick }) {
   }
 
   return (
-    <Box>
+    <Box
+      sx={{ padding: "20px", backgroundColor: "#f9fafc", minHeight: "100vh" }}
+    >
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        mb={2}
+        mb={3}
       >
-        <Typography variant="h5" fontWeight={600} color="#1F295A">
+        <Typography variant="h5" fontWeight={600} color="#2B2C6C">
           Registered Patients
         </Typography>
-        <Box display="flex" alignItems="center">
-          {/* Tailwind CSS Search Bar */}
-          <div className="relative hidden mr-2 md:block">
-            <div className="flex items-center px-4 py-2 border border-gray-100 rounded-lg bg-gray-50">
-              <SearchIcon
-                className="text-gray-400 "
-                style={{ width: 18, height: 18 }}
-              />
-              <input
-                type="text"
-                placeholder="Search ..."
-                className="w-48 ml-2 text-sm bg-transparent border-none outline-none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <div className="hidden ml-2 px-1.5 py-0.5 bg-gray-200 rounded text-xs text-gray-600 font-medium lg:flex items-center">
-                ⌘K
-              </div>
-            </div>
-          </div>
+        <Box display="flex" alignItems="center" gap={2}>
+          {/* Generate PDF Button */}
+          <Button
+            variant="contained"
+            startIcon={<PictureAsPdfIcon />}
+            onClick={handleGeneratePDF}
+            sx={{
+              backgroundColor: "#2FB297",
+              "&:hover": { backgroundColor: "#27a086" },
+              borderRadius: "8px",
+              textTransform: "none",
+              color: "white",
+              fontWeight: 500,
+              boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
+              padding: "8px 16px",
+            }}
+          >
+            Generate PDF
+          </Button>
+
+          {/* Search Bar */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              backgroundColor: "#ffffff",
+              borderRadius: "8px",
+              padding: "4px 12px",
+              border: "1px solid #e0e0e0",
+              width: "250px",
+            }}
+          >
+            <SearchIcon sx={{ color: "#71717D", fontSize: 20 }} />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                border: "none",
+                outline: "none",
+                padding: "8px",
+                width: "100%",
+                background: "transparent",
+                fontSize: "14px",
+              }}
+            />
+            <Box
+              sx={{
+                backgroundColor: "#f0f0f0",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                fontSize: "12px",
+                color: "#71717D",
+                display: { xs: "none", md: "flex" },
+                alignItems: "center",
+              }}
+            >
+              ⌘K
+            </Box>
+          </Box>
 
           {/* Filter Button */}
           <Button
@@ -142,10 +244,14 @@ export default function UsersDetails({ onAddPatientClick }) {
             startIcon={<FilterListIcon />}
             onClick={() => setShowFilters((prev) => !prev)}
             sx={{
-              borderColor: "#D9D9D9",
-              color: "#444",
+              borderColor: "#e0e0e0",
+              color: "#71717D",
               borderRadius: "8px",
               textTransform: "none",
+              "&:hover": {
+                borderColor: "#828487",
+                backgroundColor: "rgba(0,0,0,0.02)",
+              },
             }}
           >
             Filter
@@ -154,7 +260,18 @@ export default function UsersDetails({ onAddPatientClick }) {
       </Box>
 
       {showFilters && (
-        <Stack direction="row" spacing={2} mb={3} mt={1}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          mb={3}
+          mt={1}
+          sx={{
+            backgroundColor: "white",
+            padding: "16px",
+            borderRadius: "8px",
+            boxShadow: "0px 2px 4px rgba(0,0,0,0.05)",
+          }}
+        >
           <FormControl size="small" sx={{ minWidth: 150 }}>
             <InputLabel>Blood Group</InputLabel>
             <Select
@@ -210,12 +327,16 @@ export default function UsersDetails({ onAddPatientClick }) {
 
       <TableContainer
         component={Paper}
-        sx={{ borderRadius: "12px", boxShadow: 3 }}
+        sx={{
+          borderRadius: "12px",
+          boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
+          overflow: "hidden",
+        }}
       >
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "#2FB297" }}>
-              <TableCell />
+              <TableCell sx={{ padding: "16px 8px 16px 16px" }} />
               <TableCell sx={{ color: "#fff", fontWeight: 600 }}>
                 Patient Name
               </TableCell>
@@ -231,7 +352,10 @@ export default function UsersDetails({ onAddPatientClick }) {
               <TableCell align="right" sx={{ color: "#fff", fontWeight: 600 }}>
                 Blood Group
               </TableCell>
-              <TableCell align="right" sx={{ color: "#fff", fontWeight: 600 }}>
+              <TableCell
+                align="right"
+                sx={{ color: "#fff", fontWeight: 600, paddingRight: "24px" }}
+              >
                 Action
               </TableCell>
             </TableRow>
@@ -247,8 +371,10 @@ export default function UsersDetails({ onAddPatientClick }) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} align="center">
-                  No matching users found.
+                <TableCell colSpan={7} align="center" sx={{ padding: "24px" }}>
+                  <Typography color="#71717D">
+                    No matching patients found.
+                  </Typography>
                 </TableCell>
               </TableRow>
             )}
@@ -257,20 +383,52 @@ export default function UsersDetails({ onAddPatientClick }) {
       </TableContainer>
 
       <Box
-        mt={2}
+        mt={3}
         display="flex"
         justifyContent="space-between"
         alignItems="center"
       >
-        <Typography variant="body2" color="gray">
+        <Typography variant="body2" color="#71717D">
           Showing {filteredUsers.length} patients
         </Typography>
         <Stack direction="row" spacing={1} alignItems="center">
-          <Button size="small" disabled variant="outlined">
+          <Button
+            size="small"
+            disabled
+            variant="outlined"
+            sx={{
+              borderColor: "#e0e0e0",
+              color: "#828487",
+              "&.Mui-disabled": {
+                color: "#c0c0c0",
+                borderColor: "#e0e0e0",
+              },
+            }}
+          >
             Previous
           </Button>
-          <Chip label="1" sx={{ backgroundColor: "#2FB297", color: "#fff" }} />
-          <Button size="small" variant="outlined">
+          <Chip
+            label="1"
+            sx={{
+              backgroundColor: "#2FB297",
+              color: "#fff",
+              fontWeight: 500,
+              minWidth: "32px",
+            }}
+          />
+          <Button
+            size="small"
+            variant="outlined"
+            sx={{
+              borderColor: "#e0e0e0",
+              color: "#828487",
+              "&:hover": {
+                borderColor: "#2FB297",
+                color: "#2FB297",
+                backgroundColor: "rgba(47, 178, 151, 0.04)",
+              },
+            }}
+          >
             Next
           </Button>
         </Stack>

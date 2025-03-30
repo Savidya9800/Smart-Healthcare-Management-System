@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import UAdminLayout from "./UAdminLayout";
 import {
   User,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 
 function AddNewPatient({ onSuccess }) {
+  const navigate = useNavigate(); // Initialize useNavigate hook
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -98,6 +100,9 @@ function AddNewPatient({ onSuccess }) {
         dataToSubmit
       );
       alert("Patient registered successfully!");
+
+      // Navigate to User-Management page after successful registration
+      navigate("/User-Management"); // Add navigation here
       if (onSuccess) onSuccess();
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
