@@ -63,7 +63,7 @@ const appoinmentSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ["Pending", "Reviewed","Timeouted"],
+        enum: ["Pending", "Reviewed","Completed"],
         default: "Pending",
     },
 });

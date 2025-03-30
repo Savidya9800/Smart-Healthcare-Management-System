@@ -76,7 +76,7 @@ const deleteLeaveRequest = async (req, res) => {
     const leave = await DoctorLeave.findByIdAndDelete(req.params.id);
 
     if (!leave) {
-      return res.status(404).json({ message: "Leave request not found" });
+      return res.status(200).json({ leave, message: "Leave request not found" });
     }
 
     res.status(200).json({ message: "Leave request deleted" });
@@ -118,6 +118,23 @@ const updateLeaveRequest = async (req, res) => {
   }
 };
 
+// Get leaves by doctor ID
+const getLeavesByDoctorId = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const leaves = await DoctorLeave.find({ doctorId }).populate("doctorId");
+
+    if (leaves.length === 0) {
+      return res.status(200).json(leaves);
+    }
+
+    res.status(200).json(leaves);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
 
 
 // Export Controllers
@@ -127,3 +144,4 @@ exports.createLeaveRequest = createLeaveRequest;
 exports.updateLeaveStatus = updateLeaveStatus;
 exports.deleteLeaveRequest = deleteLeaveRequest;
 exports.updateLeaveRequest = updateLeaveRequest;
+exports.getLeavesByDoctorId = getLeavesByDoctorId;
