@@ -36,6 +36,7 @@ import DoctorRegistration from "./Components/Doctor Component/DoctorRegistration
 import DDashboard from "./Components/Doctor Component/DDashboard";
 import ViewAppointments from "./Components/Doctor Component/ViewAppoinments";
 import DoctorLeave from "./Components/Doctor Component/DoctorLeave";
+import DoctorDiagnosis from "./Components/Doctor Component/DoctorDiagnosis";
 
 import AddNewUser from "./Components/User Component/UserAdmin/AddNewUser";
 
@@ -71,6 +72,7 @@ function App() {
           <Route path="/Doctor-Dashboard" element={<DDashboard />} />
           <Route path="/Doctor-Dashboard/View-Appointment" element={<ViewAppointments />} />
           <Route path="/Doctor-Dashboard/Leave" element={<DoctorLeave />} />
+          <Route path="/Doctor-Dashboard/appointmnet/Diagnosis/:appointmentId" element={<DoctorDiagnosis />} />
 
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />
