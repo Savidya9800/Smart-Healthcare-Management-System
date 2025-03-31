@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState,useEffect } from "react";
 import Nav from "../Nav Component/Nav";
 import SectionHeader from "../Nav Component/SectionHeader";
 import Footer from "../Nav Component/Footer";
@@ -23,19 +23,6 @@ function BookAppointment() {
   const history = useNavigate();
   const [doctors, setDoctors] = useState([]);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/doctor/")
-      .then((response) => {
-        if (Array.isArray(response.data)) {
-          setDoctors(response.data);
-        } else {
-          console.error("Unexpected response format:", response.data);
-        }
-      })
-      .catch((error) => console.error("Error fetching doctors:", error));
-  }, []);
-
   const [input, setInputs] = useState({
     name: "",
     address: "",
@@ -43,6 +30,7 @@ function BookAppointment() {
     phone: "",
     email: "",
     doctorName: "",
+    doctor_id: "",
     specialization: "",
     date: "",
     time: "",
@@ -107,21 +95,54 @@ function BookAppointment() {
   };
 
   const handleChange = (e) => {
-    setInputs({ ...input, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+  
+    // If doctor is selected, set both doctor_id and doctorName
+    if (name === "doctorName") {
+      const selectedDoctor = doctors.find((doctor) => doctor._id === value);
+      setInputs({
+        ...input,
+        doctor_id: selectedDoctor ? selectedDoctor._id : "",
+        doctorName: selectedDoctor ? selectedDoctor.name : "",
+      });
+    } else {
+      setInputs({ ...input, [name]: value });
+    }
   };
+  
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) {
-      return;
-    }
-    try {
-      await axios.post("http://localhost:5000/api/appoinment", input);
-      history("/Appoinment-Display");
-    } catch (error) {
-      console.error("Error submitting appointment:", error);
-    }
-  };
+  if (!validate()) {
+    return;
+  }
+
+  try {
+    await axios.post("http://localhost:5000/api/appoinment", {
+      ...input,
+      doctor_id: input.doctor_id, // Ensure doctor_id is sent
+    });
+
+    history("/Appoinment-Display");
+  } catch (error) {
+    console.error("Error submitting appointment:", error);
+  }
+};
+
+
+    // Fetch doctors from API
+    useEffect(() => {
+      const fetchDoctors = async () => {
+        try {
+          const response = await axios.get("http://localhost:5000/api/doctor/");
+          setDoctors(response.data);
+        } catch (error) {
+          console.error("Error fetching doctors:", error);
+        }
+      };
+  
+      fetchDoctors();
+    }, []);
 
   const [step, setStep] = useState(1);
 
@@ -216,17 +237,18 @@ function BookAppointment() {
                       </div>
                       <select
                         name="doctorName"
-                        value={input.doctorName}
+                        value={input.doctor_id}  // Use doctor_id instead
                         onChange={handleChange}
                         className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       >
                         <option value="">Select a doctor</option>
                         {doctors.map((doctor) => (
-                          <option key={doctor._id} value={doctor.name}>
-                            {doctor.name} - {doctor.specialization}
+                          <option key={doctor._id} value={doctor._id}>
+                            {doctor.name}
                           </option>
                         ))}
                       </select>
+
                     </div>
                     {errors.doctorName && (
                       <p className="text-[#e6317d] text-xs mt-1">
