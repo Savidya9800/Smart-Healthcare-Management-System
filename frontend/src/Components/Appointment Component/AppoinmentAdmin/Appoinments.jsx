@@ -34,7 +34,6 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 
-// Color palette
 const colors = {
   darkGray: "#71717D",
   gray: "#828487",
@@ -51,7 +50,7 @@ const fetchHandler = async () => {
   return await axios.get(URL).then((res) => res.data);
 };
 
-// Individual appointment row component
+
 function AppointmentRow({ appointment, index, onAccept, onReject }) {
   const [open, setOpen] = useState(false);
 
@@ -397,7 +396,7 @@ function Appointments() {
           <TableContainer component={Box}>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: colors.lightblue }}>
+                <TableRow sx={{ backgroundColor: colors.green }}>
                   <TableCell width="50px" sx={{ color: colors.white }}></TableCell>
                   <TableCell sx={{ fontWeight: "600", fontSize: "1.1rem", color: colors.white }}>Appointment ID</TableCell>
                   <TableCell sx={{ fontWeight: "600", fontSize: "1.1rem", color: colors.white }}>Patient Name</TableCell>

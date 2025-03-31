@@ -1,3 +1,5 @@
+// ✅ Updated version of your UpdateUser component with real-time validation (with red border live like shown in image)
+
 import React, { useState } from "react";
 import axios from "axios";
 import {
@@ -18,6 +20,8 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import CakeIcon from "@mui/icons-material/Cake";
 
 function UpdateUser({ user, onClose }) {
+  const today = new Date().toISOString().split("T")[0];
+
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email,
@@ -26,10 +30,88 @@ function UpdateUser({ user, onClose }) {
     country: user.country,
     city: user.city,
     gender: user.gender,
-    dateOfBirth: new Date(user.dateOfBirth).toISOString().split("T")[0], // Formatted for date picker
+    dateOfBirth: new Date(user.dateOfBirth).toISOString().split("T")[0],
   });
 
-  // Colors
+  const [errors, setErrors] = useState({});
+
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+    const nameRegex = /^[A-Za-z\s]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const mobileRegex = /^07[0-9]{8}$/;
+
+    switch (name) {
+      case "name":
+        if (value && !nameRegex.test(value))
+          newErrors.name = "Only letters and spaces allowed.";
+        else delete newErrors.name;
+        break;
+      case "email":
+        if (value && !emailRegex.test(value))
+          newErrors.email = "Invalid email format.";
+        else delete newErrors.email;
+        break;
+      case "mobile":
+        if (value && !mobileRegex.test(value))
+          newErrors.mobile = "Mobile must start with 07 and be 10 digits.";
+        else delete newErrors.mobile;
+        break;
+      case "dateOfBirth":
+        if (!value) newErrors.dateOfBirth = "Required";
+        else if (value >= today) newErrors.dateOfBirth = "Must be a past date.";
+        else delete newErrors.dateOfBirth;
+        break;
+      default:
+        break;
+    }
+
+    setErrors(newErrors);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let formattedValue = value;
+    if (name === "name")
+      formattedValue = value.replace(/\b\w/g, (char) => char.toUpperCase());
+
+    if (name === "country") {
+      setFormData({
+        ...formData,
+        country: formattedValue,
+        city: countryOptions[formattedValue]?.[0] || "",
+      });
+    } else {
+      setFormData({ ...formData, [name]: formattedValue });
+    }
+
+    validateField(name, formattedValue);
+  };
+
+  const isFormValid = () => {
+    const validationFields = ["name", "email", "mobile", "dateOfBirth"];
+    validationFields.forEach((key) => validateField(key, formData[key]));
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleUpdate = async () => {
+    if (!isFormValid()) return;
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/users/${user._id}`,
+        formData
+      );
+      if (response.status === 200) {
+        alert("Patient details updated successfully!");
+        window.location.reload();
+        if (onUpdate) onUpdate(response.data);
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  };
+
   const colors = {
     darkGray: "#71717d",
     gray: "#828487",
@@ -39,13 +121,10 @@ function UpdateUser({ user, onClose }) {
     green: "#2fb297",
   };
 
-  // Gender options
   const genderOptions = ["Male", "Female", "Other"].map((g) => ({
     value: g,
     label: g,
   }));
-
-  // Blood group options
   const bloodGroupOptions = [
     "A+",
     "A-",
@@ -55,12 +134,8 @@ function UpdateUser({ user, onClose }) {
     "AB-",
     "O+",
     "O-",
-  ].map((group) => ({
-    value: group,
-    label: group,
-  }));
+  ].map((group) => ({ value: group, label: group }));
 
-  // Country and City options
   const countryOptions = {
     SriLanka: ["Colombo", "Kandy", "Galle", "Jaffna", "Kurunegala"],
     USA: ["New York", "Los Angeles", "Chicago", "Houston", "Miami"],
@@ -73,45 +148,6 @@ function UpdateUser({ user, onClose }) {
     label: country,
   }));
 
-  // Handle input change
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "country") {
-      setFormData({
-        ...formData,
-        country: value,
-        city: countryOptions[value]?.[0] || "",
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
-
-  // Handle update submission
-  const handleUpdate = async () => {
-    try {
-      const response = await axios.put(
-        `http://localhost:5000/api/users/${user._id}`,
-        formData
-      );
-
-      if (response.status === 200) {
-        alert("Patient details updated successfully!");
-        window.location.reload();
-
-        if (onUpdate) {
-          onUpdate(response.data); // Call onUpdate to refresh UI
-        }
-
-        onClose(); // Close modal
-      }
-    } catch (error) {
-      console.error("Error updating user:", error);
-    }
-  };
-
-  // Custom styles for inputs
   const inputStyle = {
     "& .MuiOutlinedInput-root": {
       "&.Mui-focused fieldset": {
@@ -144,7 +180,6 @@ function UpdateUser({ user, onClose }) {
           border: `2px solid ${colors.green}`,
         }}
       >
-        {/* Header */}
         <Box
           sx={{
             display: "flex",
@@ -168,7 +203,6 @@ function UpdateUser({ user, onClose }) {
         </Box>
 
         <Grid container spacing={2}>
-          {/* Name */}
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -176,6 +210,8 @@ function UpdateUser({ user, onClose }) {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              error={!!errors.name}
+              helperText={errors.name}
               sx={inputStyle}
               InputProps={{
                 startAdornment: (
@@ -187,7 +223,6 @@ function UpdateUser({ user, onClose }) {
             />
           </Grid>
 
-          {/* Email */}
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -195,6 +230,8 @@ function UpdateUser({ user, onClose }) {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              error={!!errors.email}
+              helperText={errors.email}
               sx={inputStyle}
               InputProps={{
                 startAdornment: (
@@ -206,7 +243,6 @@ function UpdateUser({ user, onClose }) {
             />
           </Grid>
 
-          {/* Mobile */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -214,6 +250,16 @@ function UpdateUser({ user, onClose }) {
               name="mobile"
               value={formData.mobile}
               onChange={handleChange}
+              error={!!errors.mobile}
+              helperText={errors.mobile}
+              inputProps={{
+                inputMode: "numeric",
+                pattern: "07[0-9]{8}",
+                maxLength: 10,
+              }}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) e.preventDefault();
+              }}
               sx={inputStyle}
               InputProps={{
                 startAdornment: (
@@ -225,7 +271,6 @@ function UpdateUser({ user, onClose }) {
             />
           </Grid>
 
-          {/* Date of Birth (Moved Up) */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -235,6 +280,9 @@ function UpdateUser({ user, onClose }) {
               value={formData.dateOfBirth}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
+              inputProps={{ max: today }}
+              error={!!errors.dateOfBirth}
+              helperText={errors.dateOfBirth}
               sx={inputStyle}
               InputProps={{
                 startAdornment: (
@@ -246,7 +294,6 @@ function UpdateUser({ user, onClose }) {
             />
           </Grid>
 
-          {/* Blood Group */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -265,7 +312,6 @@ function UpdateUser({ user, onClose }) {
             </TextField>
           </Grid>
 
-          {/* Gender */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -284,7 +330,6 @@ function UpdateUser({ user, onClose }) {
             </TextField>
           </Grid>
 
-          {/* Country */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -303,7 +348,6 @@ function UpdateUser({ user, onClose }) {
             </TextField>
           </Grid>
 
-          {/* City */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -323,7 +367,6 @@ function UpdateUser({ user, onClose }) {
           </Grid>
         </Grid>
 
-        {/* Buttons */}
         <Box
           sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}
         >

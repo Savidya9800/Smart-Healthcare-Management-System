@@ -92,7 +92,7 @@ function Nav() {
             </Link>
           ))}
           
-          {/* Sign In dropdown or My Account based on authentication status */}
+          {/* Sign In button directly navigates to '/Login' */}
           {isAuthenticated ? (
             <Link
               to="/User-Account"

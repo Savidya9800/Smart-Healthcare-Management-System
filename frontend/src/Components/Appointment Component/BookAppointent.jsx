@@ -73,7 +73,7 @@ function BookAppointment() {
 
   const validate = () => {
     let tempErrors = {};
-    
+
     if (!/^[A-Za-z\s]+$/.test(input.name)) {
       tempErrors.name = "Name cannot contain numbers";
     }
@@ -227,7 +227,6 @@ const handleSubmit = async (e) => {
               {/* Step 1 Form */}
               {step === 1 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {/* Doctor Selection */}
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Select Doctor
@@ -258,7 +257,6 @@ const handleSubmit = async (e) => {
                     )}
                   </div>
 
-                  {/* Specialization */}
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Specialization
@@ -289,7 +287,6 @@ const handleSubmit = async (e) => {
                     )}
                   </div>
 
-                  {/* Date Selection */}
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Select Date
@@ -303,7 +300,7 @@ const handleSubmit = async (e) => {
                         name="date"
                         value={input.date}
                         onChange={handleChange}
-                        min={new Date().toISOString().split('T')[0]}
+                        min={new Date().toISOString().split("T")[0]}
                         className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       />
                     </div>
@@ -314,7 +311,6 @@ const handleSubmit = async (e) => {
                     )}
                   </div>
 
-                  {/* Time Selection */}
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Select Time
@@ -344,27 +340,29 @@ const handleSubmit = async (e) => {
                     )}
                   </div>
 
-                  {/* Next Button - Full Width */}
                   <div className="md:col-span-2 mt-4">
-                  <div className="md:col-span-2 mt-4">
-  <button
-    onClick={() => {
-      if (validateStep1()) {
-        setStep(2);
-      }
-    }}
-    className={`w-full py-2.5 ${
-      !input.doctorName || !input.specialization || !input.date || !input.time
-        ? "bg-[#2b2c6c] hover:bg-gray-400 cursor-not-allowed"
-        : "bg-[#2b2c6c] hover:bg-gray-400"
-    } text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center`}
-    style={{ borderRadius: "7px" }}
-    type="button"
-  >
-    Continue to Patient Details
-    <CheckCircle size={24} className="ml-2" />
-  </button>
-</div>
+                    <div className="md:col-span-2 mt-4">
+                      <button
+                        onClick={() => {
+                          if (validateStep1()) {
+                            setStep(2);
+                          }
+                        }}
+                        className={`w-full py-2.5 ${
+                          !input.doctorName ||
+                          !input.specialization ||
+                          !input.date ||
+                          !input.time
+                            ? "bg-[#2b2c6c] hover:bg-gray-400 cursor-not-allowed"
+                            : "bg-[#2b2c6c] hover:bg-gray-400"
+                        } text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center`}
+                        style={{ borderRadius: "7px" }}
+                        type="button"
+                      >
+                        Continue to Patient Details
+                        <CheckCircle size={24} className="ml-2" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -373,7 +371,6 @@ const handleSubmit = async (e) => {
               {step === 2 && (
                 <form onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {/* Full Name */}
                     <div>
                       <label className="block text-gray-700 text-sm font-medium mb-2">
                         Full Name
@@ -399,7 +396,6 @@ const handleSubmit = async (e) => {
                       )}
                     </div>
 
-                    {/* Phone Number */}
                     <div>
                       <label className="block text-gray-700 text-sm font-medium mb-2">
                         Phone Number
@@ -425,7 +421,6 @@ const handleSubmit = async (e) => {
                       )}
                     </div>
 
-                    {/* NIC */}
                     <div>
                       <label className="block text-gray-700 text-sm font-medium mb-2">
                         NIC
@@ -451,7 +446,6 @@ const handleSubmit = async (e) => {
                       )}
                     </div>
 
-                    {/* Email */}
                     <div>
                       <label className="block text-gray-700 text-sm font-medium mb-2">
                         Email
@@ -477,34 +471,38 @@ const handleSubmit = async (e) => {
                       )}
                     </div>
 
-                    {/* Address - Full Width */}
                     <div className="md:col-span-2">
-  <label className="block text-gray-700 text-sm font-medium mb-2">
-    Address <span className="text-xs text-gray-500">(max 30 characters)</span>
-  </label>
-  <div className="relative">
-    <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
-      <MapPin size={24} className="text-[#2b2c6c]" />
-    </div>
-    <textarea
-      name="address"
-      value={input.address}
-      onChange={handleChange}
-      required
-      maxLength={30}
-      placeholder="Enter your address (max 30 characters)"
-      className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent h-12 resize-none"
-    />
-    <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-      {input.address.length}/30
-    </div>
-  </div>
-  {errors.address && (
-    <p className="text-[#e6317d] text-xs mt-1">{errors.address}</p>
-  )}
-</div>
+                      <label className="block text-gray-700 text-sm font-medium mb-2">
+                        Address{" "}
+                        <span className="text-xs text-gray-500">
+                          (max 30 characters)
+                        </span>
+                      </label>
+                      <div className="relative">
+                        <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
+                          <MapPin size={24} className="text-[#2b2c6c]" />
+                        </div>
+                        <textarea
+                          name="address"
+                          value={input.address}
+                          onChange={handleChange}
+                          required
+                          maxLength={30}
+                          placeholder="Enter your address (max 30 characters)"
+                          className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent h-12 resize-none"
+                        />
+                        <div className="absolute bottom-2 right-2 text-xs text-gray-500">
+                          {input.address.length}/30
+                        </div>
+                      </div>
+                      {errors.address && (
+                        <p className="text-[#e6317d] text-xs mt-1">
+                          {errors.address}
+                        </p>
+                      )}
+                    </div>
 
-                    {/* Buttons - Full Width */}
+                    
                     <div className="md:col-span-2 mt-4 flex gap-4">
                       <button
                         type="button"
@@ -530,7 +528,7 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
-          {/* Additional Info - More Compact */}
+         
           <div className="mt-4 bg-white rounded-lg p-4 shadow-sm border-l-4 border-[#2fb297] flex items-start">
             <div className="mr-3 text-[#2fb297] mt-1">
               <Calendar size={24} />

@@ -1,8 +1,24 @@
 import React, { useState } from "react";
 import axios from "axios";
-import UAdminLayout from "./UAdminLayout"; // Import UAdminLayout
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import UAdminLayout from "./UAdminLayout";
+import {
+  User,
+  Mail,
+  Lock,
+  Phone,
+  MapPin,
+  Globe,
+  Calendar,
+  Droplet,
+  Users,
+  ChevronRight,
+  ChevronLeft,
+  Save,
+} from "lucide-react";
 
 function AddNewPatient({ onSuccess }) {
+  const navigate = useNavigate(); // Initialize useNavigate hook
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -16,41 +32,77 @@ function AddNewPatient({ onSuccess }) {
     dateOfBirth: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const validateField = (name, value) => {
+    let message = "";
+    if (name === "email" && value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) message = "Invalid email format.";
+    }
+    if (name === "mobile" && value) {
+      const phoneRegex = /^07[0-9]{8}$/;
+      if (!phoneRegex.test(value))
+        message = "Mobile must be 10 digits starting with 07.";
+    }
+    if (name === "dateOfBirth" && value) {
+      const selectedDate = new Date(value);
+      const now = new Date();
+      if (selectedDate > now)
+        message = "Date of birth cannot be in the future.";
+    }
+    setErrors((prev) => ({ ...prev, [name]: message }));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    validateField(name, value);
   };
 
-  const handleNext = () => {
-    setStep(2);
-  };
-
-  const handlePrevious = () => {
-    setStep(1);
-  };
+  const handleNext = () => setStep(2);
+  const handlePrevious = () => setStep(1);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    // Ensure all fields are validated before submission
+    let valid = true;
+    const validationErrors = {};
+
+    // Validate all fields
+    Object.keys(formData).forEach((field) => {
+      validateField(field, formData[field]);
+      if (errors[field]) {
+        valid = false;
+        validationErrors[field] = errors[field];
+      }
+    });
+
+    if (!valid) {
+      setErrors(validationErrors);
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Add current date as registration date
       const dataToSubmit = {
         ...formData,
         regDate: new Date().toISOString().split("T")[0],
       };
 
-      // Send POST request to the register API
       const response = await axios.post(
         "http://localhost:5000/api/auth/register",
         dataToSubmit
       );
-      console.log(response.data);
       alert("Patient registered successfully!");
+
+      // Navigate to User-Management page after successful registration
+      navigate("/User-Management"); // Add navigation here
       if (onSuccess) onSuccess();
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
@@ -59,288 +111,278 @@ function AddNewPatient({ onSuccess }) {
     }
   };
 
+  const inputBaseClass =
+    "w-full pl-11 pr-4 py-[14px] rounded-lg border focus:outline-none transition duration-150 ease-in-out";
+  const errorClass = "border-red-500 focus:ring-red-300";
+  const normalClass = "border-gray-200 focus:ring-2 focus:ring-[#2fb297]";
+
+  const renderError = (field) =>
+    errors[field] && (
+      <p className="mt-1 ml-1 text-sm text-red-600">{errors[field]}</p>
+    );
+
   return (
     <UAdminLayout>
-      <div className="bg-white rounded-lg">
+      <div className="max-w-4xl mx-auto">
         {error && (
-          <div className="p-3 mb-6 text-red-600 border border-red-200 rounded-lg bg-red-50">
+          <div className="p-3 mb-6 text-red-600 border border-red-200 rounded-lg shadow-sm bg-red-50">
             {error}
           </div>
         )}
 
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full font-medium text-white ${
-                  step >= 1 ? "bg-[#2fb297]" : "bg-[#71717d]"
-                }`}
-              >
-                1
-              </div>
-              <div className="ml-3">
-                <p
-                  className={`font-medium ${
-                    step === 1 ? "text-[#2b2c6c]" : "text-[#71717d]"
+        <div className="overflow-hidden bg-white rounded-lg shadow-lg">
+          {/* Progress Header */}
+          <div className="bg-[#2b2c6c] p-6 text-white">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`flex items-center justify-center w-10 h-10 rounded-full text-white border-2 ${
+                    step >= 1
+                      ? "bg-[#2fb297] border-[#2fb297]"
+                      : "bg-[#71717d] border-[#71717d]"
                   }`}
                 >
-                  Personal Information
-                </p>
+                  <span>1</span>
+                </div>
+                <span className="font-medium">Basic Details</span>
               </div>
-            </div>
 
-            <div className="flex-grow mx-4">
-              <div
-                className={`h-1 rounded-full ${
-                  step >= 2 ? "bg-[#2fb297]" : "bg-gray-200"
-                }`}
-              ></div>
-            </div>
-
-            <div className="flex items-center">
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full font-medium text-white ${
-                  step >= 2 ? "bg-[#2fb297]" : "bg-[#71717d]"
-                }`}
-              >
-                2
+              <div className="flex-grow mx-6">
+                <div className="h-1 bg-gray-200 rounded-full">
+                  <div
+                    className="h-1 rounded-full bg-[#2fb297]"
+                    style={{ width: step === 1 ? "50%" : "100%" }}
+                  ></div>
+                </div>
               </div>
-              <div className="ml-3">
-                <p
-                  className={`font-medium ${
-                    step === 2 ? "text-[#2b2c6c]" : "text-[#71717d]"
+
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`flex items-center justify-center w-10 h-10 rounded-full text-white border-2 ${
+                    step >= 2
+                      ? "bg-[#2fb297] border-[#2fb297]"
+                      : "bg-[#71717d] border-[#71717d]"
                   }`}
                 >
-                  Additional Details
-                </p>
+                  <span>2</span>
+                </div>
+                <span className="font-medium">Additional Info</span>
               </div>
             </div>
           </div>
-        </div>
 
-        <form onSubmit={handleSubmit}>
-          {step === 1 && (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="transition-all duration-300 transform hover:scale-[1.02]">
-                <label
-                  htmlFor="name"
-                  className="block text-[#71717d] mb-2 text-sm font-medium"
-                >
-                  Patient Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2fb297]"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
+          {/* Form Content */}
+          <form onSubmit={handleSubmit} className="p-6">
+            {/* Basic Details Step */}
+            {step === 1 && (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {[
+                  {
+                    name: "name",
+                    label: "Patient Name",
+                    type: "text",
+                    icon: <User size={18} />,
+                    placeholder: "Enter patient name",
+                  },
+                  {
+                    name: "email",
+                    label: "Email Address",
+                    type: "email",
+                    icon: <Mail size={18} />,
+                    placeholder: "patient@example.com",
+                  },
+                  {
+                    name: "password",
+                    label: "Password",
+                    type: "password",
+                    icon: <Lock size={18} />,
+                    placeholder: "••••••••",
+                  },
+                  {
+                    name: "mobile",
+                    label: "Mobile Number",
+                    type: "text",
+                    icon: <Phone size={18} />,
+                    placeholder: "0712345678",
+                  },
+                ].map(({ name, label, type, icon, placeholder }) => (
+                  <div className="relative" key={name}>
+                    <label
+                      htmlFor={name}
+                      className="block text-[#71717d] mb-2 text-sm font-medium"
+                    >
+                      {label}
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#71717d]">
+                        {icon}
+                      </span>
+                      <input
+                        type={type}
+                        id={name}
+                        name={name}
+                        placeholder={placeholder}
+                        value={formData[name]}
+                        onChange={handleInputChange}
+                        className={`${inputBaseClass} ${
+                          errors[name] ? errorClass : normalClass
+                        } placeholder-gray-400`}
+                      />
+                    </div>
+                    {renderError(name)}
+                  </div>
+                ))}
 
-              <div className="transition-all duration-300 transform hover:scale-[1.02]">
-                <label
-                  htmlFor="email"
-                  className="block text-[#71717d] mb-2 text-sm font-medium"
-                >
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2fb297]"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
+                <div className="relative">
+                  <label className="block text-[#71717d] mb-2 text-sm font-medium">
+                    Gender
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#71717d]">
+                      <Users size={18} />
+                    </span>
+                    <select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleInputChange}
+                      className={`${inputBaseClass} ${
+                        errors.gender ? errorClass : normalClass
+                      } text-gray-700 bg-white pr-8`}
+                    >
+                      <option value="Not Specified">Not Specified</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <span className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-[#71717d]">
+                      <ChevronRight size={16} />
+                    </span>
+                  </div>
+                </div>
 
-              <div className="transition-all duration-300 transform hover:scale-[1.02]">
-                <label
-                  htmlFor="password"
-                  className="block text-[#71717d] mb-2 text-sm font-medium"
-                >
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2fb297]"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="transition-all duration-300 transform hover:scale-[1.02]">
-                <label
-                  htmlFor="mobile"
-                  className="block text-[#71717d] mb-2 text-sm font-medium"
-                >
-                  Mobile Number
-                </label>
-                <input
-                  type="text"
-                  id="mobile"
-                  name="mobile"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2fb297]"
-                  value={formData.mobile}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="transition-all duration-300 transform hover:scale-[1.02]">
-                <label
-                  htmlFor="gender"
-                  className="block text-[#71717d] mb-2 text-sm font-medium"
-                >
-                  Gender
-                </label>
-                <select
-                  id="gender"
-                  name="gender"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2fb297]"
-                  value={formData.gender}
-                  onChange={handleInputChange}
-                >
-                  <option value="Not Specified">Not Specified</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div className="transition-all duration-300 transform hover:scale-[1.02]">
-                <label
-                  htmlFor="dateOfBirth"
-                  className="block text-[#71717d] mb-2 text-sm font-medium"
-                >
-                  Date of Birth
-                </label>
-                <input
-                  type="date"
-                  id="dateOfBirth"
-                  name="dateOfBirth"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2fb297]"
-                  value={formData.dateOfBirth}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="flex justify-end mt-6 md:col-span-2">
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="px-6 py-3 bg-[#2fb297] text-white rounded-lg hover:bg-[#28a68b] transition-colors font-medium shadow-md hover:shadow-lg flex items-center space-x-2"
-                >
-                  <span>Next Step</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-5 h-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
+                <div className="relative">
+                  <label className="block text-[#71717d] mb-2 text-sm font-medium">
+                    Date of Birth
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#71717d]">
+                      <Calendar size={18} />
+                    </span>
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleInputChange}
+                      className={`${inputBaseClass} ${
+                        errors.dateOfBirth ? errorClass : normalClass
+                      } text-gray-700`}
                     />
-                  </svg>
-                </button>
+                  </div>
+                  {renderError("dateOfBirth")}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {step === 2 && (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="transition-all duration-300 transform hover:scale-[1.02]">
-                <label
-                  htmlFor="bloodGroup"
-                  className="block text-[#71717d] mb-2 text-sm font-medium"
-                >
-                  Blood Group
-                </label>
-                <select
-                  id="bloodGroup"
-                  name="bloodGroup"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2fb297]"
-                  value={formData.bloodGroup}
-                  onChange={handleInputChange}
-                >
-                  <option value="Not Specified">Not Specified</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                </select>
+            {/* Additional Info Step */}
+            {step === 2 && (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {[
+                  {
+                    name: "bloodGroup",
+                    label: "Blood Group",
+                    icon: <Droplet size={18} />,
+                    type: "select",
+                    options: [
+                      "Not Specified",
+                      "A+",
+                      "A-",
+                      "B+",
+                      "B-",
+                      "O+",
+                      "O-",
+                      "AB+",
+                      "AB-",
+                    ],
+                  },
+                  {
+                    name: "country",
+                    label: "Country",
+                    icon: <Globe size={18} />,
+                    type: "text",
+                    placeholder: "Enter country",
+                  },
+                  {
+                    name: "city",
+                    label: "City",
+                    icon: <MapPin size={18} />,
+                    type: "text",
+                    placeholder: "Enter city",
+                  },
+                ].map((field) => (
+                  <div className="relative" key={field.name}>
+                    <label className="block text-[#71717d] mb-2 text-sm font-medium">
+                      {field.label}
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#71717d]">
+                        {field.icon}
+                      </span>
+                      {field.type === "select" ? (
+                        <select
+                          name={field.name}
+                          value={formData[field.name]}
+                          onChange={handleInputChange}
+                          className={`${inputBaseClass} ${normalClass} pr-8 text-gray-700 bg-white`}
+                        >
+                          {field.options.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type={field.type}
+                          name={field.name}
+                          placeholder={field.placeholder}
+                          value={formData[field.name]}
+                          onChange={handleInputChange}
+                          className={`${inputBaseClass} ${normalClass} placeholder-gray-400`}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
+            )}
 
-              <div className="transition-all duration-300 transform hover:scale-[1.02]">
-                <label
-                  htmlFor="country"
-                  className="block text-[#71717d] mb-2 text-sm font-medium"
-                >
-                  Country
-                </label>
-                <input
-                  type="text"
-                  id="country"
-                  name="country"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2fb297]"
-                  value={formData.country}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="transition-all duration-300 transform hover:scale-[1.02]">
-                <label
-                  htmlFor="city"
-                  className="block text-[#71717d] mb-2 text-sm font-medium"
-                >
-                  City
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2fb297]"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="flex justify-between mt-6 md:col-span-2">
+            {/* Navigation Buttons */}
+            <div className="flex justify-between mt-8">
+              {step === 2 ? (
                 <button
                   type="button"
                   onClick={handlePrevious}
-                  className="px-6 py-3 bg-[#71717d] text-white rounded-lg hover:bg-[#828487] transition-colors font-medium shadow-md hover:shadow-lg flex items-center space-x-2"
+                  className="px-6 py-3 bg-[#71717d] text-white rounded-lg hover:bg-[#828487] transition-colors font-medium shadow hover:shadow-md flex items-center gap-2"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-5 h-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>Previous Section</span>
+                  <ChevronLeft size={18} />
+                  <span>Previous</span>
                 </button>
-
+              ) : (
+                <div />
+              )}
+              {step === 1 ? (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="px-6 py-3 bg-[#2fb297] text-white rounded-lg hover:bg-[#28a68b] transition-colors font-medium shadow hover:shadow-md flex items-center gap-2"
+                >
+                  <span>Next Section</span>
+                  <ChevronRight size={18} />
+                </button>
+              ) : (
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-[#2fb297] text-white rounded-lg hover:bg-[#28a68b] transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center space-x-2"
+                  className="px-6 py-3 bg-[#2fb297] text-white rounded-lg hover:bg-[#28a68b] transition-colors font-medium shadow hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
                   disabled={loading}
                 >
                   {loading ? (
@@ -348,25 +390,14 @@ function AddNewPatient({ onSuccess }) {
                   ) : (
                     <>
                       <span>Register Patient</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                      <Save size={18} />
                     </>
                   )}
                 </button>
-              </div>
+              )}
             </div>
-          )}
-        </form>
+          </form>
+        </div>
       </div>
     </UAdminLayout>
   );
