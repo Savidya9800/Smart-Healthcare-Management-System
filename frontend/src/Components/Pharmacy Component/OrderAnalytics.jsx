@@ -6,6 +6,7 @@ function OrderAnalytics() {
     <PAdminLayout>
       <h1>Orders</h1>
     </PAdminLayout>
+    //this is the order analytics page for the pharmacy admin
   );
 }
 
