@@ -81,7 +81,7 @@ function StockAdding() {
     if (!packSize) return "Pack size is required";
     if (isNaN(packSize)) return "Must be a number";
     if (packSize <= 0) return "Must be positive";
-    if (packSize > 10000) return "Cannot exceed 10000";
+    if (packSize > 1000) return "Cannot exceed 1000";
     return "";
   };
 

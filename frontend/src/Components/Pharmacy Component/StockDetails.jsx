@@ -17,7 +17,7 @@ function StockDetails({ stockItems, onDelete, onUpdateClick }) {
   const filteredItems = stockItems.filter(item => {
     // Search filtering across name, company, and type
     const matchesSearch = 
-      searchTerm === '' || 
+      searchTerm === '' ||
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       item.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.type.toLowerCase().includes(searchTerm.toLowerCase());
