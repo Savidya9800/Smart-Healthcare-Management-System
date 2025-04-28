@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import PAdminLayout from "./PAdminLayout";
 import { ChevronRight, ChevronLeft, Check } from "lucide-react";
-
+// This component allows the pharmacy admin to add stock information for medicines
 function StockAdding() {
   const [currentSection, setCurrentSection] = useState(1);
   const [stockData, setStockData] = useState({
