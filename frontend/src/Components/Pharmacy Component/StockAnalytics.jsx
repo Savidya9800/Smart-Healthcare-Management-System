@@ -11,4 +11,5 @@ function StockAnalytics() {
   );
 }
 //stockAnalytics pages
+
 export default StockAnalytics;
