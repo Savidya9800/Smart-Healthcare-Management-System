@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
   Box,
   TextField,
@@ -93,6 +94,50 @@ function Login() {
       );
     } finally {
       setLoading(false);
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        formData
+      );
+      localStorage.setItem("token", response.data.token);
+
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      const adminEmails = [
+        "useradmin@gmail.com",
+        "pharmacyadmin@gmail.com",
+        "doctoradmin@gmail.com",
+        "appointmentadmin@gmail.com",
+      ];
+
+      if (adminEmails.includes(formData.email)) {
+        if (formData.email === "useradmin@gmail.com") {
+          navigate("/User-Dashboard");
+        } else if (formData.email === "pharmacyadmin@gmail.com") {
+          navigate("/Pharmacy-Dashboard");
+        } else if (formData.email === "doctoradmin@gmail.com") {
+          navigate("/Doctor-Dashboard");
+        } else if (formData.email === "appointmentadmin@gmail.com") {
+          navigate("/Appointment-Dashboard");
+        }
+      } else {
+        navigate("/Home");
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text:
+          error.response?.data?.message ||
+          "Login failed. Please check your credentials.",
+      });
     }
   };
 

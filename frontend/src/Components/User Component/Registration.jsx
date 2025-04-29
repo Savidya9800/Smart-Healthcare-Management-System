@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
   Box,
   TextField,
@@ -99,13 +100,35 @@ function Registration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!validateForm()) return;
+
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+
+    const { name, email, password } = formData;
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", formData);
+      await axios.post("http://localhost:5000/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Registered Successfully!",
+        text: "You can now login.",
+        showConfirmButton: true,
+      });
+
       navigate("/login");
     } catch (error) {
-      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Registration Failed",
+        text: error.response?.data?.message || "Something went wrong!",
+      });
     } finally {
       setLoading(false);
     }
