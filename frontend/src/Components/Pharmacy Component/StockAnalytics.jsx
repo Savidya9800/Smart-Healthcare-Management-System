@@ -10,5 +10,5 @@ function StockAnalytics() {
     </PAdminLayout>
   );
 }
-
+//stockAnalytics pages
 export default StockAnalytics;
