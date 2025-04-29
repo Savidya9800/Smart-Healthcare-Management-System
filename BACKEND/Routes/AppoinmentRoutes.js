@@ -14,6 +14,9 @@ router.get("/:id",appoinmentController.getById);
 router.put("/:id",appoinmentController.updateAppoinment);
 router.delete("/:id",appoinmentController.deleteAppoinment);
 
+router.post("/send-confirmation", appoinmentController.sendConfirmationEmail);
+
+
 
 
 

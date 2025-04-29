@@ -254,7 +254,7 @@ function ViewAppointments() {
               <Tooltip title="Generate PDF Report">
                 <IconButton 
                   onClick={generateReport}
-                  sx={{ backgroundColor: "#4f39f6", color: "white", '&:hover': { backgroundColor: "#3a2bb5" } }}
+                  sx={{ backgroundColor: "#4f39f6",borderRadius:"10%", color: "white", '&:hover': { backgroundColor: "#3a2bb5" } }}
                 >
                   <PictureAsPdf />
                 </IconButton>

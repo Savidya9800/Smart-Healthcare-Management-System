@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Nav from "../Nav Component/Nav";
 import SectionHeader from "../Nav Component/SectionHeader";
 import Footer from "../Nav Component/Footer";
@@ -97,52 +97,51 @@ function BookAppointment() {
   const handleChange = (e) => {
     const { name, value } = e.target;
   
-    // If doctor is selected, set both doctor_id and doctorName
     if (name === "doctorName") {
       const selectedDoctor = doctors.find((doctor) => doctor._id === value);
       setInputs({
         ...input,
         doctor_id: selectedDoctor ? selectedDoctor._id : "",
         doctorName: selectedDoctor ? selectedDoctor.name : "",
+        specialization: selectedDoctor ? selectedDoctor.specialization : ""
       });
     } else {
       setInputs({ ...input, [name]: value });
     }
   };
-  
-const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  if (!validate()) {
-    return;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    await axios.post("http://localhost:5000/api/appoinment", {
-      ...input,
-      doctor_id: input.doctor_id, // Ensure doctor_id is sent
-    });
+    if (!validate()) {
+      return;
+    }
 
-    history("/Appoinment-Display");
-  } catch (error) {
-    console.error("Error submitting appointment:", error);
-  }
-};
+    try {
+      await axios.post("http://localhost:5000/api/appoinment", {
+        ...input,
+        doctor_id: input.doctor_id,
+      });
 
+      history("/Appoinment-Display");
+    } catch (error) {
+      console.error("Error submitting appointment:", error);
+    }
+  };
 
-    // Fetch doctors from API
-    useEffect(() => {
-      const fetchDoctors = async () => {
-        try {
-          const response = await axios.get("http://localhost:5000/api/doctor/");
-          setDoctors(response.data);
-        } catch (error) {
-          console.error("Error fetching doctors:", error);
-        }
-      };
-  
-      fetchDoctors();
-    }, []);
+  // Fetch doctors from API
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/doctor/");
+        setDoctors(response.data);
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   const [step, setStep] = useState(1);
 
@@ -248,7 +247,6 @@ const handleSubmit = async (e) => {
                           </option>
                         ))}
                       </select>
-
                     </div>
                     {errors.doctorName && (
                       <p className="text-[#e6317d] text-xs mt-1">
@@ -258,34 +256,43 @@ const handleSubmit = async (e) => {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 text-base font-medium mb-2">
-                      Specialization
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Stethoscope size={24} className="text-[#2b2c6c]" />
-                      </div>
-                      <select
-                        name="specialization"
-                        value={input.specialization}
-                        onChange={handleChange}
-                        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
-                      >
-                        <option value="">Select specialization</option>
-                        <option value="Cardiology">Cardiology</option>
-                        <option value="Neurology">Neurology</option>
-                        <option value="Orthopedics">Orthopedics</option>
-                        <option value="Pediatrics">Pediatrics</option>
-                        <option value="Dermatology">Dermatology</option>
-                        <option value="General">General Medicine</option>
-                      </select>
-                    </div>
-                    {errors.specialization && (
-                      <p className="text-[#e6317d] text-xs mt-1">
-                        {errors.specialization}
-                      </p>
-                    )}
-                  </div>
+  <label className="block text-gray-700 text-base font-medium mb-2">
+    Specialization
+  </label>
+  <div className="relative">
+    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+      <Stethoscope size={24} className="text-[#2b2c6c]" />
+    </div>
+    {input.doctor_id ? (
+      <input
+        name="specialization"
+        value={input.specialization}
+        readOnly
+        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
+      />
+    ) : (
+      <select
+        name="specialization"
+        value={input.specialization}
+        onChange={handleChange}
+        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
+      >
+        <option value="">Select specialization</option>
+        <option value="Cardiology">Cardiology</option>
+        <option value="Neurology">Neurology</option>
+        <option value="Orthopedics">Orthopedics</option>
+        <option value="Pediatrics">Pediatrics</option>
+        <option value="Dermatology">Dermatology</option>
+        <option value="General">General Medicine</option>
+      </select>
+    )}
+  </div>
+  {errors.specialization && (
+    <p className="text-[#e6317d] text-xs mt-1">
+      {errors.specialization}
+    </p>
+  )}
+</div>
 
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
