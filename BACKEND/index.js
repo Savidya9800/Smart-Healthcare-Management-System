@@ -10,10 +10,10 @@ const appointmentRoute = require("./Routes/AppoinmentRoutes"); // Appointment Ro
 const doctorRoute = require("./Routes/DoctorManagement/doctorRoute"); // Doctor Route
 const stockRoute = require("./Routes/StockRoutes"); // Stock Route
 const forgotPasswordRoute = require("./Routes/ForgotPasswordRoutes"); // Forgot Password Routes
-const prescriptionRoute = require("./Routes/DoctorManagement/prescriptionRoute");// Prescription Route
-const doctorLeaveRoutes = require("./Routes/DoctorManagement/doctorLeaveRoutes");// Doctor Leave Route
-const diagnosisRoute = require("./Routes/DoctorManagement/diagnosisRoute");// Diagnosis Route
-
+const prescriptionRoute = require("./Routes/DoctorManagement/prescriptionRoute"); // Prescription Route
+const doctorLeaveRoutes = require("./Routes/DoctorManagement/doctorLeaveRoutes"); // Doctor Leave Route
+const diagnosisRoute = require("./Routes/DoctorManagement/diagnosisRoute"); // Diagnosis Route
+const noveltyRoutes = require("./Routes/NoveltyRoutes"); // Import Novelty Routes
 
 const app = express(); // initialize express application
 
@@ -27,12 +27,15 @@ app.use("/api/users", userRoutes); // Routes for User CRUD
 app.use("/api/appoinment", appointmentRoute); // Routes for Appointment Management
 app.use("/api/doctor", doctorRoute); // Routes for Doctor Management
 app.use("/api/stock", stockRoute); // Routes for Stock Management
-app.use("/api/prescription",prescriptionRoute); // Routes for Prescription Management
-app.use("/api/doctorLeave",doctorLeaveRoutes); // Routes for Doctor Leave Management
+app.use("/api/prescription", prescriptionRoute); // Routes for Prescription Management
+app.use("/api/doctorLeave", doctorLeaveRoutes); // Routes for Doctor Leave Management
 app.use("/api/diagnosis", diagnosisRoute); // Routes for Diagnosis Management
 
 // Forgot Password Routes
 app.use("/api/auth/forgot-password", forgotPasswordRoute); // Routes for Forgot Password functionality
+
+// Use Novelty Routes for analyzing symptoms
+app.use("/api/novelty", noveltyRoutes); // This links the API to the Novelty Routes
 
 // Database Connection
 mongoose

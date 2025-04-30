@@ -39,6 +39,7 @@ import DoctorLeave from "./Components/Doctor Component/DoctorLeave";
 import DoctorDiagnosis from "./Components/Doctor Component/DoctorDiagnosis";
 
 import AddNewUser from "./Components/User Component/UserAdmin/AddNewUser";
+import NoveltyComponent from "./Components/Novelty Component/NoveltyComponent";
 
 function App() {
   return (
@@ -51,7 +52,6 @@ function App() {
           <Route path="/Contact-Us" element={<ContactUs />} />
           <Route path="/Our-Facilities" element={<OurFacilities />} />
           <Route path="/Find-Doctor" element={<FindADoctor />} />
-
           {/*User Components*/}
           <Route path="/User-Management" element={<UserManagement />} />
           <Route path="/Login" element={<Login />} />
@@ -60,21 +60,30 @@ function App() {
           <Route path="/User-Dashboard" element={<UDashboard />} />
           <Route path="/User-Account" element={<MyAccount />} />
           <Route path="/Add-New-Patient" element={<AddNewUser />} />
-          
+          {/* Novelty Component Route */}
+          <Route
+            path="/Novelty-Component"
+            element={<NoveltyComponent />}
+          />{" "}
+          {/* Add Novelty Component route */}
           {/*Pharmacy Components*/}
           <Route path="/Pharmacy-Dashboard" element={<PDashboard />} />
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
           <Route path="/Stock-Adding" element={<StockAdding />} />
-
           {/*Doctor Components*/}
           <Route path="/login-doctor" element={<DoctorLogin />} />
           <Route path="/register-doctor" element={<DoctorRegistration />} />
           <Route path="/Doctor-Dashboard" element={<DDashboard />} />
-          <Route path="/Doctor-Dashboard/View-Appointment" element={<ViewAppointments />} />
+          <Route
+            path="/Doctor-Dashboard/View-Appointment"
+            element={<ViewAppointments />}
+          />
           <Route path="/Doctor-Dashboard/Leave" element={<DoctorLeave />} />
-          <Route path="/Doctor-Dashboard/appointmnet/Diagnosis/:appointmentId" element={<DoctorDiagnosis />} />
-
+          <Route
+            path="/Doctor-Dashboard/appointmnet/Diagnosis/:appointmentId"
+            element={<DoctorDiagnosis />}
+          />
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />
           <Route path="/Appoinment-Display" element={<AppoinmentDisplay />} />
