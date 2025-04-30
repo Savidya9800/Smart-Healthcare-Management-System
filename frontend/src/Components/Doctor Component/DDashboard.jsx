@@ -40,7 +40,7 @@ function DDashboard() {
                 color="success"
                 startIcon={<Event />}
                 fullWidth
-                href="/appointments"
+                href="/Doctor-Dashboard/View-Appointment"
               >
                 View Appointments
               </Button>
