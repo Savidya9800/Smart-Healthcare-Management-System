@@ -18,7 +18,7 @@
 - Medicine ordering and tracking system
 - Automated medicine refill alerts
 
-### ✅ **Reception & Billing**
+### ✅ **Reception Management**
 - AI-powered dynamic wait-time estimation
 - Automated invoice & payment tracking
 
