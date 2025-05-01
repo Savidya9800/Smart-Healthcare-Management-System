@@ -1,17 +1,18 @@
 import React from "react";
-import { Fab } from "@mui/material";
-import ChatIcon from "@mui/icons-material/Chat";
+import chatbotIcon from "../../assets/chatbot.png"; // Adjust if needed
 
 const ChatbotLauncher = ({ onOpen }) => {
   return (
-    <Fab
-      color="secondary"
-      aria-label="chat"
+    <button
       onClick={onOpen}
-      style={{ position: "fixed", bottom: 20, right: 20, zIndex: 1000 }}
+      className="fixed z-50 p-0 bg-transparent border-none cursor-pointer bottom-5 right-5"
     >
-      <ChatIcon />
-    </Fab>
+      <img
+        src={chatbotIcon}
+        alt="chatbot"
+        className="w-[12vw] max-w-[60px] min-w-[40px] animate-[shake_3s_infinite]"
+      />
+    </button>
   );
 };
 
