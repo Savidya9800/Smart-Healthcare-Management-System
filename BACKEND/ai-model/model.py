@@ -5,6 +5,9 @@ import json
 symptoms = json.loads(sys.argv[1])
 symptoms = [s.lower() for s in symptoms]  # normalize
 
+# Debug: Log received input
+print("DEBUG received symptoms:", symptoms, file=sys.stderr)
+
 def match_all(required):
     return all(s.lower() in symptoms for s in required)
 
@@ -41,5 +44,6 @@ def predict(symptoms):
 
     return "Not Conclusive: Seek Clinical Advice"
 
-# Output prediction
-print(predict(symptoms))
+# Output prediction (ensure subprocess captures it)
+print(predict(symptoms), flush=True)
+

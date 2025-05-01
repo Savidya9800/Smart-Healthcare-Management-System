@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -43,8 +43,12 @@ import NoveltyComponent from "./Components/Novelty Component/NoveltyComponent";
 import AnalysisHistory from "./Components/Novelty Component/AnalysisHistory";
 import HealthTrends from "./Components/Novelty Component/HealthTrends";
 import VitalsInputForm from "./Components/Novelty Component/VitalsInputForm";
+import ChatbotLauncher from "./Components/Novelty Component/ChatbotLauncher";
+import HealthChatBot from "./Components/Novelty Component/HealthChatBot";
 
 function App() {
+  const [chatOpen, setChatOpen] = useState(false);
+
   return (
     <div>
       <React.Fragment>
@@ -96,6 +100,9 @@ function App() {
             element={<AppoinmentManagement />}
           />
         </Routes>
+        {/* Chatbot components */}
+        <ChatbotLauncher onOpen={() => setChatOpen(true)} />
+        <HealthChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
       </React.Fragment>
     </div>
   );
