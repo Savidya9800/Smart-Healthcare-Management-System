@@ -40,6 +40,9 @@ import DoctorDiagnosis from "./Components/Doctor Component/DoctorDiagnosis";
 
 import AddNewUser from "./Components/User Component/UserAdmin/AddNewUser";
 import NoveltyComponent from "./Components/Novelty Component/NoveltyComponent";
+import AnalysisHistory from "./Components/Novelty Component/AnalysisHistory";
+import HealthTrends from "./Components/Novelty Component/HealthTrends";
+import VitalsInputForm from "./Components/Novelty Component/VitalsInputForm";
 
 function App() {
   return (
@@ -61,11 +64,12 @@ function App() {
           <Route path="/User-Account" element={<MyAccount />} />
           <Route path="/Add-New-Patient" element={<AddNewUser />} />
           {/* Novelty Component Route */}
-          <Route
-            path="/Novelty-Component"
-            element={<NoveltyComponent />}
-          />{" "}
-          {/* Add Novelty Component route */}
+          <Route path="/symptom-analysis" element={<NoveltyComponent />} />
+          <Route path="/Enter-Vitals" element={<VitalsInputForm />} />
+
+          <Route path="/analysis-history" element={<AnalysisHistory />} />
+          <Route path="/health-trends" element={<HealthTrends />} />
+
           {/*Pharmacy Components*/}
           <Route path="/Pharmacy-Dashboard" element={<PDashboard />} />
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />

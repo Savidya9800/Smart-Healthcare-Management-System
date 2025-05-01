@@ -16,6 +16,8 @@ const diagnosisRoute = require("./Routes/DoctorManagement/diagnosisRoute"); // D
 const noveltyRoutes = require("./Routes/NoveltyRoutes"); // Import Novelty Routes
 
 const app = express(); // initialize express application
+const analysisRoutes = require("./Routes/AnalysisRoutes");
+const vitalsRoutes = require("./Routes/VitalsRoutes");
 
 // Middleware
 app.use(cors());
@@ -36,6 +38,8 @@ app.use("/api/auth/forgot-password", forgotPasswordRoute); // Routes for Forgot 
 
 // Use Novelty Routes for analyzing symptoms
 app.use("/api/novelty", noveltyRoutes); // This links the API to the Novelty Routes
+app.use("/api/analysis", analysisRoutes);
+app.use("/api/vitals", vitalsRoutes);
 
 // Database Connection
 mongoose

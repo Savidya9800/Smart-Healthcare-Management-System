@@ -1,11 +1,7 @@
-// Routes/NoveltyRoutes.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const { analyzeSymptoms } = require("../Controllers/NoveltyController");
 
-// Import the NoveltyController
-const noveltyController = require('../Controllers/NoveltyController');
-
-// POST route to analyze symptoms and predict disease
-router.post('/analyze-symptoms', noveltyController.analyzeSymptoms);
+router.post("/analyze", analyzeSymptoms);
 
 module.exports = router;

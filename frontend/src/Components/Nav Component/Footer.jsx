@@ -4,7 +4,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function Footer() {
   return (
-    <div className="w-full h-[226px] bg-[#2b2c6c] mt-auto flex flex-col justify-between relative">
+    <div className="w-full h-[226px] bg-[#2b2c6c] flex flex-col justify-between relative">
       
       {/* Social Icons */}
       <div className="absolute top-[46px] left-1/2 transform -translate-x-1/2 flex space-x-6 text-white text-3xl">
@@ -33,8 +33,11 @@ function Footer() {
       </div>
 
       {/* Footer Side Image */}
-      <img className="w-[350px] h-[350px] absolute bottom-[-35px] left-[-50px]" src="/Logo2.png" alt="Footer Side Image" />
-      
+      <img
+        className="w-[350px] h-[350px] absolute bottom-[-35px] left-[-50px]"
+        src="/Logo2.png"
+        alt="Footer Side Image"
+      />
     </div>
   );
 }

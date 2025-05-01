@@ -31,6 +31,10 @@ import {
   DeleteForever as DeleteIcon,
 } from "@mui/icons-material";
 import UpdatePatientProfile from "./UpdatePatientProfile";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
+import HistoryIcon from "@mui/icons-material/History";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 
 function PatientProfile() {
   const [user, setUser] = useState(null);
@@ -497,6 +501,79 @@ function PatientProfile() {
                   </Paper>
                 </Grid>
               </Grid>
+            </Grid>
+            {/* Smart Health Tools Section */}
+            {/* Smart Health Tools (Direct Navigation) */}
+            <Grid item xs={12}>
+              <Paper
+                elevation={2}
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  bgcolor: "#ffffff",
+                  border: `1px solid ${theme.palette.grey[300]}`,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="#2b2c6c"
+                  gutterBottom
+                >
+                  Smart Health Tools
+                </Typography>
+
+                <Grid container spacing={2}>
+                  {[
+                    {
+                      label: "Run Symptom Analysis",
+                      icon: <PsychologyIcon sx={{ color: "#e6317d" }} />,
+                      path: "/symptom-analysis",
+                    },
+                    {
+                      label: "Enter Your Vitals",
+                      icon: <MonitorHeartIcon sx={{ color: "#2fb297" }} />,
+                      path: "/enter-vitals",
+                    },
+                    {
+                      label: "View Analysis History",
+                      icon: <HistoryIcon sx={{ color: "#2b2c6c" }} />,
+                      path: "/analysis-history",
+                    },
+                    {
+                      label: "Health Trends",
+                      icon: <ShowChartIcon sx={{ color: "#2fb297" }} />,
+                      path: "/health-trends",
+                    },
+                  ].map(({ label, icon, path }) => (
+                    <Grid item xs={12} sm={6} md={3} key={label}>
+                      <Paper
+                        elevation={1}
+                        sx={{
+                          p: 2,
+                          textAlign: "center",
+                          cursor: "pointer",
+                          border: `1px solid ${theme.palette.grey[200]}`,
+                          "&:hover": {
+                            boxShadow: 4,
+                            borderColor: "#828487",
+                          },
+                        }}
+                        onClick={() => (window.location.href = path)}
+                      >
+                        <IconButton>{icon}</IconButton>
+                        <Typography
+                          variant="subtitle1"
+                          color="#71717d"
+                          fontWeight="medium"
+                        >
+                          {label}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Paper>
             </Grid>
 
             {/* Account Actions Section */}

@@ -1,22 +1,28 @@
-// Controllers/NoveltyController.js
-const analyzeSymptoms = (req, res) => {
-  const symptoms = req.body.symptoms; // Get symptoms from request body
+const { spawn } = require("child_process");
 
-  let disease = '';
+exports.analyzeSymptoms = (req, res) => {
+  const { symptoms } = req.body;
 
-  // Prediction logic based on symptoms
-  if (symptoms.includes('Chest Pain') && symptoms.includes('Shortness of Breath')) {
-    disease = 'Heart Attack';
-  } else if (symptoms.includes('Stomach Pain') && symptoms.includes('Bloating') && symptoms.includes('Heartburn')) {
-    disease = 'Gastritis';
-  } else if (symptoms.includes('Leg Pain') && symptoms.includes('Cold Sweats')) {
-    disease = 'Peripheral Artery Disease';
-  } else {
-    disease = 'Low Risk'; // Default to Low Risk
-  }
+  const python = spawn(
+    "C:\\Users\\Savid\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    ["./ai-model/model.py", JSON.stringify(symptoms)]
+  );
+  /*const python = spawn("python", [
+  "./ai-model/model.py",
+  JSON.stringify(symptoms),
+]);
+*/
 
-  // Send the disease prediction as response
-  res.json({ message: `Possible Condition: ${disease}` });
+  let result = "";
+  python.stdout.on("data", (data) => {
+    result += data.toString();
+  });
+
+  python.stderr.on("data", (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  python.on("close", (code) => {
+    return res.json({ prediction: result.trim() });
+  });
 };
-
-module.exports = { analyzeSymptoms };
