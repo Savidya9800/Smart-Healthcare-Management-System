@@ -65,8 +65,7 @@ function App() {
           <Route path="/Add-New-Patient" element={<AddNewUser />} />
           {/* Novelty Component Route */}
           <Route path="/symptom-analysis" element={<NoveltyComponent />} />
-          <Route path="/Enter-Vitals" element={<VitalsInputForm />} />
-
+          <Route path="/enter-vitals" element={<VitalsInputForm />} />
           <Route path="/analysis-history" element={<AnalysisHistory />} />
           <Route path="/health-trends" element={<HealthTrends />} />
 

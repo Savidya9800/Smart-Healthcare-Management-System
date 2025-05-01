@@ -1,4 +1,3 @@
-// src/Components/Novelty Component/HealthTrends.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import {
@@ -52,7 +51,7 @@ const COLORS = {
   pink: "#e6317d",
   white: "#ffffff",
   blue: "#2b2c6c",
-  green: "#2fb297"
+  green: "#2fb297",
 };
 
 function HealthTrends() {
@@ -60,9 +59,13 @@ function HealthTrends() {
   const [filtered, setFiltered] = useState([]);
   const [range, setRange] = useState("7");
   const [loading, setLoading] = useState(true);
+  const [lastPrediction, setLastPrediction] = useState(
+    localStorage.getItem("lastPrediction")
+  ); 
+
   const chartRef = useRef();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     const fetchVitals = async () => {
@@ -71,23 +74,25 @@ function HealthTrends() {
         const res = await fetch("http://localhost:5000/api/vitals/user", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        
+
         if (!res.ok) {
           throw new Error(`Error: ${res.status}`);
         }
-        
+
         const data = await res.json();
         setVitals(data);
         setFiltered(applyDateFilter(data, 7));
       } catch (err) {
         console.error("Error fetching vitals:", err);
-        // Consider adding error state and display to the user
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchVitals();
+
+    // ✅ Update prediction from localStorage (optional refresh)
+    setLastPrediction(localStorage.getItem("lastPrediction"));
   }, []);
 
   const applyDateFilter = (data, days) => {
@@ -104,15 +109,15 @@ function HealthTrends() {
 
   const exportPDF = () => {
     const input = chartRef.current;
-    
+
     if (!input) return;
-    
+
     html2canvas(input).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("l", "mm", "a4"); // Landscape for better chart visibility
       const width = pdf.internal.pageSize.getWidth();
       const height = (canvas.height * width) / canvas.width;
-      
+
       pdf.addImage(imgData, "PNG", 0, 0, width, height);
       pdf.save(`health-trends-${new Date().toLocaleDateString()}.pdf`);
     });
@@ -121,9 +126,9 @@ function HealthTrends() {
   // Format dates to be more readable
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
     }).format(date);
   };
 
@@ -156,15 +161,15 @@ function HealthTrends() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { 
+      legend: {
         position: "top",
         labels: {
           font: {
             family: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-            size: 12
+            size: 12,
           },
-          color: COLORS.darkGray
-        }
+          color: COLORS.darkGray,
+        },
       },
       tooltip: {
         backgroundColor: COLORS.white,
@@ -175,49 +180,49 @@ function HealthTrends() {
         padding: 10,
         displayColors: false,
         callbacks: {
-          title: function(tooltipItems) {
+          title: function (tooltipItems) {
             return tooltipItems[0].label;
-          }
-        }
-      }
+          },
+        },
+      },
     },
     scales: {
       x: {
         grid: {
-          display: false
+          display: false,
         },
         ticks: {
-          color: COLORS.darkGray
-        }
+          color: COLORS.darkGray,
+        },
       },
       y: {
         grid: {
-          color: `${COLORS.gray}33` // Light grid lines
+          color: `${COLORS.gray}33`, // Light grid lines
         },
         ticks: {
-          color: COLORS.darkGray
-        }
-      }
-    }
+          color: COLORS.darkGray,
+        },
+      },
+    },
   };
 
   const renderNoDataMessage = () => (
-    <Box 
-      sx={{ 
-        height: 250, 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        flexDirection: 'column',
-        gap: 2
+    <Box
+      sx={{
+        height: 250,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        gap: 2,
       }}
     >
       <Typography variant="body1" color={COLORS.darkGray}>
         No data available for the selected time range
       </Typography>
-      <Button 
-        variant="outlined" 
-        color="primary" 
+      <Button
+        variant="outlined"
+        color="primary"
         onClick={() => setRange("9999")}
       >
         View All Data
@@ -226,193 +231,217 @@ function HealthTrends() {
   );
 
   return (
-<>
-    <Nav/>
-    <Container maxWidth="xl" className="py-6">
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          borderRadius: 3, 
-          overflow: 'hidden',
-          p: 3,
-          backgroundColor: COLORS.white,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <TrendingUpIcon sx={{ color: COLORS.pink, mr: 1.5, fontSize: 28 }} />
-          <Typography
-            variant="h4"
-            sx={{ 
-              fontWeight: 600, 
-              color: COLORS.blue,
-              fontSize: isMobile ? '1.5rem' : '2rem'
-            }}
-          >
-            Health Trends
-          </Typography>
-        </Box>
-
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: isMobile ? 'stretch' : 'center', 
-          justifyContent: 'space-between',
-          mb: 4,
-          gap: 2
-        }}>
-          <FormControl 
-            size="small" 
-            sx={{ 
-              minWidth: 150,
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-              }
-            }}
-          >
-            <InputLabel id="range-select-label">Time Range</InputLabel>
-            <Select
-              labelId="range-select-label"
-              value={range}
-              label="Time Range"
-              onChange={handleRangeChange}
+    <>
+      <Nav />
+      <Container maxWidth="xl" className="py-6">
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: 3,
+            overflow: "hidden",
+            p: 3,
+            backgroundColor: COLORS.white,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+            <TrendingUpIcon
+              sx={{ color: COLORS.pink, mr: 1.5, fontSize: 28 }}
+            />
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 600,
+                color: COLORS.blue,
+                fontSize: isMobile ? "1.5rem" : "2rem",
+              }}
             >
-              <MenuItem value="7">Last 7 Days</MenuItem>
-              <MenuItem value="30">Last 30 Days</MenuItem>
-              <MenuItem value="90">Last 90 Days</MenuItem>
-              <MenuItem value="365">Last Year</MenuItem>
-              <MenuItem value="9999">All Time</MenuItem>
-            </Select>
-          </FormControl>
+              Health Trends
+            </Typography>
+          </Box>
 
-          <Button 
-            variant="contained" 
-            startIcon={<DownloadIcon />}
-            onClick={exportPDF}
-            sx={{ 
-              backgroundColor: COLORS.blue,
-              '&:hover': {
-                backgroundColor: `${COLORS.blue}dd`,
-              },
-              borderRadius: 2,
-              px: 3
+          {lastPrediction && (
+            <Typography
+              variant="body1"
+              sx={{ mb: 3, color: COLORS.pink, fontWeight: 500 }}
+            >
+              ✅ Last AI Prediction: {lastPrediction}
+            </Typography>
+          )}
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: isMobile ? "column" : "row",
+              alignItems: isMobile ? "stretch" : "center",
+              justifyContent: "space-between",
+              mb: 4,
+              gap: 2,
             }}
           >
-            Export Report
-          </Button>
-        </Box>
+            <FormControl
+              size="small"
+              sx={{
+                minWidth: 150,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                },
+              }}
+            >
+              <InputLabel id="range-select-label">Time Range</InputLabel>
+              <Select
+                labelId="range-select-label"
+                value={range}
+                label="Time Range"
+                onChange={handleRangeChange}
+              >
+                <MenuItem value="7">Last 7 Days</MenuItem>
+                <MenuItem value="30">Last 30 Days</MenuItem>
+                <MenuItem value="90">Last 90 Days</MenuItem>
+                <MenuItem value="365">Last Year</MenuItem>
+                <MenuItem value="9999">All Time</MenuItem>
+              </Select>
+            </FormControl>
 
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', my: 10 }}>
-            <CircularProgress sx={{ color: COLORS.pink }} />
+            <Button
+              variant="contained"
+              startIcon={<DownloadIcon />}
+              onClick={exportPDF}
+              sx={{
+                backgroundColor: COLORS.blue,
+                "&:hover": {
+                  backgroundColor: `${COLORS.blue}dd`,
+                },
+                borderRadius: 2,
+                px: 3,
+              }}
+            >
+              Export Report
+            </Button>
           </Box>
-        ) : (
-          <div ref={chartRef}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
-                <Paper 
-                  elevation={0} 
-                  sx={{ 
-                    p: 2, 
-                    borderRadius: 2,
-                    height: '100%',
-                    border: `1px solid ${COLORS.gray}20`
-                  }}
-                >
-                  <Typography 
-                    variant="h6" 
-                    gutterBottom 
-                    sx={{ 
-                      color: COLORS.darkGray, 
-                      fontWeight: 500,
-                      pb: 1
-                    }}
-                  >
-                    Blood Pressure (mmHg)
-                  </Typography>
-                  {filtered.length > 0 ? (
-                    <Box sx={{ height: 250 }}>
-                      <Line 
-                        data={generateChart("BP", bpData, COLORS.pink, true)} 
-                        options={chartOptions} 
-                      />
-                    </Box>
-                  ) : renderNoDataMessage()}
-                </Paper>
-              </Grid>
 
-              <Grid item xs={12} md={4}>
-                <Paper 
-                  elevation={0} 
-                  sx={{ 
-                    p: 2, 
-                    borderRadius: 2,
-                    height: '100%',
-                    border: `1px solid ${COLORS.gray}20`
-                  }}
-                >
-                  <Typography 
-                    variant="h6" 
-                    gutterBottom 
-                    sx={{ 
-                      color: COLORS.darkGray, 
-                      fontWeight: 500,
-                      pb: 1
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", my: 10 }}>
+              <CircularProgress sx={{ color: COLORS.pink }} />
+            </Box>
+          ) : (
+            <div ref={chartRef}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      height: "100%",
+                      border: `1px solid ${COLORS.gray}20`,
                     }}
                   >
-                    Pulse Rate (bpm)
-                  </Typography>
-                  {filtered.length > 0 ? (
-                    <Box sx={{ height: 250 }}>
-                      <Line 
-                        data={generateChart("Pulse", pulseData, COLORS.blue, true)} 
-                        options={chartOptions} 
-                      />
-                    </Box>
-                  ) : renderNoDataMessage()}
-                </Paper>
-              </Grid>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{
+                        color: COLORS.darkGray,
+                        fontWeight: 500,
+                        pb: 1,
+                      }}
+                    >
+                      Blood Pressure (mmHg)
+                    </Typography>
+                    {filtered.length > 0 ? (
+                      <Box sx={{ height: 250 }}>
+                        <Line
+                          data={generateChart("BP", bpData, COLORS.pink, true)}
+                          options={chartOptions}
+                        />
+                      </Box>
+                    ) : (
+                      renderNoDataMessage()
+                    )}
+                  </Paper>
+                </Grid>
 
-              <Grid item xs={12} md={4}>
-                <Paper 
-                  elevation={0}
-                  sx={{ 
-                    p: 2, 
-                    borderRadius: 2,
-                    height: '100%',
-                    border: `1px solid ${COLORS.gray}20`
-                  }}
-                >
-                  <Typography 
-                    variant="h6" 
-                    gutterBottom 
-                    sx={{ 
-                      color: COLORS.darkGray, 
-                      fontWeight: 500,
-                      pb: 1
+                <Grid item xs={12} md={4}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      height: "100%",
+                      border: `1px solid ${COLORS.gray}20`,
                     }}
                   >
-                    Blood Sugar (mg/dL)
-                  </Typography>
-                  {filtered.length > 0 ? (
-                    <Box sx={{ height: 250 }}>
-                      <Bar 
-                        data={generateChart("Sugar", sugarData, COLORS.green)} 
-                        options={{
-                          ...chartOptions,
-                          barPercentage: 0.6
-                        }} 
-                      />
-                    </Box>
-                  ) : renderNoDataMessage()}
-                </Paper>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{
+                        color: COLORS.darkGray,
+                        fontWeight: 500,
+                        pb: 1,
+                      }}
+                    >
+                      Pulse Rate (bpm)
+                    </Typography>
+                    {filtered.length > 0 ? (
+                      <Box sx={{ height: 250 }}>
+                        <Line
+                          data={generateChart(
+                            "Pulse",
+                            pulseData,
+                            COLORS.blue,
+                            true
+                          )}
+                          options={chartOptions}
+                        />
+                      </Box>
+                    ) : (
+                      renderNoDataMessage()
+                    )}
+                  </Paper>
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      height: "100%",
+                      border: `1px solid ${COLORS.gray}20`,
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{
+                        color: COLORS.darkGray,
+                        fontWeight: 500,
+                        pb: 1,
+                      }}
+                    >
+                      Blood Sugar (mg/dL)
+                    </Typography>
+                    {filtered.length > 0 ? (
+                      <Box sx={{ height: 250 }}>
+                        <Bar
+                          data={generateChart("Sugar", sugarData, COLORS.green)}
+                          options={{
+                            ...chartOptions,
+                            barPercentage: 0.6,
+                          }}
+                        />
+                      </Box>
+                    ) : (
+                      renderNoDataMessage()
+                    )}
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-          </div>
-        )}
-      </Paper>
-    </Container>
-  </>
+            </div>
+          )}
+        </Paper>
+      </Container>
+    </>
   );
 }
 

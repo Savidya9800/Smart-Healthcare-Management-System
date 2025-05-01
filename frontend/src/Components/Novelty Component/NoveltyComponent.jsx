@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ correct
 
 const NoveltyComponent = () => {
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
@@ -7,6 +8,7 @@ const NoveltyComponent = () => {
   const [severity, setSeverity] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showAllSymptoms, setShowAllSymptoms] = useState(false);
+  const navigate = useNavigate(); // ✅ Initialize
 
   // Symptom options grouped by category
   const symptomCategories = {
@@ -70,31 +72,27 @@ const NoveltyComponent = () => {
       );
 
       const data = await response.json();
-      setPrediction(data.prediction || "No result");
+      const result = data.prediction || "No result";
 
-      // Set severity based on returned prediction
-      if (
-        data.prediction?.toLowerCase().includes("heart attack") ||
-        data.prediction?.toLowerCase().includes("critical")
-      ) {
+      setPrediction(result);
+      localStorage.setItem("lastPrediction", result);
+
+      const lower = result.toLowerCase();
+      if (lower.includes("heart attack") || lower.includes("critical")) {
         setSeverity("high");
-      } else if (
-        data.prediction?.toLowerCase().includes("anxiety") ||
-        data.prediction?.toLowerCase().includes("medium")
-      ) {
+      } else if (lower.includes("anxiety") || lower.includes("medium")) {
         setSeverity("medium");
-      } else if (
-        data.prediction?.toLowerCase().includes("gastritis") ||
-        data.prediction?.toLowerCase().includes("low")
-      ) {
+      } else if (lower.includes("gastritis") || lower.includes("low")) {
         setSeverity("low");
       } else {
         setSeverity("unknown");
       }
+
+      setTimeout(() => {}, 2000); // 2-second delay to show results
     } catch (err) {
+      console.error(err);
       setPrediction("Error analyzing symptoms. Try again later.");
       setSeverity("unknown");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -181,7 +179,7 @@ const NoveltyComponent = () => {
             Select all symptoms you're experiencing for personalized analysis
           </p>
         </div>
-
+        <p className="mt-4 text-lg">{prediction}</p>
         {prediction ? (
           <div className="mb-8 text-center">
             {renderSeverityIndicator()}
@@ -234,6 +232,16 @@ const NoveltyComponent = () => {
                   </div>
                 </div>
               )}
+
+              {/* ✅ Optional Next Step button */}
+              <div className="mt-6">
+                <button
+                  onClick={() => navigate("/health-trends")}
+                  className="px-6 py-2 mt-4 text-white bg-indigo-700 rounded-lg hover:bg-indigo-800"
+                >
+                  Continue to Health Trends →
+                </button>
+              </div>
             </div>
           </div>
         ) : (

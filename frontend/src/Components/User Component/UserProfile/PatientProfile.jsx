@@ -526,24 +526,25 @@ function PatientProfile() {
                 <Grid container spacing={2}>
                   {[
                     {
-                      label: "Run Symptom Analysis",
-                      icon: <PsychologyIcon sx={{ color: "#e6317d" }} />,
-                      path: "/symptom-analysis",
-                    },
-                    {
                       label: "Enter Your Vitals",
                       icon: <MonitorHeartIcon sx={{ color: "#2fb297" }} />,
                       path: "/enter-vitals",
                     },
                     {
-                      label: "View Analysis History",
-                      icon: <HistoryIcon sx={{ color: "#2b2c6c" }} />,
-                      path: "/analysis-history",
+                      label: "Run Symptom Analysis",
+                      icon: <PsychologyIcon sx={{ color: "#e6317d" }} />,
+                      path: "/symptom-analysis",
                     },
+
                     {
                       label: "Health Trends",
                       icon: <ShowChartIcon sx={{ color: "#2fb297" }} />,
                       path: "/health-trends",
+                    },
+                    {
+                      label: "View Analysis History",
+                      icon: <HistoryIcon sx={{ color: "#2b2c6c" }} />,
+                      path: "/analysis-history",
                     },
                   ].map(({ label, icon, path }) => (
                     <Grid item xs={12} sm={6} md={3} key={label}>

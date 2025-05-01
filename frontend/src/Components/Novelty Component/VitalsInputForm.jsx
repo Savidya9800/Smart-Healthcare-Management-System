@@ -1,4 +1,3 @@
-// src/Components/Novelty Component/VitalsInputForm.jsx
 import React, { useState } from "react";
 import {
   Box,
@@ -10,6 +9,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom"; // ✅ import
 
 function VitalsInputForm() {
   const [bp, setBp] = useState(120);
@@ -17,6 +17,8 @@ function VitalsInputForm() {
   const [sugar, setSugar] = useState(100);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false); // ✅ for button state
+  const navigate = useNavigate(); // ✅ hook
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +34,7 @@ function VitalsInputForm() {
       });
       if (res.ok) {
         setOpen(true);
+        setSaved(true); // ✅ allow navigation
       } else {
         const data = await res.json();
         setError(data.message || "Failed to save vitals.");
@@ -91,6 +94,18 @@ function VitalsInputForm() {
               Save Vitals
             </Button>
           </form>
+
+          {saved && (
+            <Button
+              fullWidth
+              variant="outlined"
+              color="secondary"
+              onClick={() => navigate("/symptom-analysis")}
+              sx={{ mt: 2 }}
+            >
+              Proceed to Symptom Analysis
+            </Button>
+          )}
 
           {error && (
             <Alert severity="error" sx={{ mt: 2 }}>
