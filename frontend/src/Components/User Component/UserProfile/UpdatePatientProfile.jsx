@@ -610,6 +610,4 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
     </>
   );
 }
-//updated
-// Styles for the input fields
 export default UpdatePatientProfile;
