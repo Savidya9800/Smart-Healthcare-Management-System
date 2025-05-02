@@ -35,6 +35,7 @@ import PsychologyIcon from "@mui/icons-material/Psychology";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import HistoryIcon from "@mui/icons-material/History";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
+import Swal from "sweetalert2";
 
 function PatientProfile() {
   const [user, setUser] = useState(null);
@@ -73,32 +74,88 @@ function PatientProfile() {
 
   // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/Home";
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out of your account.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#2b2c6c",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, log me out",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("token");
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: "✅ Logged out successfully",
+          showConfirmButton: false,
+          timer: 2500,
+          timerProgressBar: true,
+          background: "#f0f4ff",
+          color: "#2b2c6c",
+          iconColor: "#2fb297",
+          customClass: {
+            popup: "swal2-rounded",
+          },
+        });
+        setTimeout(() => {
+          window.location.href = "/Home";
+        }, 2500);
+      }
+    });
   };
 
   // Handle account deletion
   const handleDeleteAccount = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      )
-    ) {
-      const token = localStorage.getItem("token");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action is permanent. Your account will be deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e03131",
+      cancelButtonColor: "#2b2c6c",
+      confirmButtonText: "Yes, delete my account",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
 
-      axios
-        .delete("http://localhost:5000/api/users/delete", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then(() => {
-          localStorage.removeItem("token");
-          window.location.href = "/login"; // Or wherever you want to redirect
-        })
-        .catch((error) => {
-          console.error("Error deleting account:", error);
-          alert("Failed to delete account. Please try again.");
-        });
-    }
+        axios
+          .delete("http://localhost:5000/api/users/delete", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then(() => {
+            localStorage.removeItem("token");
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "success",
+              title: "🗑️ Account deleted successfully",
+              showConfirmButton: false,
+              timer: 2500,
+              timerProgressBar: true,
+              background: "#fff0f0",
+              color: "#e03131",
+              iconColor: "#e03131",
+              customClass: {
+                popup: "swal2-rounded",
+              },
+            });
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 2500);
+          })
+          .catch((error) => {
+            console.error("Error deleting account:", error);
+            Swal.fire(
+              "Error",
+              "Failed to delete account. Please try again.",
+              "error"
+            );
+          });
+      }
+    });
   };
 
   if (loading) {

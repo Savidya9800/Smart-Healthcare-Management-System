@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ correct
+import { useNavigate } from "react-router-dom";
+import HeartModelViewer from "./HeartModel/HeartModelViewer";
 
 const NoveltyComponent = () => {
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
@@ -154,9 +155,13 @@ const NoveltyComponent = () => {
 
   return (
     <div className="relative min-h-screen px-2 py-4">
+      
       <div className="max-w-2xl p-4 mx-auto">
+        
         <div className="mb-8 text-center">
+          
           <div className="inline-flex items-center justify-center p-3 mb-4 bg-pink-100 rounded-full">
+            
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-10 h-10 text-pink-600"
@@ -178,11 +183,17 @@ const NoveltyComponent = () => {
           <p className="mt-2 text-gray-500">
             Select all symptoms you're experiencing for personalized analysis
           </p>
+          
         </div>
+        
         <p className="mt-4 text-lg">{prediction}</p>
         {prediction ? (
           <div className="mb-8 text-center">
             {renderSeverityIndicator()}
+            {/* ✅ 3D Heart Model */}
+            <div className="my-8 overflow-hidden border border-gray-100 rounded-lg shadow-lg">
+              <HeartModelViewer affectedSymptoms={selectedSymptoms} />
+            </div>
             <div className="relative p-6 overflow-hidden bg-white shadow-lg rounded-xl">
               <h2 className="mb-2 text-xl font-semibold">Analysis Result</h2>
               <p className="mt-4 text-lg">{prediction}</p>

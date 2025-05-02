@@ -39,3 +39,5 @@
 ---
 
 ## 📂 Project Structure
+
+- uvicorn BACKEND.ai-model.main:app --reload --port 8000
