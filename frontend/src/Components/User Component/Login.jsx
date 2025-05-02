@@ -64,72 +64,44 @@ function Login() {
       );
       localStorage.setItem("token", response.data.token);
 
-      // Check if the logged-in user is an admin and navigate accordingly
-      const adminEmails = [
-        "useradmin@gmail.com",
-        "pharmacyadmin@gmail.com",
-        "doctoradmin@gmail.com",
-        "appointmentadmin@gmail.com",
-      ];
-
-      if (adminEmails.includes(formData.email)) {
-        // Navigate to the respective admin dashboard based on the email
-        if (formData.email === "useradmin@gmail.com") {
-          navigate("/User-Dashboard");
-        } else if (formData.email === "pharmacyadmin@gmail.com") {
-          navigate("/Pharmacy-Dashboard");
-        } else if (formData.email === "doctoradmin@gmail.com") {
-          navigate("/Doctor-Dashboard");
-        } else if (formData.email === "appointmentadmin@gmail.com") {
-          navigate("/Appointment-Dashboard");
-        }
-      } else {
-        // Normal user navigation
-        navigate("/Home");
-      }
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Login failed. Please check your credentials."
-      );
-    } finally {
-      setLoading(false);
-    }
-
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        formData
-      );
-      localStorage.setItem("token", response.data.token);
-
       Swal.fire({
+        toast: true,
+        position: "top-end",
         icon: "success",
-        title: "Login Successful!",
+        title: "✅ Login Successful",
         showConfirmButton: false,
-        timer: 1500,
+        timer: 2500,
+        timerProgressBar: true,
+        background: "#f0f4ff",
+        color: "#2b2c6c",
+        iconColor: "#2fb297",
+        customClass: {
+          popup: "swal2-rounded",
+        },
       });
 
-      const adminEmails = [
-        "useradmin@gmail.com",
-        "pharmacyadmin@gmail.com",
-        "doctoradmin@gmail.com",
-        "appointmentadmin@gmail.com",
-      ];
+      setTimeout(() => {
+        const adminEmails = [
+          "useradmin@gmail.com",
+          "pharmacyadmin@gmail.com",
+          "doctoradmin@gmail.com",
+          "appointmentadmin@gmail.com",
+        ];
 
-      if (adminEmails.includes(formData.email)) {
-        if (formData.email === "useradmin@gmail.com") {
-          navigate("/User-Dashboard");
-        } else if (formData.email === "pharmacyadmin@gmail.com") {
-          navigate("/Pharmacy-Dashboard");
-        } else if (formData.email === "doctoradmin@gmail.com") {
-          navigate("/Doctor-Dashboard");
-        } else if (formData.email === "appointmentadmin@gmail.com") {
-          navigate("/Appointment-Dashboard");
+        if (adminEmails.includes(formData.email)) {
+          if (formData.email === "useradmin@gmail.com") {
+            navigate("/User-Dashboard");
+          } else if (formData.email === "pharmacyadmin@gmail.com") {
+            navigate("/Pharmacy-Dashboard");
+          } else if (formData.email === "doctoradmin@gmail.com") {
+            navigate("/Doctor-Dashboard");
+          } else if (formData.email === "appointmentadmin@gmail.com") {
+            navigate("/Appointment-Dashboard");
+          }
+        } else {
+          navigate("/Home");
         }
-      } else {
-        navigate("/Home");
-      }
+      }, 2500);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -138,6 +110,8 @@ function Login() {
           error.response?.data?.message ||
           "Login failed. Please check your credentials.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 

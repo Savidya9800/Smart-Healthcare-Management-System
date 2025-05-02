@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -48,7 +48,11 @@ import HealthChatBot from "./Components/Novelty Component/HealthChatBot";
 
 function App() {
   const [chatOpen, setChatOpen] = useState(false);
+  const location = useLocation(); // ⬅️ get current route
 
+  // ⛔️ Hide chatbot on login & registration
+  const hideChatbotOn = ["/Login", "/Registration"];
+  const showChatbot = !hideChatbotOn.includes(location.pathname);
   return (
     <div>
       <React.Fragment>
@@ -100,9 +104,13 @@ function App() {
             element={<AppoinmentManagement />}
           />
         </Routes>
-        {/* Chatbot components */}
-        <ChatbotLauncher onOpen={() => setChatOpen(true)} />
-        <HealthChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
+        {/* ✅ Conditionally show Chatbot */}
+        {showChatbot && (
+          <>
+            <ChatbotLauncher onOpen={() => setChatOpen(true)} />
+            <HealthChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
+          </>
+        )}
       </React.Fragment>
     </div>
   );
