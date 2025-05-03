@@ -72,5 +72,5 @@ module.exports = {
   getStockById,
   addStock,
   updateStock,
-  deleteStock,
+  deleteStock, //exporting modules
 };

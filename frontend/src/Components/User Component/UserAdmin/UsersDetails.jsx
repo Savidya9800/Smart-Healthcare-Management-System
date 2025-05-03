@@ -444,3 +444,4 @@ export default function UsersDetails({ onAddPatientClick }) {
     </Box>
   );
 }
+//* eslint-disable react/prop-types */
