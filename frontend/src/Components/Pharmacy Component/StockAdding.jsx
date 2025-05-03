@@ -522,5 +522,5 @@ function StockAdding() {
     </PAdminLayout>
   );
 }
-
+//StockAddingFrontend
 export default StockAdding;

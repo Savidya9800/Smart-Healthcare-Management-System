@@ -116,18 +116,30 @@ function Registration() {
       });
 
       Swal.fire({
+        toast: true,
+        position: "top-end",
         icon: "success",
-        title: "Registered Successfully!",
-        text: "You can now login.",
-        showConfirmButton: true,
+        title: "🎉 Registration Successful",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+        background: "#e6ffed",
+        color: "#1e4620",
+        iconColor: "#28a745",
+        customClass: {
+          popup: "swal2-rounded",
+        },
       });
 
-      navigate("/login");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2500);
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Registration Failed",
         text: error.response?.data?.message || "Something went wrong!",
+        confirmButtonColor: "#e03131",
       });
     } finally {
       setLoading(false);

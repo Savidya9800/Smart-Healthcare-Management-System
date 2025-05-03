@@ -402,5 +402,5 @@ function AddNewPatient({ onSuccess }) {
     </UAdminLayout>
   );
 }
-
+/// AddNewPatient component
 export default AddNewPatient;

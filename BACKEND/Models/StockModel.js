@@ -60,3 +60,5 @@ const stockSchema=new Schema({
 module.exports=mongoose.model(
     'Stock',//file name
     stockSchema);//function name
+
+    //model page for stocks
