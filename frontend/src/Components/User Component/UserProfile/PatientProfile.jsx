@@ -173,43 +173,6 @@ function PatientProfile() {
     );
   }
 
-  if (!user) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "80vh",
-        }}
-      >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 3,
-            textAlign: "center",
-            borderRadius: 2,
-            bgcolor: "#ffffff",
-          }}
-        >
-          <Typography color="error" variant="h6">
-            Failed to load user data
-          </Typography>
-          <Button
-            variant="contained"
-            sx={{
-              mt: 2,
-              bgcolor: "#2b2c6c",
-              "&:hover": { bgcolor: "#1e1f4b" },
-            }}
-            onClick={() => window.location.reload()}
-          >
-            Retry
-          </Button>
-        </Paper>
-      </Box>
-    );
-  }
 
   // Format date of birth
   const formatDate = (dateString) => {
