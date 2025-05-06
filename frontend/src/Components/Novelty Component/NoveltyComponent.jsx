@@ -3,6 +3,46 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import HeartModelViewer from "./HeartModel/HeartModelViewer";
 
+const calculateProbabilities = (symptoms) => {
+  const conditionMapping = {
+    "Heart Attack": [
+      "Chest Pain",
+      "Shortness of Breath",
+      "Racing Heart",
+      "Left Arm Pain",
+      "Jaw Pain",
+      "Sweating",
+    ],
+    Gastritis: [
+      "Nausea",
+      "Vomiting",
+      "Stomach Pain",
+      "Bloating",
+      "Heartburn",
+      "Loss of Appetite",
+    ],
+  };
+
+  const probabilities = {};
+  Object.keys(conditionMapping).forEach((condition) => {
+    const matchedSymptoms = symptoms.filter((symptom) =>
+      conditionMapping[condition].includes(symptom)
+    );
+    const matchCount = matchedSymptoms.length;
+    const totalCount = conditionMapping[condition].length;
+    probabilities[condition] =
+      totalCount > 0 ? (matchCount / totalCount) * 100 : 0;
+  });
+
+  return probabilities;
+};
+
+const getSeverityFromProbability = (probability) => {
+  if (probability >= 70) return "high";
+  if (probability >= 40) return "medium";
+  return "low";
+};
+
 const NoveltyComponent = () => {
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [prediction, setPrediction] = useState("");
@@ -70,6 +110,11 @@ const NoveltyComponent = () => {
     },
   };
 
+  const conditionImages = {
+    "Heart Attack": "/heart-attack.png", // Replace with actual path to your image
+    Gastritis: "/gastritis.jpg", // Replace with actual path to your image
+  };
+
   const sectionNames = Object.keys(symptomCategories);
 
   const goToNextSection = () => {
@@ -88,7 +133,8 @@ const NoveltyComponent = () => {
   };
 
   const currentSectionName = sectionNames[currentSectionIndex];
-  const currentSectionSymptoms = symptomCategories[currentSectionName]?.map(s => s.name) || [];
+  const currentSectionSymptoms =
+    symptomCategories[currentSectionName]?.map((s) => s.name) || [];
   const currentTheme = categoryThemes[currentSectionName];
 
   const handleToggle = (symptom) => {
@@ -105,8 +151,8 @@ const NoveltyComponent = () => {
 
   const submitAnalysis = async () => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       const response = await fetch(
         "http://localhost:5000/api/novelty/analyze",
         {
@@ -148,8 +194,47 @@ const NoveltyComponent = () => {
     unknown: "#828487",
   };
 
+  const probabilities = calculateProbabilities(selectedSymptoms);
+
+  const getConditionSeverity = (condition) => {
+    const probability = probabilities[condition] || 0;
+    return getSeverityFromProbability(probability);
+  };
+
+  const getRecommendations = (condition) => {
+    switch (condition) {
+      case "Heart Attack":
+        return [
+          "Seek immediate medical attention",
+          "Call emergency services (911)",
+          "If prescribed, take aspirin",
+          "Rest in a position that makes breathing comfortable",
+          "Loosen any tight clothing",
+          "Chat with our AI for symptom monitoring support"
+        ];
+      case "Gastritis":
+        return [
+          "Follow a gastritis-friendly diet",
+          "Avoid spicy and acidic foods",
+          "Eat smaller, more frequent meals",
+          "Avoid alcohol and NSAIDs",
+          "Consider over-the-counter antacids",
+          "Chat with our AI for symptom monitoring support"
+        ];
+      default:
+        return ["Consult with a healthcare professional"];
+    }
+  };
+
+  const getHighestProbabilityCondition = () => {
+    if (!probabilities || Object.keys(probabilities).length === 0) return null;
+    return Object.keys(probabilities).reduce((a, b) =>
+      probabilities[a] > probabilities[b] ? a : b
+    );
+  };
+
   return (
-    <div 
+    <div
       className="relative flex flex-col items-center min-h-screen px-4 py-10"
       style={{
         background: "radial-gradient(circle, #f0f4ff 0%, #e3eaff 100%)",
@@ -189,7 +274,7 @@ const NoveltyComponent = () => {
       </motion.button>
 
       {!prediction ? (
-        <motion.div 
+        <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
@@ -219,7 +304,7 @@ const NoveltyComponent = () => {
           </p>
         </motion.div>
       ) : (
-        <motion.div 
+        <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
@@ -232,187 +317,331 @@ const NoveltyComponent = () => {
       )}
 
       {prediction ? (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-2"
+          className="grid w-full max-w-6xl grid-cols-1 gap-6"
         >
-          <motion.div 
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="overflow-hidden bg-white shadow-xl rounded-xl"
-          >
-            <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-600">
-              <h2 className="text-xl font-bold text-white">Interactive Heart Model</h2>
-            </div>
-            <div className="p-4">
-              <div className="w-full overflow-hidden border-gray-100 rounded-lg aspect-square">
-                <HeartModelViewer affectedSymptoms={selectedSymptoms} />
+          {/* Main analysis card - shows only the highest probability condition */}
+          {Object.keys(probabilities).length > 0 && (
+            <motion.div
+              key={getHighestProbabilityCondition()}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="overflow-hidden bg-white shadow-xl rounded-xl"
+            >
+              <div className="p-4 bg-gradient-to-r from-pink-500 to-rose-500">
+                <h2 className="text-xl font-bold text-white">
+                  {getHighestProbabilityCondition()}
+                </h2>
               </div>
-              <motion.div 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="flex items-center justify-center mt-4"
-              >
-                <motion.div
-                  animate={{ 
-                    boxShadow: [
-                      `0 0 10px ${severityColors[severity]}`,
-                      `0 0 15px ${severityColors[severity]}`,
-                      `0 0 10px ${severityColors[severity]}`
-                    ]
-                  }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                  className="relative flex items-center justify-center w-20 h-20 mr-4 transition-all duration-500 bg-white rounded-full"
-                  style={{
-                    border: `4px solid ${severityColors[severity]}`,
-                  }}
-                >
-                  {severity === "high" ? (
-                    <span className="text-3xl">⚠️</span>
-                  ) : severity === "medium" ? (
-                    <span className="text-3xl">⚠️</span>
-                  ) : (
-                    <span className="text-3xl">✅</span>
-                  )}
-                </motion.div>
-                <div>
-                  <h3
-                    className="text-xl font-bold"
-                    style={{ color: severityColors[severity] }}
-                  >
-                    {severity === "high"
-                      ? "High Risk"
-                      : severity === "medium"
-                      ? "Medium Risk"
-                      : "Low Risk"}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {severity === "high"
-                      ? "Seek immediate medical attention"
-                      : severity === "medium"
-                      ? "Schedule a medical consultation"
-                      : "Monitor your symptoms"}
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
+              <div className="p-6">
+                <div className="flex flex-col gap-6 md:flex-row">
+                  <div className="flex-1">
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          Probability
+                        </h3>
+                        <div
+                          className="px-3 py-1 text-sm font-medium rounded-full"
+                          style={{
+                            backgroundColor:
+                              severityColors[
+                                getConditionSeverity(
+                                  getHighestProbabilityCondition()
+                                )
+                              ] + "20",
+                            color:
+                              severityColors[
+                                getConditionSeverity(
+                                  getHighestProbabilityCondition()
+                                )
+                              ],
+                          }}
+                        >
+                          {getConditionSeverity(
+                            getHighestProbabilityCondition()
+                          ).toUpperCase()}{" "}
+                          RISK
+                        </div>
+                      </div>
 
-          <motion.div 
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="overflow-hidden bg-white shadow-xl rounded-xl"
-          >
-            <div className="p-4 bg-gradient-to-r from-pink-500 to-rose-500">
-              <h2 className="text-xl font-bold text-white">Diagnosis & Recommendations</h2>
-            </div>
-            <div className="p-6">
-              <div className="mb-6">
-                <h3 className="mb-2 text-lg font-semibold text-gray-800">Analysis Result</h3>
-                <div className="p-3 border-l-4 rounded-r-lg bg-gray-50" style={{ borderLeftColor: severityColors[severity] }}>
-                  <p className="text-gray-700">{prediction}</p>
-                </div>
-              </div>
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold text-gray-800">Reported Symptoms</h3>
-                  <span className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{selectedSymptoms.length}</span>
-                </div>
-                <div className="flex flex-wrap gap-2 p-2 overflow-y-auto max-h-24">
-                  {selectedSymptoms.map((symptom) => (
-                    <span
-                      key={symptom}
-                      className="px-2 py-1 text-xs rounded-full"
-                      style={{
-                        backgroundColor:
-                          severity === "high"
-                            ? "rgba(230, 49, 125, 0.1)"
-                            : severity === "medium"
-                            ? "rgba(255, 193, 7, 0.1)"
-                            : "rgba(47, 178, 151, 0.1)",
-                        color: severityColors[severity],
-                      }}
+                      <div className="w-full h-4 mt-2 overflow-hidden bg-gray-200 rounded-full">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{
+                            width: `${
+                              probabilities[getHighestProbabilityCondition()]
+                            }%`,
+                          }}
+                          transition={{ duration: 1 }}
+                          className="h-full rounded-full"
+                          style={{
+                            backgroundColor:
+                              severityColors[
+                                getConditionSeverity(
+                                  getHighestProbabilityCondition()
+                                )
+                              ],
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between mt-1 text-sm">
+                        <span>0%</span>
+                        <span className="font-semibold">
+                          {probabilities[
+                            getHighestProbabilityCondition()
+                          ].toFixed(1)}
+                          %
+                        </span>
+                        <span>100%</span>
+                      </div>
+                    </div>
+
+                    {/* Symptoms and recommendations */}
+                    <div className="mb-4">
+                      <h3 className="mb-2 text-lg font-semibold text-gray-800">
+                        Matched Symptoms
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedSymptoms.map((symptom) => {
+                          const condition = getHighestProbabilityCondition();
+                          const isRelevant =
+                            condition === "Heart Attack"
+                              ? [
+                                  "Chest Pain",
+                                  "Shortness of Breath",
+                                  "Racing Heart",
+                                  "Left Arm Pain",
+                                  "Jaw Pain",
+                                  "Sweating",
+                                ].includes(symptom)
+                              : condition === "Gastritis"
+                              ? [
+                                  "Nausea",
+                                  "Vomiting",
+                                  "Stomach Pain",
+                                  "Bloating",
+                                  "Heartburn",
+                                  "Loss of Appetite",
+                                ].includes(symptom)
+                              : false;
+
+                          return (
+                            <span
+                              key={symptom}
+                              className="px-2 py-1 text-xs rounded-full"
+                              style={{
+                                backgroundColor: isRelevant
+                                  ? `rgba(${
+                                      getConditionSeverity(condition) === "high"
+                                        ? "230, 49, 125, 0.1"
+                                        : getConditionSeverity(condition) ===
+                                          "medium"
+                                        ? "255, 193, 7, 0.1"
+                                        : "47, 178, 151, 0.1"
+                                    })`
+                                  : "rgba(203, 213, 225, 0.3)",
+                                color: isRelevant
+                                  ? severityColors[
+                                      getConditionSeverity(condition)
+                                    ]
+                                  : "#64748b",
+                                fontWeight: isRelevant ? "500" : "400",
+                              }}
+                            >
+                              {symptom} {isRelevant && "✓"}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Recommendations section */}
+                    <div>
+                      <h3 className="mb-3 text-lg font-semibold text-gray-800">
+                        Recommendations
+                      </h3>
+                      <ul className="space-y-2">
+                        {getRecommendations(
+                          getHighestProbabilityCondition()
+                        ).map((rec, idx) => (
+                          <li key={idx} className="flex items-start">
+                            <svg
+                              className={`w-4 h-4 mt-1 mr-2 ${
+                                getConditionSeverity(
+                                  getHighestProbabilityCondition()
+                                ) === "high"
+                                  ? "text-red-500"
+                                  : getConditionSeverity(
+                                      getHighestProbabilityCondition()
+                                    ) === "medium"
+                                  ? "text-yellow-500"
+                                  : "text-green-500"
+                              }`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d={
+                                  getConditionSeverity(
+                                    getHighestProbabilityCondition()
+                                  ) === "low"
+                                    ? "M5 13l4 4L19 7"
+                                    : "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                }
+                              />
+                            </svg>
+                            <span className="text-sm">{rec}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* Updated Health Trends Button with modern look */}
+                      <div className="flex justify-center mt-8">
+                        <motion.button
+                          whileHover={{ scale: 1.03, y: -2 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => navigate("/health-trends")}
+                          className="flex items-center px-8 py-3 font-medium text-white transition-all rounded-full shadow-lg bg-gradient-to-r from-pink-500 to-rose-500 hover:shadow-pink-200 hover:from-pink-600 hover:to-rose-600"
+                        >
+                          <span>Continue to Health Trends</span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5 ml-2"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 7l5 5m0 0l-5 5m5-5H6"
+                            />
+                          </svg>
+                        </motion.button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="md:w-1/3">
+                    {/* Condition image */}
+                    <div className="overflow-hidden rounded-lg shadow-md">
+                      <img
+                        src={conditionImages[getHighestProbabilityCondition()]}
+                        alt={`${getHighestProbabilityCondition()} illustration`}
+                        className="object-cover w-full h-auto"
+                      />
+                      <div className="p-3 text-center bg-gray-50">
+                        <p className="text-sm text-gray-600">
+                          {getHighestProbabilityCondition() === "Heart Attack"
+                            ? "Heart muscle damage due to reduced blood flow"
+                            : getHighestProbabilityCondition() === "Gastritis"
+                            ? "Inflammation of the stomach lining"
+                            : "Medical illustration"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Condition-specific visualization */}
+                    <div className="mt-4 overflow-hidden border border-gray-200 rounded-lg shadow-sm">
+                      {getHighestProbabilityCondition() === "Heart Attack" ? (
+                        <div className="overflow-hidden rounded-lg h-80">
+                          {" "}
+                          {/* Increased height from h-64 to h-80 */}
+                          <HeartModelViewer
+                            affectedSymptoms={selectedSymptoms.filter((s) =>
+                              [
+                                "Chest Pain",
+                                "Shortness of Breath",
+                                "Racing Heart",
+                                "Left Arm Pain",
+                                "Jaw Pain",
+                                "Sweating",
+                              ].includes(s)
+                            )}
+                            compact={false}
+                            scale={
+                              2
+                            } /* Added scale prop to make the heart model larger */
+                          />
+                        </div>
+                      ) : (
+                        getHighestProbabilityCondition() === "Gastritis" && (
+                          <div className="p-4">
+                            <h4 className="mb-2 font-medium text-gray-800">
+                              Affected Digestive System
+                            </h4>
+                            <div className="flex items-center justify-center p-4">
+                              <div className="relative w-full max-w-xs">
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div
+                                    className="w-16 h-16 rounded-full animate-ping-slow"
+                                    style={{
+                                      backgroundColor: `${
+                                        severityColors[
+                                          getConditionSeverity("Gastritis")
+                                        ]
+                                      }40`,
+                                    }}
+                                  ></div>
+                                </div>
+                                <img
+                                  src="/gastritis-diagram.jpg"
+                                  alt="Digestive System"
+                                  className="w-full h-auto"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = "/gastritis.jpg";
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+
+                    {/* Learn more button */}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full px-4 py-2 mt-4 font-medium text-white transition-all rounded-md shadow-md bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600"
+                      onClick={() =>
+                        window.open(
+                          getHighestProbabilityCondition() === "Heart Attack"
+                            ? "https://www.heart.org/en/health-topics/heart-attack"
+                            : "https://www.mayoclinic.org/diseases-conditions/gastritis/symptoms-causes/syc-20355807",
+                          "_blank"
+                        )
+                      }
                     >
-                      {symptom}
-                    </span>
-                  ))}
+                      Learn More About {getHighestProbabilityCondition()}
+                    </motion.button>
+
+                    {/* Health Trends Navigation Button - Remove from here */}
+                  </div>
                 </div>
               </div>
-              <div className="mb-6">
-                <h3 className="mb-2 text-lg font-semibold text-gray-800">Recommendations</h3>
-                <ul className="space-y-2">
-                  {severity === "high" ? (
-                    <>
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 mt-1 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm">Seek immediate medical attention</span>
-                      </li>
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 mt-1 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm">Call emergency services if symptoms worsen</span>
-                      </li>
-                    </>
-                  ) : severity === "medium" ? (
-                    <>
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 mt-1 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm">Schedule an appointment within 24-48 hours</span>
-                      </li>
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 mt-1 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm">Monitor your symptoms for changes</span>
-                      </li>
-                    </>
-                  ) : (
-                    <>
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 mt-1 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-sm">Continue monitoring your symptoms</span>
-                      </li>
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 mt-1 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-sm">Follow up with your doctor if needed</span>
-                      </li>
-                    </>
-                  )}
-                </ul>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => navigate("/health-trends")}
-                className="w-full px-4 py-2 mt-2 font-medium text-white transition-all rounded-md shadow-md bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600"
-              >
-                Continue to Health Trends →
-              </motion.button>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </motion.div>
       ) : (
-        <motion.div 
+        <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-xl"
         >
-          <motion.div 
+          <motion.div
             className="overflow-hidden bg-white shadow-xl rounded-xl"
             layoutId="symptomCard"
           >
@@ -420,19 +649,28 @@ const NoveltyComponent = () => {
               <div className="mb-6">
                 <div className="flex justify-between mb-2 text-sm font-medium">
                   <span>Progress</span>
-                  <span>{selectedSymptoms.length}/{Object.values(symptomCategories).flat().length} symptoms</span>
+                  <span>
+                    {selectedSymptoms.length}/
+                    {Object.values(symptomCategories).flat().length} symptoms
+                  </span>
                 </div>
                 <div className="w-full h-2 overflow-hidden bg-gray-200 rounded-full">
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${(selectedSymptoms.length / Object.values(symptomCategories).flat().length) * 100}%` }}
+                    animate={{
+                      width: `${
+                        (selectedSymptoms.length /
+                          Object.values(symptomCategories).flat().length) *
+                        100
+                      }%`,
+                    }}
                     transition={{ duration: 0.5 }}
                     className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
                   />
                 </div>
               </div>
               {!showAllSymptoms ? (
-                <motion.div 
+                <motion.div
                   className="py-10 text-center"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -474,14 +712,15 @@ const NoveltyComponent = () => {
                 <>
                   <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
-                      <motion.div 
+                      <motion.div
                         className="text-lg font-medium"
                         style={{ color: severityColors.high }}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         key={currentSectionIndex}
                       >
-                        {currentSectionIndex + 1} of {sectionNames.length}: <span className="font-bold">{currentSectionName}</span>
+                        {currentSectionIndex + 1} of {sectionNames.length}:{" "}
+                        <span className="font-bold">{currentSectionName}</span>
                       </motion.div>
                       <div className="flex items-center">
                         {sectionNames.map((_, index) => (
@@ -499,18 +738,20 @@ const NoveltyComponent = () => {
                         ))}
                       </div>
                     </div>
-                    <motion.div 
+                    <motion.div
                       className="p-4 mb-4 rounded-lg shadow-sm"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 }}
                       key={`category-${currentSectionName}`}
                       style={{
-                        background: currentTheme.gradient
+                        background: currentTheme.gradient,
                       }}
                     >
                       <div className="flex items-center">
-                        <span className={`${currentTheme.iconSize} mr-3`}>{currentTheme.icon}</span>
+                        <span className={`${currentTheme.iconSize} mr-3`}>
+                          {currentTheme.icon}
+                        </span>
                         <h3 className="text-xl font-bold text-white">
                           {currentSectionName}
                         </h3>
@@ -519,73 +760,77 @@ const NoveltyComponent = () => {
                   </div>
                   <div className="mb-6">
                     <AnimatePresence mode="wait">
-                      <motion.div 
+                      <motion.div
                         key={currentSectionIndex}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="grid grid-cols-1 gap-3 sm:grid-cols-2"
                       >
-                        {symptomCategories[currentSectionName].map((symptomObj) => (
-                          <motion.div
-                            key={symptomObj.name}
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.3 }}
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => handleToggle(symptomObj.name)}
-                            className={`flex items-center p-3 space-x-3 transition-all border rounded-lg cursor-pointer ${
-                              selectedSymptoms.includes(symptomObj.name)
-                                ? "border-pink-500 bg-pink-50 shadow-sm"
-                                : "border-gray-200 hover:border-pink-200 hover:bg-pink-50/30"
-                            }`}
-                          >
-                            <div
-                              className={`flex items-center justify-center w-8 h-8 text-lg rounded-full ${
+                        {symptomCategories[currentSectionName].map(
+                          (symptomObj) => (
+                            <motion.div
+                              key={symptomObj.name}
+                              initial={{ scale: 0.9, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ duration: 0.3 }}
+                              whileHover={{ scale: 1.03 }}
+                              whileTap={{ scale: 0.97 }}
+                              onClick={() => handleToggle(symptomObj.name)}
+                              className={`flex items-center p-3 space-x-3 transition-all border rounded-lg cursor-pointer ${
                                 selectedSymptoms.includes(symptomObj.name)
-                                  ? "bg-pink-100"
-                                  : "bg-gray-100"
+                                  ? "border-pink-500 bg-pink-50 shadow-sm"
+                                  : "border-gray-200 hover:border-pink-200 hover:bg-pink-50/30"
                               }`}
                             >
-                              {symptomObj.icon}
-                            </div>
-                            <span className={`${
-                              selectedSymptoms.includes(symptomObj.name)
-                                ? "font-medium text-pink-900"
-                                : "text-gray-700"
-                            }`}>
-                              {symptomObj.name}
-                            </span>
-                            <div className="flex-grow"></div>
-                            <div
-                              className={`w-6 h-6 border rounded-md ${
-                                selectedSymptoms.includes(symptomObj.name)
-                                  ? "bg-pink-500 border-pink-500"
-                                  : "border-gray-300"
-                              } flex items-center justify-center`}
-                            >
-                              {selectedSymptoms.includes(symptomObj.name) && (
-                                <svg
-                                  className="w-4 h-4 text-white"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              )}
-                            </div>
-                          </motion.div>
-                        ))}
+                              <div
+                                className={`flex items-center justify-center w-8 h-8 text-lg rounded-full ${
+                                  selectedSymptoms.includes(symptomObj.name)
+                                    ? "bg-pink-100"
+                                    : "bg-gray-100"
+                                }`}
+                              >
+                                {symptomObj.icon}
+                              </div>
+                              <span
+                                className={`${
+                                  selectedSymptoms.includes(symptomObj.name)
+                                    ? "font-medium text-pink-900"
+                                    : "text-gray-700"
+                                }`}
+                              >
+                                {symptomObj.name}
+                              </span>
+                              <div className="flex-grow"></div>
+                              <div
+                                className={`w-6 h-6 border rounded-md ${
+                                  selectedSymptoms.includes(symptomObj.name)
+                                    ? "bg-pink-500 border-pink-500"
+                                    : "border-gray-300"
+                                } flex items-center justify-center`}
+                              >
+                                {selectedSymptoms.includes(symptomObj.name) && (
+                                  <svg
+                                    className="w-4 h-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                )}
+                              </div>
+                            </motion.div>
+                          )
+                        )}
                       </motion.div>
                     </AnimatePresence>
                   </div>
-                  <motion.div 
+                  <motion.div
                     className="flex justify-between mt-8"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -645,9 +890,25 @@ const NoveltyComponent = () => {
                         <>
                           Analyze Symptoms
                           {loading ? (
-                            <svg className="w-5 h-5 ml-3 -mr-1 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg
+                              className="w-5 h-5 ml-3 -mr-1 text-white animate-spin"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
                             </svg>
                           ) : (
                             <svg
@@ -682,14 +943,26 @@ const NoveltyComponent = () => {
             >
               <div className="flex">
                 <div className="flex-shrink-0">
-                  <svg className="w-5 h-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-blue-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-blue-800">Tip for accurate results</h3>
+                  <h3 className="text-sm font-medium text-blue-800">
+                    Tip for accurate results
+                  </h3>
                   <div className="mt-1 text-sm text-blue-700">
-                    Select all symptoms you're experiencing, even if they seem minor or unrelated.
+                    Select all symptoms you're experiencing, even if they seem
+                    minor or unrelated.
                   </div>
                 </div>
               </div>
