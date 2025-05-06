@@ -29,6 +29,7 @@ import ADashboard from "./Components/Appointment Component/ADashboard";
 import BookAppointent from "./Components/Appointment Component/BookAppointent";
 import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinment";
 import AppoinmentManagement from "./Components/Appointment Component/AppoinmentAdmin/AppoinmentManagement";
+import RejectedAppoinment from "./Components/Appointment Component/AppoinmentAdmin/RejectedAppoinmentPage";
 
 //Doctor Components
 import DoctorLogin from "./Components/Doctor Component/DoctorLogin";
@@ -103,7 +104,9 @@ function App() {
             path="/Appoinment-Management"
             element={<AppoinmentManagement />}
           />
+           <Route path="Rijected-Appoinment" element={<RejectedAppoinment/>}/>
         </Routes>
+       
         {/* ✅ Conditionally show Chatbot */}
         {showChatbot && (
           <>

@@ -32,8 +32,8 @@ function AAdminLayout({ children }) {
       icon: <BarChart2 size={20} />,
       path: "/Appoinment-Management",
     },
-    { name: "Accept Appointment", icon: <CheckCircle size={20} />, path: "#" },
-    { name: "Reject Appointment", icon: <XCircle size={20} />, path: "#" },
+   
+    { name: "Reject Appointment", icon: <XCircle size={20} />, path: "/Rijected-Appoinment" },
   ];
 
   const currentPage = menuItems.find((item) => item.path === location.pathname);

@@ -10,7 +10,7 @@ import {
   MapPin,
   UserCircle,
   Clock,
-  Award,
+  Award ,
   ChevronLeft,
   CheckCircle,
   IdCard,
