@@ -51,7 +51,7 @@ function App() {
   const location = useLocation(); // ⬅️ get current route
 
   // ⛔️ Hide chatbot on login & registration
-  const hideChatbotOn = ["/Login", "/Registration"];
+  const hideChatbotOn = ["/login", "/registration"];
   const showChatbot = !hideChatbotOn.includes(location.pathname);
   return (
     <div>
@@ -65,8 +65,8 @@ function App() {
           <Route path="/Find-Doctor" element={<FindADoctor />} />
           {/*User Components*/}
           <Route path="/User-Management" element={<UserManagement />} />
-          <Route path="/Login" element={<Login />} />
-          <Route path="/Registration" element={<Registration />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registration" element={<Registration />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/User-Dashboard" element={<UDashboard />} />
           <Route path="/User-Account" element={<MyAccount />} />
