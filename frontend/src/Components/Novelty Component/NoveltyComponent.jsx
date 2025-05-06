@@ -13,7 +13,6 @@ const NoveltyComponent = () => {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const navigate = useNavigate();
 
-  // Symptom options grouped by category with associated icons
   const symptomCategories = {
     "Chest & Heart": [
       { name: "Chest Pain", icon: "❤️" },
@@ -48,7 +47,6 @@ const NoveltyComponent = () => {
     ],
   };
 
-  // Category background gradients and icons
   const categoryThemes = {
     "Chest & Heart": {
       gradient: "linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)",
@@ -72,15 +70,12 @@ const NoveltyComponent = () => {
     },
   };
 
-  // Create an array of section names for easier navigation
   const sectionNames = Object.keys(symptomCategories);
-  
-  // Helper functions for section navigation
+
   const goToNextSection = () => {
     if (currentSectionIndex < sectionNames.length - 1) {
       setCurrentSectionIndex(currentSectionIndex + 1);
     } else {
-      // If we're at the last section, proceed to analysis with animation
       setLoading(true);
       submitAnalysis();
     }
@@ -92,7 +87,6 @@ const NoveltyComponent = () => {
     }
   };
 
-  // Get current section name
   const currentSectionName = sectionNames[currentSectionIndex];
   const currentSectionSymptoms = symptomCategories[currentSectionName]?.map(s => s.name) || [];
   const currentTheme = categoryThemes[currentSectionName];
@@ -111,7 +105,6 @@ const NoveltyComponent = () => {
 
   const submitAnalysis = async () => {
     try {
-      // Simulating API request delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const response = await fetch(
@@ -155,60 +148,6 @@ const NoveltyComponent = () => {
     unknown: "#828487",
   };
 
-  const renderSeverityIndicator = () => {
-    if (!severity) return null;
-
-    return (
-      <motion.div 
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col items-center justify-center mt-6 mb-4"
-      >
-        <motion.div
-          animate={{ 
-            boxShadow: [
-              `0 0 15px ${severityColors[severity]}`,
-              `0 0 25px ${severityColors[severity]}`,
-              `0 0 15px ${severityColors[severity]}`
-            ]
-          }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="relative flex items-center justify-center w-24 h-24 transition-all duration-500 bg-white rounded-full"
-          style={{
-            border: `6px solid ${severityColors[severity]}`,
-          }}
-        >
-          {severity === "high" ? (
-            <span className="text-4xl">⚠️</span>
-          ) : severity === "medium" ? (
-            <span className="text-4xl">⚠️</span>
-          ) : (
-            <span className="text-4xl">✅</span>
-          )}
-        </motion.div>
-        <motion.h6
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-2 text-xl font-bold"
-          style={{ color: severityColors[severity] }}
-        >
-          {severity === "high"
-            ? "High Risk"
-            : severity === "medium"
-            ? "Medium Risk"
-            : "Low Risk"}
-        </motion.h6>
-      </motion.div>
-    );
-  };
-
-  // Get flattened list of symptom names
-  const allSymptomNames = Object.values(symptomCategories).flat().map(s => s.name);
-  const totalSymptoms = allSymptomNames.length;
-  const selectedCount = selectedSymptoms.length;
-
   return (
     <div 
       className="relative flex flex-col items-center min-h-screen px-4 py-10"
@@ -218,7 +157,6 @@ const NoveltyComponent = () => {
         backgroundPosition: "center",
       }}
     >
-      {/* Background Animation */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full">
           <div className="absolute w-40 h-40 bg-pink-200 rounded-full -top-10 -left-10 opacity-20 animate-blob"></div>
@@ -227,12 +165,11 @@ const NoveltyComponent = () => {
         </div>
       </div>
 
-      {/* Previous Button - Top Left */}
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => navigate(-1)}
-        className="absolute flex items-center px-3 py-2 text-gray-700 transition-colors bg-white rounded-full shadow-md top-4 left-4 hover:text-pink-600"
+        className="absolute z-10 flex items-center px-3 py-2 text-gray-700 transition-colors bg-white rounded-full shadow-md top-4 left-4 hover:text-pink-600"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -251,141 +188,222 @@ const NoveltyComponent = () => {
         Back
       </motion.button>
 
-      {/* Header */}
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col items-center mb-8"
-      >
-        <div className="inline-flex items-center justify-center p-4 mb-4 rounded-full shadow-lg bg-gradient-to-r from-pink-500 to-rose-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-10 h-10 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-        </div>
-        <h1 className="mb-2 text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-pink-600">
-          AI Symptom Analyzer
-        </h1>
-        <p className="max-w-lg text-center text-gray-600">
-          Select all symptoms you're experiencing for personalized analysis
-        </p>
-      </motion.div>
+      {!prediction ? (
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center mb-8"
+        >
+          <div className="inline-flex items-center justify-center p-4 mb-4 rounded-full shadow-lg bg-gradient-to-r from-pink-500 to-rose-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-10 h-10 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <h1 className="mb-2 text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-pink-600">
+            AI Symptom Analyzer
+          </h1>
+          <p className="max-w-lg text-center text-gray-600">
+            Select all symptoms you're experiencing for personalized analysis
+          </p>
+        </motion.div>
+      ) : (
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center mb-4"
+        >
+          <h1 className="mb-2 text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-pink-600">
+            Analysis Results
+          </h1>
+        </motion.div>
+      )}
 
-      {/* Main Content */}
       {prediction ? (
         <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-2xl overflow-hidden bg-white shadow-xl rounded-xl"
+          className="grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-2"
         >
-          <div className="p-8">
-            {renderSeverityIndicator()}
-            <motion.div 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="my-8 overflow-hidden border border-gray-100 rounded-lg shadow-lg"
-            >
-              <HeartModelViewer affectedSymptoms={selectedSymptoms} />
-            </motion.div>
-            <motion.h2
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }} 
-              transition={{ delay: 0.5 }}
-              className="mb-2 text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600"
-            >
-              Analysis Result
-            </motion.h2>
-            <motion.p 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="mt-3 text-lg text-gray-700"
-            >
-              {prediction}
-            </motion.p>
-
-            <motion.div 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              className="mt-6"
-            >
-              <button
-                className="px-4 py-2 mr-3 text-gray-700 transition-all border border-gray-300 rounded-lg hover:bg-gray-50 hover:shadow"
-                onClick={() => setShowDetails(!showDetails)}
+          <motion.div 
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="overflow-hidden bg-white shadow-xl rounded-xl"
+          >
+            <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-600">
+              <h2 className="text-xl font-bold text-white">Interactive Heart Model</h2>
+            </div>
+            <div className="p-4">
+              <div className="w-full overflow-hidden border-gray-100 rounded-lg aspect-square">
+                <HeartModelViewer affectedSymptoms={selectedSymptoms} />
+              </div>
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="flex items-center justify-center mt-4"
               >
-                {showDetails ? "Hide Details" : "View Details"}
-              </button>
-            </motion.div>
-
-            <AnimatePresence>
-              {showDetails && (
-                <motion.div 
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="mt-6 overflow-hidden"
+                <motion.div
+                  animate={{ 
+                    boxShadow: [
+                      `0 0 10px ${severityColors[severity]}`,
+                      `0 0 15px ${severityColors[severity]}`,
+                      `0 0 10px ${severityColors[severity]}`
+                    ]
+                  }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="relative flex items-center justify-center w-20 h-20 mr-4 transition-all duration-500 bg-white rounded-full"
+                  style={{
+                    border: `4px solid ${severityColors[severity]}`,
+                  }}
                 >
-                  <hr className="my-4" />
-                  <p className="mb-2 text-sm text-gray-500">
-                    Reported Symptoms ({selectedCount})
-                  </p>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {selectedSymptoms.map((symptom) => (
-                      <motion.span
-                        key={symptom}
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="px-3 py-1 text-sm rounded-full shadow-sm"
-                        style={{
-                          backgroundColor:
-                            severity === "high"
-                              ? "rgba(230, 49, 125, 0.1)"
-                              : severity === "medium"
-                              ? "rgba(255, 193, 7, 0.1)"
-                              : "rgba(47, 178, 151, 0.1)",
-                          color: severityColors[severity],
-                        }}
-                      >
-                        {symptom}
-                      </motion.span>
-                    ))}
-                  </div>
+                  {severity === "high" ? (
+                    <span className="text-3xl">⚠️</span>
+                  ) : severity === "medium" ? (
+                    <span className="text-3xl">⚠️</span>
+                  ) : (
+                    <span className="text-3xl">✅</span>
+                  )}
                 </motion.div>
-              )}
-            </AnimatePresence>
+                <div>
+                  <h3
+                    className="text-xl font-bold"
+                    style={{ color: severityColors[severity] }}
+                  >
+                    {severity === "high"
+                      ? "High Risk"
+                      : severity === "medium"
+                      ? "Medium Risk"
+                      : "Low Risk"}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {severity === "high"
+                      ? "Seek immediate medical attention"
+                      : severity === "medium"
+                      ? "Schedule a medical consultation"
+                      : "Monitor your symptoms"}
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
 
-            <motion.div 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="mt-8"
-            >
+          <motion.div 
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="overflow-hidden bg-white shadow-xl rounded-xl"
+          >
+            <div className="p-4 bg-gradient-to-r from-pink-500 to-rose-500">
+              <h2 className="text-xl font-bold text-white">Diagnosis & Recommendations</h2>
+            </div>
+            <div className="p-6">
+              <div className="mb-6">
+                <h3 className="mb-2 text-lg font-semibold text-gray-800">Analysis Result</h3>
+                <div className="p-3 border-l-4 rounded-r-lg bg-gray-50" style={{ borderLeftColor: severityColors[severity] }}>
+                  <p className="text-gray-700">{prediction}</p>
+                </div>
+              </div>
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-800">Reported Symptoms</h3>
+                  <span className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{selectedSymptoms.length}</span>
+                </div>
+                <div className="flex flex-wrap gap-2 p-2 overflow-y-auto max-h-24">
+                  {selectedSymptoms.map((symptom) => (
+                    <span
+                      key={symptom}
+                      className="px-2 py-1 text-xs rounded-full"
+                      style={{
+                        backgroundColor:
+                          severity === "high"
+                            ? "rgba(230, 49, 125, 0.1)"
+                            : severity === "medium"
+                            ? "rgba(255, 193, 7, 0.1)"
+                            : "rgba(47, 178, 151, 0.1)",
+                        color: severityColors[severity],
+                      }}
+                    >
+                      {symptom}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-6">
+                <h3 className="mb-2 text-lg font-semibold text-gray-800">Recommendations</h3>
+                <ul className="space-y-2">
+                  {severity === "high" ? (
+                    <>
+                      <li className="flex items-start">
+                        <svg className="w-4 h-4 mt-1 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm">Seek immediate medical attention</span>
+                      </li>
+                      <li className="flex items-start">
+                        <svg className="w-4 h-4 mt-1 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm">Call emergency services if symptoms worsen</span>
+                      </li>
+                    </>
+                  ) : severity === "medium" ? (
+                    <>
+                      <li className="flex items-start">
+                        <svg className="w-4 h-4 mt-1 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm">Schedule an appointment within 24-48 hours</span>
+                      </li>
+                      <li className="flex items-start">
+                        <svg className="w-4 h-4 mt-1 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm">Monitor your symptoms for changes</span>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="flex items-start">
+                        <svg className="w-4 h-4 mt-1 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-sm">Continue monitoring your symptoms</span>
+                      </li>
+                      <li className="flex items-start">
+                        <svg className="w-4 h-4 mt-1 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-sm">Follow up with your doctor if needed</span>
+                      </li>
+                    </>
+                  )}
+                </ul>
+              </div>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate("/health-trends")}
-                className="w-full px-6 py-3 font-medium text-white transition-all rounded-md shadow-lg bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600"
+                className="w-full px-4 py-2 mt-2 font-medium text-white transition-all rounded-md shadow-md bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600"
               >
                 Continue to Health Trends →
               </motion.button>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </motion.div>
       ) : (
         <motion.div 
@@ -399,22 +417,20 @@ const NoveltyComponent = () => {
             layoutId="symptomCard"
           >
             <div className="p-6">
-              {/* Progress Bar */}
               <div className="mb-6">
                 <div className="flex justify-between mb-2 text-sm font-medium">
                   <span>Progress</span>
-                  <span>{selectedCount}/{totalSymptoms} symptoms</span>
+                  <span>{selectedSymptoms.length}/{Object.values(symptomCategories).flat().length} symptoms</span>
                 </div>
                 <div className="w-full h-2 overflow-hidden bg-gray-200 rounded-full">
                   <motion.div 
                     initial={{ width: 0 }}
-                    animate={{ width: `${(selectedCount / totalSymptoms) * 100}%` }}
+                    animate={{ width: `${(selectedSymptoms.length / Object.values(symptomCategories).flat().length) * 100}%` }}
                     transition={{ duration: 0.5 }}
                     className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
                   />
                 </div>
               </div>
-
               {!showAllSymptoms ? (
                 <motion.div 
                   className="py-10 text-center"
@@ -456,7 +472,6 @@ const NoveltyComponent = () => {
                 </motion.div>
               ) : (
                 <>
-                  {/* Section Progress Indicator */}
                   <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
                       <motion.div 
@@ -484,8 +499,6 @@ const NoveltyComponent = () => {
                         ))}
                       </div>
                     </div>
-
-                    {/* Category Header with Icon */}
                     <motion.div 
                       className="p-4 mb-4 rounded-lg shadow-sm"
                       initial={{ opacity: 0, y: 10 }}
@@ -504,8 +517,6 @@ const NoveltyComponent = () => {
                       </div>
                     </motion.div>
                   </div>
-
-                  {/* Current Section Symptoms */}
                   <div className="mb-6">
                     <AnimatePresence mode="wait">
                       <motion.div 
@@ -574,8 +585,6 @@ const NoveltyComponent = () => {
                       </motion.div>
                     </AnimatePresence>
                   </div>
-
-                  {/* Section Navigation Buttons */}
                   <motion.div 
                     className="flex justify-between mt-8"
                     initial={{ opacity: 0 }}
@@ -608,7 +617,6 @@ const NoveltyComponent = () => {
                     ) : (
                       <div>{/* Empty div for spacing */}</div>
                     )}
-
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -665,8 +673,6 @@ const NoveltyComponent = () => {
               )}
             </div>
           </motion.div>
-
-          {/* Tips Card */}
           {showAllSymptoms && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}

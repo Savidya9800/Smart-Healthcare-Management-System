@@ -340,7 +340,7 @@ function VitalsInputForm() {
             open={open}
             autoHideDuration={3000}
             onClose={() => setOpen(false)}
-            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
           >
             <Alert
               severity="success"

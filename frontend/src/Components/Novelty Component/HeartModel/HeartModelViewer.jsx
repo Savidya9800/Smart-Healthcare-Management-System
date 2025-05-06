@@ -78,7 +78,7 @@ function HeartMesh({ affectedSymptoms = [], focusPart, cameraRef }) {
     }
   }, [focusPart, cameraRef, scene]);
 
-  return <primitive object={scene} scale={2.5} />;
+  return <primitive object={scene} scale={1.5} />;
 }
 
 export default function HeartModelViewer({ affectedSymptoms = [] }) {
@@ -86,8 +86,8 @@ export default function HeartModelViewer({ affectedSymptoms = [] }) {
   const [focusPart] = useState(null); // no buttons to set focusPart anymore
 
   return (
-    <div className="w-full p-4 bg-white border shadow-md rounded-xl">
-      <div className="w-full h-[600px] overflow-hidden border shadow-lg rounded-xl">
+    <div className="w-full ">
+      <div className="w-full h-[600px] overflow-hidden Fl">
         <Canvas camera={{ position: [0, 0, 4], fov: 45 }}>
           <ambientLight intensity={0.6} />
           <directionalLight position={[5, 5, 5]} intensity={1.2} />
