@@ -1,6 +1,7 @@
 const Appoinment = require("../Models/AppoinmentModel");
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
+const RejectedAppointment = require("../Models/RejectAppoinmentModel");
 
 // Configure email transporter
 const transporter = nodemailer.createTransport({
@@ -25,14 +26,13 @@ const getAllAppoinments = async (req, res) => {
         return res.status(200).json({ appoinments });
     } catch (err) {
         console.error("Error fetching appointments:", err.message);
-        return res.status(500).json({ error: "Internal server error" });
+        return res.status(500).json({ error: "Internal server error", details: err.message });
     }
 };
 
 // Add appointment with email confirmation
 const addAppoinment = async (req, res) => {
     try {
-        // Validate required fields
         const requiredFields = ['name', 'email', 'phone', 'doctor_id', 'date', 'time'];
         const missingFields = requiredFields.filter(field => !req.body[field]);
         
@@ -43,7 +43,6 @@ const addAppoinment = async (req, res) => {
             });
         }
 
-        // Generate appointment ID
         const lastAppointment = await Appoinment.findOne().sort({ indexno: -1 });
         let newIndex = 'A0001'; 
 
@@ -68,12 +67,10 @@ const addAppoinment = async (req, res) => {
             patient_id 
         } = req.body;
         
-        // Validate doctor_id
         if (!mongoose.Types.ObjectId.isValid(doctor_id)) {
             return res.status(400).json({ error: "Invalid doctor ID format" });
         }
 
-        // Prepare appointment data
         const appointmentData = { 
             indexno: newIndex, 
             name, 
@@ -90,7 +87,6 @@ const addAppoinment = async (req, res) => {
             status: "Pending"
         };
 
-        // Add patient_id only if valid
         if (patient_id && mongoose.Types.ObjectId.isValid(patient_id)) {
             appointmentData.patient_id = patient_id;
         }
@@ -98,7 +94,6 @@ const addAppoinment = async (req, res) => {
         const newAppointment = new Appoinment(appointmentData);
         await newAppointment.save();
 
-        // Send confirmation email
         try {
             const mailOptions = {
                 from: process.env.EMAIL_USER,
@@ -126,7 +121,6 @@ const addAppoinment = async (req, res) => {
             await transporter.sendMail(mailOptions);
         } catch (emailError) {
             console.error("Failed to send confirmation email:", emailError.message);
-            // Don't fail the request if email fails
         }
 
         return res.status(201).json({ 
@@ -180,16 +174,13 @@ const updateAppoinment = async (req, res) => {
         const { id } = req.params;
         const updates = req.body;
 
-        // Remove fields that shouldn't be updated
         delete updates.indexno;
         delete updates._id;
 
-        // Validate doctor_id if provided
         if (updates.doctor_id && !mongoose.Types.ObjectId.isValid(updates.doctor_id)) {
             return res.status(400).json({ error: "Invalid doctor ID format" });
         }
 
-        // Validate patient_id if provided
         if (updates.patient_id && !mongoose.Types.ObjectId.isValid(updates.patient_id)) {
             return res.status(400).json({ error: "Invalid patient ID format" });
         }
@@ -270,7 +261,6 @@ const updateAppointmentStatus = async (req, res) => {
             return res.status(404).json({ message: "Appointment not found" });
         }
 
-        // Send status update email
         try {
             let subject = '';
             let html = '';
@@ -308,7 +298,6 @@ const updateAppointmentStatus = async (req, res) => {
             }
         } catch (emailError) {
             console.error("Failed to send status email:", emailError.message);
-            // Don't fail the request if email fails
         }
 
         res.status(200).json({ 
@@ -345,7 +334,6 @@ const sendConfirmationEmail = async (req, res) => {
             return res.status(404).json({ message: "Appointment not found" });
         }
 
-        // Send confirmation email
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: appointment.email,
@@ -385,6 +373,135 @@ const sendConfirmationEmail = async (req, res) => {
     }
 };
 
+// Reject appointment
+const rejectAppointment = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { id } = req.params;
+    const { rejectionReason = "Not specified" } = req.body;
+
+    console.log(`Attempting to reject appointment with ID: ${id}`);
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: "Invalid appointment ID format" });
+    }
+
+    const appointment = await Appoinment.findById(id).session(session);
+    if (!appointment) {
+      await session.abortTransaction();
+      session.endSession();
+      console.log(`Appointment with ID ${id} not found`);
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    console.log(`Found appointment: ${JSON.stringify(appointment)}`);
+
+    // Validate required fields for RejectedAppointment
+    const requiredFields = ['indexno', 'name', 'phone', 'email', 'date', 'time'];
+    const missingFields = requiredFields.filter(field => !appointment[field]);
+    if (missingFields.length > 0) {
+      await session.abortTransaction();
+      session.endSession();
+      console.log(`Missing required fields: ${missingFields.join(', ')}`);
+      return res.status(400).json({ 
+        message: "Missing required fields for rejected appointment",
+        missingFields
+      });
+    }
+
+    const rejectedAppointmentData = {
+      indexno: appointment.indexno,
+      name: appointment.name,
+      address: appointment.address || 'Not provided',
+      nic: appointment.nic || 'Not provided',
+      phone: appointment.phone,
+      email: appointment.email,
+      doctorName: appointment.doctorName || 'Not specified',
+      specialization: appointment.specialization || 'Not specified',
+      date: appointment.date,
+      time: appointment.time,
+      slip: appointment.slip,
+      doctor_id: appointment.doctor_id,
+      patient_id: appointment.patient_id,
+      status: "Rejected",
+      rejectedAt: new Date(),
+      rejectionReason,
+      originalAppointmentId: appointment._id
+    };
+
+    console.log(`Creating rejected appointment: ${JSON.stringify(rejectedAppointmentData)}`);
+
+    const rejectedAppointment = new RejectedAppointment(rejectedAppointmentData);
+    await rejectedAppointment.save({ session });
+
+    console.log(`Rejected appointment saved: ${rejectedAppointment._id}`);
+
+    await Appoinment.findByIdAndDelete(id, { session });
+
+    console.log(`Original appointment ${id} deleted`);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: appointment.email,
+        subject: 'Appointment Rejected',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #e6317d;">Appointment Rejected</h2>
+            <p>Dear ${appointment.name},</p>
+            <p>We regret to inform you that your appointment with Dr. ${appointment.doctorName || 'Not specified'} has been rejected.</p>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+              <p><strong>Appointment ID:</strong> ${appointment.indexno}</p>
+              <p><strong>Reason:</strong> ${rejectionReason}</p>
+              <p><strong>Original Date:</strong> ${new Date(appointment.date).toLocaleDateString()}</p>
+              <p><strong>Time:</strong> ${appointment.time}</p>
+            </div>
+            
+            <p>If you believe this was a mistake, please contact our support team.</p>
+            <p>We apologize for any inconvenience caused.</p>
+          </div>
+        `
+      };
+      await transporter.sendMail(mailOptions);
+      console.log(`Rejection email sent to ${appointment.email}`);
+    } catch (emailError) {
+      console.error("Failed to send rejection email:", emailError.message);
+    }
+
+    res.status(200).json({ 
+      message: "Appointment rejected and moved to rejected appointments",
+      rejectedAppointment 
+    });
+  } catch (error) {
+    console.error("Error rejecting appointment:", {
+      message: error.message,
+      stack: error.stack,
+      validationErrors: error.name === 'ValidationError' ? Object.values(error.errors).map(e => e.message) : null
+    });
+    await session.abortTransaction();
+    session.endSession();
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        message: "Validation error creating rejected appointment",
+        details: Object.values(error.errors).map(e => e.message)
+      });
+    }
+
+    res.status(500).json({ 
+      message: "Error rejecting appointment", 
+      error: error.message 
+    });
+  }
+};
+
 module.exports = { 
     getAllAppoinments, 
     addAppoinment, 
@@ -392,5 +509,6 @@ module.exports = {
     updateAppoinment, 
     deleteAppoinment,
     updateAppointmentStatus,
-    sendConfirmationEmail
+    sendConfirmationEmail,
+    rejectAppointment
 };

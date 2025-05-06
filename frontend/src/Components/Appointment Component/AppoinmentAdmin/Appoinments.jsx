@@ -26,6 +26,10 @@ import {
   MenuItem,
   TablePagination,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -58,10 +62,15 @@ const colors = {
 const URL = "http://localhost:5000/api/appoinment";
 
 const fetchHandler = async () => {
-  return await axios.get(URL).then((res) => res.data);
+  try {
+    const response = await axios.get(URL);
+    return response.data.appoinments || [];
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    throw error;
+  }
 };
 
-// New function to delete appointments older than a month
 const deleteOldAppointments = async (appointmentId) => {
   try {
     await axios.delete(`${URL}/${appointmentId}`);
@@ -124,36 +133,42 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
           </Box>
         </TableCell>
         <TableCell align="right">
-          <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-            <IconButton
-              sx={{
-                backgroundColor: `${colors.green}20`,
-                borderRadius: "8px",
-                transition: "all 0.3s",
-                "&:hover": {
-                  backgroundColor: `${colors.green}30`,
-                  transform: "translateY(-2px)",
-                },
-              }}
-              onClick={() => onAccept(index)}
-            >
-              <CheckCircleIcon sx={{ color: colors.green }} />
-            </IconButton>
-            <IconButton
-              sx={{
-                backgroundColor: `${colors.pink}20`,
-                borderRadius: "8px",
-                transition: "all 0.3s",
-                "&:hover": {
-                  backgroundColor: `${colors.pink}30`,
-                  transform: "translateY(-2px)",
-                },
-              }}
-              onClick={() => onReject(index)}
-            >
-              <CancelIcon sx={{ color: colors.pink }} />
-            </IconButton>
-          </Box>
+          {appointment.status === "Accepted" ? (
+            <Typography color={colors.green} fontWeight="500">
+              Accepted
+            </Typography>
+          ) : (
+            <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
+              <IconButton
+                sx={{
+                  backgroundColor: `${colors.green}20`,
+                  borderRadius: "8px",
+                  transition: "all 0.3s",
+                  "&:hover": {
+                    backgroundColor: `${colors.green}30`,
+                    transform: "translateY(-2px)",
+                  },
+                }}
+                onClick={() => onAccept(index)}
+              >
+                <CheckCircleIcon sx={{ color: colors.green }} />
+              </IconButton>
+              <IconButton
+                sx={{
+                  backgroundColor: `${colors.pink}20`,
+                  borderRadius: "8px",
+                  transition: "all 0.3s",
+                  "&:hover": {
+                    backgroundColor: `${colors.pink}30`,
+                    transform: "translateY(-2px)",
+                  },
+                }}
+                onClick={() => onReject(appointment._id)}
+              >
+                <CancelIcon sx={{ color: colors.pink }} />
+              </IconButton>
+            </Box>
+          )}
         </TableCell>
       </TableRow>
 
@@ -387,18 +402,20 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                 >
                   Close
                 </Button>
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => onAccept(index)}
-                  sx={{
-                    bgcolor: colors.pink,
-                    "&:hover": { bgcolor: "#d02b6e" },
-                    textTransform: "none",
-                  }}
-                >
-                  Accept Appointment
-                </Button>
+                {appointment.status !== "Accepted" && (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => onAccept(index)}
+                    sx={{
+                      bgcolor: colors.pink,
+                      "&:hover": { bgcolor: "#d02b6e" },
+                      textTransform: "none",
+                    }}
+                  >
+                    Accept Appointment
+                  </Button>
+                )}
               </Box>
             </Card>
           </Collapse>
@@ -421,29 +438,28 @@ function Appointments() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [loading, setLoading] = useState(true);
   const [deletedCount, setDeletedCount] = useState(0);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [currentAppointmentId, setCurrentAppointmentId] = useState(null);
 
-  // Function to check if an appointment is older than a month
   const isOlderThanOneMonth = (appointmentDate) => {
     const today = new Date();
     const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
     return new Date(appointmentDate) < oneMonthAgo;
   };
 
-  // Function to cleanup old appointments
   const cleanupOldAppointments = async (appointmentsData) => {
     let deletedCounter = 0;
     const currentAppointments = [...appointmentsData];
     const appointmentsToKeep = [];
 
-    // Find appointments older than a month
     for (const appointment of currentAppointments) {
       if (isOlderThanOneMonth(appointment.date)) {
-        // Delete old appointment from the database
         const deleted = await deleteOldAppointments(appointment._id);
         if (deleted) {
           deletedCounter++;
         } else {
-          appointmentsToKeep.push(appointment); // Keep it in the list if deletion failed
+          appointmentsToKeep.push(appointment);
         }
       } else {
         appointmentsToKeep.push(appointment);
@@ -452,7 +468,6 @@ function Appointments() {
 
     setDeletedCount(deletedCounter);
 
-    // Update state with appointments that are not deleted
     if (deletedCounter > 0) {
       setAppointments(appointmentsToKeep);
       setSnackbarMessage(
@@ -468,29 +483,23 @@ function Appointments() {
   useEffect(() => {
     fetchHandler()
       .then((data) => {
-        const fetchedAppointments = data.appoinments;
-        setAppointments(fetchedAppointments);
-        setFilteredAppointments(fetchedAppointments);
-
-        // Clean up old appointments
-        cleanupOldAppointments(fetchedAppointments);
-
+        setAppointments(data);
+        setFilteredAppointments(data);
+        cleanupOldAppointments(data);
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching appointments:", error);
         setSnackbarMessage("Failed to fetch appointments");
         setSnackbarSeverity("error");
         setOpenSnackbar(true);
         setLoading(false);
       });
 
-    // Set interval to check for old appointments daily
     const cleanupInterval = setInterval(() => {
       if (appointments.length > 0) {
         cleanupOldAppointments(appointments);
       }
-    }, 24 * 60 * 60 * 1000); // 24 hours
+    }, 24 * 60 * 60 * 1000);
 
     return () => clearInterval(cleanupInterval);
   }, []);
@@ -498,7 +507,6 @@ function Appointments() {
   useEffect(() => {
     let results = [...appointments];
 
-    // Apply search filter
     if (searchTerm) {
       results = results.filter(
         (appointment) =>
@@ -513,7 +521,6 @@ function Appointments() {
       );
     }
 
-    // Apply date filter
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -551,56 +558,84 @@ function Appointments() {
     setPage(0);
   }, [appointments, searchTerm, dateFilter, selectedDate]);
 
-  const handleAccept = (index) => {
-    // Clone the appointments array
-    const updatedAppointments = [...appointments];
-
-    // Update the status if needed
-    if (updatedAppointments[index]) {
+  const handleAccept = async (index) => {
+    try {
+      const appointment = appointments[index];
+      await axios.put(`${URL}/${appointment._id}/status`, { status: "Accepted" });
+      const updatedAppointments = [...appointments];
       updatedAppointments[index].status = "Accepted";
       setAppointments(updatedAppointments);
+      setFilteredAppointments(updatedAppointments);
+      setSnackbarMessage("Appointment accepted successfully!");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+    } catch (error) {
+      console.error("Error accepting appointment:", error);
+      setSnackbarMessage("Failed to accept appointment");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
     }
-
-    setSnackbarMessage("Appointment accepted successfully!");
-    setSnackbarSeverity("success");
-    setOpenSnackbar(true);
-
-    // Here you would typically make an API call to update the status in your database
-    // For example:
-    // axios.put(`${URL}/${updatedAppointments[index]._id}`, {
-    //   status: "Accepted"
-    // }).catch(error => {
-    //   console.error("Error updating appointment:", error);
-    //   setSnackbarMessage("Failed to update appointment status");
-    //   setSnackbarSeverity("error");
-    //   setOpenSnackbar(true);
-    // });
   };
 
-  const handleReject = (index) => {
-    // Clone the appointments array
-    const updatedAppointments = [...appointments];
+  const handleReject = (appointmentId) => {
+    setCurrentAppointmentId(appointmentId);
+    setRejectDialogOpen(true);
+  };
 
-    // Update the status if needed
-    if (updatedAppointments[index]) {
-      updatedAppointments[index].status = "Rejected";
-      setAppointments(updatedAppointments);
+  const confirmReject = async () => {
+    if (!rejectionReason.trim()) {
+      setSnackbarMessage("Please provide a rejection reason");
+      setSnackbarSeverity("warning");
+      setOpenSnackbar(true);
+      return;
     }
 
-    setSnackbarMessage("Appointment rejected.");
-    setSnackbarSeverity("error");
-    setOpenSnackbar(true);
+    try {
+      console.log(`Sending reject request for appointment ID: ${currentAppointmentId} with reason: ${rejectionReason}`);
+      const response = await axios.post(`${URL}/${currentAppointmentId}/reject`, {
+        rejectionReason,
+      });
 
-    // Here you would typically make an API call to update the status in your database
-    // For example:
-    // axios.put(`${URL}/${updatedAppointments[index]._id}`, {
-    //   status: "Rejected"
-    // }).catch(error => {
-    //   console.error("Error updating appointment:", error);
-    //   setSnackbarMessage("Failed to update appointment status");
-    //   setSnackbarSeverity("error");
-    //   setOpenSnackbar(true);
-    // });
+      console.log('Reject response:', response.data);
+
+      const updatedAppointments = appointments.filter(
+        (appt) => appt._id !== currentAppointmentId
+      );
+      setAppointments(updatedAppointments);
+      setFilteredAppointments(updatedAppointments);
+
+      setSnackbarMessage("Appointment rejected successfully!");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+      setRejectDialogOpen(false);
+      setRejectionReason("");
+      setCurrentAppointmentId(null);
+    } catch (error) {
+      console.error("Error rejecting appointment:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      let errorMessage = "Failed to reject appointment";
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            errorMessage = "Invalid appointment ID or request";
+            break;
+          case 404:
+            errorMessage = "Appointment not found";
+            break;
+          case 500:
+            errorMessage = "Server error, please try again later";
+            break;
+          default:
+            errorMessage = error.response.data.message || error.message;
+        }
+      }
+      setSnackbarMessage(errorMessage);
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    }
   };
 
   const handleSearchChange = (event) => {
@@ -616,17 +651,14 @@ function Appointments() {
     setPage(0);
   };
 
-  // PDF Generation function to add to your existing code
   const generateReport = async () => {
     try {
-      // Create PDF document directly (no need for dynamic import)
       const doc = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
       });
 
-      // Color scheme
       const colors = {
         primary: "#2C3E50",
         accent: "#3498DB",
@@ -635,25 +667,20 @@ function Appointments() {
         highlight: "#27AE60",
       };
 
-      // Page dimensions
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
       const margin = 20;
 
-      // Background
       doc.setFillColor(colors.background);
       doc.rect(0, 0, pageWidth, pageHeight, "F");
 
-      // Header with color
       doc.setFillColor(colors.primary);
       doc.rect(0, 0, pageWidth, 30, "F");
 
-      // Add logo
       const logoWidth = 30;
       const logoHeight = 30;
       doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
 
-      // Header text
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
@@ -662,32 +689,25 @@ function Appointments() {
       doc.setFontSize(13);
       doc.text("Appointments Report", margin + logoWidth + 10, 24);
 
-      // Report title
       doc.setFontSize(18);
       doc.setTextColor(colors.primary);
       doc.text("Appointments List", margin, 50);
 
-      // Title underline
       doc.setLineWidth(0.5);
       doc.setDrawColor(colors.accent);
       doc.line(margin, 55, pageWidth - margin, 55);
 
-      // Table setup
       let yPosition = 65;
-      // Updated column widths to match all 7 columns
-      const colWidths = [15, 35, 30, 35, 30, 25]; // ID, Name, NIC, Doctor Name, Specialization, Date, Time
+      const colWidths = [15, 35, 30, 35, 30, 25];
       const rowHeight = 10;
 
-      // Draw table headers
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(255, 255, 255);
 
-      // Header background
       doc.setFillColor(colors.primary);
       doc.rect(margin, yPosition, pageWidth - margin * 2, rowHeight, "F");
 
-      // Header text
       let xPosition = margin;
       const headers = [
         "ID",
@@ -708,38 +728,33 @@ function Appointments() {
       });
       yPosition += rowHeight;
 
-      // Draw table rows
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(colors.text);
 
       filteredAppointments.forEach((appointment, index) => {
-        // Alternate row colors
         if (index % 2 === 0) {
           doc.setFillColor(240, 240, 240);
         } else {
           doc.setFillColor(255, 255, 255);
         }
 
-        // Draw row background
         doc.rect(margin, yPosition, pageWidth - margin * 2, rowHeight, "F");
 
-        // Draw cell borders
         doc.setDrawColor(200, 200, 200);
         xPosition = margin;
         colWidths.forEach((width) => {
           doc.line(xPosition, yPosition, xPosition, yPosition + rowHeight);
           xPosition += width;
         });
-        doc.line(xPosition, yPosition, xPosition, yPosition + rowHeight); // Final line
+        doc.line(xPosition, yPosition, xPosition, yPosition + rowHeight);
 
-        // Add row data
         xPosition = margin;
         const rowData = [
           appointment.indexno || "N/A",
           appointment.name || "N/A",
           appointment.nic || "N/A",
-          appointment.doctorName || "N/A", // Fixed typo here
+          appointment.doctorName || "N/A",
           appointment.specialization || "N/A",
           appointment.date
             ? new Date(appointment.date).toLocaleDateString()
@@ -747,7 +762,6 @@ function Appointments() {
         ];
 
         rowData.forEach((text, i) => {
-          // Trim text if too long
           const maxLength = Math.floor(colWidths[i] / 2.5);
           const displayText =
             text.length > maxLength
@@ -762,15 +776,11 @@ function Appointments() {
 
         yPosition += rowHeight;
 
-        // Add new page if needed
         if (yPosition > pageHeight - 30) {
-          // Footer for current page
           addFooter(doc, colors, pageWidth, pageHeight, margin);
-
           doc.addPage();
           yPosition = 20;
 
-          // Header for new page
           doc.setFillColor(colors.primary);
           doc.rect(0, 0, pageWidth, 30, "F");
           doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
@@ -782,15 +792,12 @@ function Appointments() {
             24
           );
 
-          // Reset yPosition after header
           yPosition = 50;
         }
       });
 
-      // Add final footer
       addFooter(doc, colors, pageWidth, pageHeight, margin);
 
-      // Save the PDF
       doc.save(
         `appointments_report_${new Date().toISOString().slice(0, 10)}.pdf`
       );
@@ -805,7 +812,7 @@ function Appointments() {
       setOpenSnackbar(true);
     }
   };
-  // Helper function for footer
+
   const addFooter = (doc, colors, pageWidth, pageHeight, margin) => {
     doc.setLineWidth(0.2);
     doc.setDrawColor(colors.primary);
@@ -820,6 +827,7 @@ function Appointments() {
     );
     doc.text("Confidential Document", pageWidth - margin - 40, pageHeight - 10);
   };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "67vh" }}>
       <Box sx={{ p: 3, flexGrow: 1 }}>
@@ -842,7 +850,9 @@ function Appointments() {
               display: "inline-block",
               pb: 1,
             }}
-          ></Typography>
+          >
+            Appointments
+          </Typography>
 
           <Box
             sx={{
@@ -856,16 +866,16 @@ function Appointments() {
               <Button
                 variant="contained"
                 onClick={generateReport}
-                startIcon={<PictureAsPdfIcon fontSize="small" />} // Smaller icon
+                startIcon={<PictureAsPdfIcon fontSize="small" />}
                 sx={{
                   backgroundColor: "#4f39f6",
                   borderRadius: "8px",
                   color: "white",
-                  minWidth: "auto", // Removes minimum width constraint
-                  padding: "4px 8px", // Tighter padding (vertical, horizontal)
-                  fontSize: "0.75rem", // Smaller text
+                  minWidth: "auto",
+                  padding: "4px 8px",
+                  fontSize: "0.75rem",
                   "& .MuiButton-startIcon": {
-                    marginRight: "4px", // Reduce icon spacing
+                    marginRight: "4px",
                   },
                   "&:hover": {
                     backgroundColor: "#3a2bb5",
@@ -1009,7 +1019,7 @@ function Appointments() {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((appointment, index) => (
                       <AppointmentRow
-                        key={index}
+                        key={appointment._id}
                         appointment={appointment}
                         index={index}
                         onAccept={handleAccept}
@@ -1084,6 +1094,35 @@ function Appointments() {
           />
         </Card>
 
+        <Dialog
+          open={rejectDialogOpen}
+          onClose={() => setRejectDialogOpen(false)}
+        >
+          <DialogTitle>Reject Appointment</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Reason for Rejection"
+              type="text"
+              fullWidth
+              multiline
+              rows={4}
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              variant="outlined"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setRejectDialogOpen(false)} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={confirmReject} color="error">
+              Reject
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <Snackbar
           open={openSnackbar}
           autoHideDuration={3000}
@@ -1103,6 +1142,8 @@ function Appointments() {
                   ? colors.green
                   : snackbarSeverity === "info"
                   ? colors.blue
+                  : snackbarSeverity === "warning"
+                  ? "#f4b400"
                   : colors.pink,
             }}
           >
