@@ -25,6 +25,7 @@ const getDiagnosisById = async (req, res) => {
 
 // Create diagnosis
 const createDiagnosis = async (req, res) => {
+  console.log(req.body);
   const { appointmentId, patientId, doctorId, symptoms, assumedIllness, diagnosisDescription, notes } = req.body;
 
   try {
