@@ -25,6 +25,7 @@ const getPrescriptionById = async (req, res) => {
 
 // Create Prescription
 const createPrescription = async (req, res) => {
+  console.log(req.body);
   const { patientId, doctorId, appointmentId, medicine, notes } = req.body;
 
   try {
