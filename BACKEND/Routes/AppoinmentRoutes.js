@@ -1,14 +1,31 @@
 const express = require("express");
 const router = express.Router();
-const appoinmentController = require('../Controllers/appoinmentController');
+const {
+  createAppointment,
+  getAppointments,
+  getAppointmentById,
+  updateAppointment,
+  deleteAppointment,
+  sendConfirmationEmail,
+} = require("../Controllers/AppoinmentController");
+const authMiddleware = require("../Middleware/authMiddleware");
 
-router.get("/", appoinmentController.getAllAppoinments);
-router.post("/", appoinmentController.addAppoinment);
-router.put("/:id/status", appoinmentController.updateAppointmentStatus);
-router.get("/:id", appoinmentController.getById);
-router.put("/:id", appoinmentController.updateAppoinment);
-router.delete("/:id", appoinmentController.deleteAppoinment);
-router.post("/send-confirmation", appoinmentController.sendConfirmationEmail);
-router.post('/:id/reject', appoinmentController.rejectAppointment);
+// Create a new appointment (Protected)
+router.post("/", authMiddleware, createAppointment);
+
+// Get all appointments
+router.get("/", getAppointments);
+
+// Get appointment by ID
+router.get("/:id", getAppointmentById);
+
+// Update appointment by ID
+router.put("/:id", updateAppointment);
+
+// Delete appointment by ID
+router.delete("/:id", deleteAppointment);
+
+// Send confirmation email
+router.post("/send-confirmation", sendConfirmationEmail);
 
 module.exports = router;
