@@ -31,6 +31,11 @@ import {
   DeleteForever as DeleteIcon,
 } from "@mui/icons-material";
 import UpdatePatientProfile from "./UpdatePatientProfile";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
+import HistoryIcon from "@mui/icons-material/History";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
+import Swal from "sweetalert2";
 
 function PatientProfile() {
   const [user, setUser] = useState(null);
@@ -69,32 +74,88 @@ function PatientProfile() {
 
   // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/Home";
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out of your account.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#2b2c6c",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, log me out",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("token");
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: "✅ Logged out successfully",
+          showConfirmButton: false,
+          timer: 2500,
+          timerProgressBar: true,
+          background: "#f0f4ff",
+          color: "#2b2c6c",
+          iconColor: "#2fb297",
+          customClass: {
+            popup: "swal2-rounded",
+          },
+        });
+        setTimeout(() => {
+          window.location.href = "/Home";
+        }, 2500);
+      }
+    });
   };
 
   // Handle account deletion
   const handleDeleteAccount = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      )
-    ) {
-      const token = localStorage.getItem("token");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action is permanent. Your account will be deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e03131",
+      cancelButtonColor: "#2b2c6c",
+      confirmButtonText: "Yes, delete my account",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
 
-      axios
-        .delete("http://localhost:5000/api/users/delete", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then(() => {
-          localStorage.removeItem("token");
-          window.location.href = "/login"; // Or wherever you want to redirect
-        })
-        .catch((error) => {
-          console.error("Error deleting account:", error);
-          alert("Failed to delete account. Please try again.");
-        });
-    }
+        axios
+          .delete("http://localhost:5000/api/users/delete", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then(() => {
+            localStorage.removeItem("token");
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "success",
+              title: "🗑️ Account deleted successfully",
+              showConfirmButton: false,
+              timer: 2500,
+              timerProgressBar: true,
+              background: "#fff0f0",
+              color: "#e03131",
+              iconColor: "#e03131",
+              customClass: {
+                popup: "swal2-rounded",
+              },
+            });
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 2500);
+          })
+          .catch((error) => {
+            console.error("Error deleting account:", error);
+            Swal.fire(
+              "Error",
+              "Failed to delete account. Please try again.",
+              "error"
+            );
+          });
+      }
+    });
   };
 
   if (loading) {
@@ -112,43 +173,6 @@ function PatientProfile() {
     );
   }
 
-  if (!user) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "80vh",
-        }}
-      >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 3,
-            textAlign: "center",
-            borderRadius: 2,
-            bgcolor: "#ffffff",
-          }}
-        >
-          <Typography color="error" variant="h6">
-            Failed to load user data
-          </Typography>
-          <Button
-            variant="contained"
-            sx={{
-              mt: 2,
-              bgcolor: "#2b2c6c",
-              "&:hover": { bgcolor: "#1e1f4b" },
-            }}
-            onClick={() => window.location.reload()}
-          >
-            Retry
-          </Button>
-        </Paper>
-      </Box>
-    );
-  }
 
   // Format date of birth
   const formatDate = (dateString) => {
@@ -497,6 +521,80 @@ function PatientProfile() {
                   </Paper>
                 </Grid>
               </Grid>
+            </Grid>
+            {/* Smart Health Tools Section */}
+            {/* Smart Health Tools (Direct Navigation) */}
+            <Grid item xs={12}>
+              <Paper
+                elevation={2}
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  bgcolor: "#ffffff",
+                  border: `1px solid ${theme.palette.grey[300]}`,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="#2b2c6c"
+                  gutterBottom
+                >
+                  Smart Health Tools
+                </Typography>
+
+                <Grid container spacing={2}>
+                  {[
+                    {
+                      label: "Enter Your Vitals",
+                      icon: <MonitorHeartIcon sx={{ color: "#2fb297" }} />,
+                      path: "/enter-vitals",
+                    },
+                    {
+                      label: "Run Symptom Analysis",
+                      icon: <PsychologyIcon sx={{ color: "#e6317d" }} />,
+                      path: "/symptom-analysis",
+                    },
+
+                    {
+                      label: "Health Trends",
+                      icon: <ShowChartIcon sx={{ color: "#2fb297" }} />,
+                      path: "/health-trends",
+                    },
+                    {
+                      label: "View Analysis History",
+                      icon: <HistoryIcon sx={{ color: "#2b2c6c" }} />,
+                      path: "/analysis-history",
+                    },
+                  ].map(({ label, icon, path }) => (
+                    <Grid item xs={12} sm={6} md={3} key={label}>
+                      <Paper
+                        elevation={1}
+                        sx={{
+                          p: 2,
+                          textAlign: "center",
+                          cursor: "pointer",
+                          border: `1px solid ${theme.palette.grey[200]}`,
+                          "&:hover": {
+                            boxShadow: 4,
+                            borderColor: "#828487",
+                          },
+                        }}
+                        onClick={() => (window.location.href = path)}
+                      >
+                        <IconButton>{icon}</IconButton>
+                        <Typography
+                          variant="subtitle1"
+                          color="#71717d"
+                          fontWeight="medium"
+                        >
+                          {label}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Paper>
             </Grid>
 
             {/* Account Actions Section */}

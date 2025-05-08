@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import PAdminLayout from "./PAdminLayout";
 import { ChevronRight, ChevronLeft, Check } from "lucide-react";
-
+// This component allows the pharmacy admin to add stock information for medicines
 function StockAdding() {
   const [currentSection, setCurrentSection] = useState(1);
   const [stockData, setStockData] = useState({
@@ -81,7 +81,7 @@ function StockAdding() {
     if (!packSize) return "Pack size is required";
     if (isNaN(packSize)) return "Must be a number";
     if (packSize <= 0) return "Must be positive";
-    if (packSize > 10000) return "Cannot exceed 10000";
+    if (packSize > 1000) return "Cannot exceed 1000";
     return "";
   };
 
@@ -522,5 +522,5 @@ function StockAdding() {
     </PAdminLayout>
   );
 }
-
+//StockAddingFrontend
 export default StockAdding;

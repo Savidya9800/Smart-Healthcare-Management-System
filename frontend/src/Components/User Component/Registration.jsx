@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
   Box,
   TextField,
@@ -99,13 +100,47 @@ function Registration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!validateForm()) return;
+
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+
+    const { name, email, password } = formData;
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", formData);
-      navigate("/login");
+      await axios.post("http://localhost:5000/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "🎉 Registration Successful",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+        background: "#e6ffed",
+        color: "#1e4620",
+        iconColor: "#28a745",
+        customClass: {
+          popup: "swal2-rounded",
+        },
+      });
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 2500);
     } catch (error) {
-      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Registration Failed",
+        text: error.response?.data?.message || "Something went wrong!",
+        confirmButtonColor: "#e03131",
+      });
     } finally {
       setLoading(false);
     }

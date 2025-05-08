@@ -610,5 +610,4 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
     </>
   );
 }
-
 export default UpdatePatientProfile;
