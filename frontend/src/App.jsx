@@ -1,5 +1,5 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useState } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -29,15 +29,31 @@ import ADashboard from "./Components/Appointment Component/ADashboard";
 import BookAppointent from "./Components/Appointment Component/BookAppointent";
 import AppoinmentDisplay from "./Components/Appointment Component/DisplayAppoinment";
 import AppoinmentManagement from "./Components/Appointment Component/AppoinmentAdmin/AppoinmentManagement";
+import RejectedAppoinment from "./Components/Appointment Component/AppoinmentAdmin/RejectedAppoinmentPage";
 
 //Doctor Components
 import DoctorLogin from "./Components/Doctor Component/DoctorLogin";
 import DoctorRegistration from "./Components/Doctor Component/DoctorRegistration";
 import DDashboard from "./Components/Doctor Component/DDashboard";
 import ViewAppointments from "./Components/Doctor Component/ViewAppoinments";
+import DoctorLeave from "./Components/Doctor Component/DoctorLeave";
+import DoctorDiagnosis from "./Components/Doctor Component/DoctorDiagnosis";
+
 import AddNewUser from "./Components/User Component/UserAdmin/AddNewUser";
+import NoveltyComponent from "./Components/Novelty Component/NoveltyComponent";
+import AnalysisHistory from "./Components/Novelty Component/AnalysisHistory";
+import HealthTrends from "./Components/Novelty Component/HealthTrends";
+import VitalsInputForm from "./Components/Novelty Component/VitalsInputForm";
+import ChatbotLauncher from "./Components/Novelty Component/ChatbotLauncher";
+import HealthChatBot from "./Components/Novelty Component/HealthChatBot";
 
 function App() {
+  const [chatOpen, setChatOpen] = useState(false);
+  const location = useLocation(); // ⬅️ get current route
+
+  // ⛔️ Hide chatbot on login & registration
+  const hideChatbotOn = ["/login", "/registration"];
+  const showChatbot = !hideChatbotOn.includes(location.pathname);
   return (
     <div>
       <React.Fragment>
@@ -48,21 +64,25 @@ function App() {
           <Route path="/Contact-Us" element={<ContactUs />} />
           <Route path="/Our-Facilities" element={<OurFacilities />} />
           <Route path="/Find-Doctor" element={<FindADoctor />} />
-
           {/*User Components*/}
           <Route path="/User-Management" element={<UserManagement />} />
-          <Route path="/Login" element={<Login />} />
-          <Route path="/Registration" element={<Registration />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registration" element={<Registration />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/User-Dashboard" element={<UDashboard />} />
           <Route path="/User-Account" element={<MyAccount />} />
           <Route path="/Add-New-Patient" element={<AddNewUser />} />
+          {/* Novelty Component Route */}
+          <Route path="/symptom-analysis" element={<NoveltyComponent />} />
+          <Route path="/enter-vitals" element={<VitalsInputForm />} />
+          <Route path="/analysis-history" element={<AnalysisHistory />} />
+          <Route path="/health-trends" element={<HealthTrends />} />
+
           {/*Pharmacy Components*/}
           <Route path="/Pharmacy-Dashboard" element={<PDashboard />} />
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
           <Route path="/Stock-Adding" element={<StockAdding />} />
-
           {/*Doctor Components*/}
           <Route path="/login-doctor" element={<DoctorLogin />} />
           <Route path="/register-doctor" element={<DoctorRegistration />} />
@@ -71,7 +91,11 @@ function App() {
             path="/Doctor-Dashboard/View-Appointment"
             element={<ViewAppointments />}
           />
-
+          <Route path="/Doctor-Dashboard/Leave" element={<DoctorLeave />} />
+          <Route
+            path="/Doctor-Dashboard/appointmnet/Diagnosis/:appointmentId"
+            element={<DoctorDiagnosis />}
+          />
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />
           <Route path="/Appoinment-Display" element={<AppoinmentDisplay />} />
@@ -80,7 +104,16 @@ function App() {
             path="/Appoinment-Management"
             element={<AppoinmentManagement />}
           />
+           <Route path="Rijected-Appoinment" element={<RejectedAppoinment/>}/>
         </Routes>
+       
+        {/* ✅ Conditionally show Chatbot */}
+        {showChatbot && (
+          <>
+            <ChatbotLauncher onOpen={() => setChatOpen(true)} />
+            <HealthChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
+          </>
+        )}
       </React.Fragment>
     </div>
   );

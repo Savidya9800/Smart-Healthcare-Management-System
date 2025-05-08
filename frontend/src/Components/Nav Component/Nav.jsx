@@ -92,7 +92,7 @@ function Nav() {
             </Link>
           ))}
           
-          {/* Sign In dropdown or My Account based on authentication status */}
+          {/* Sign In button directly navigates to '/Login' */}
           {isAuthenticated ? (
             <Link
               to="/User-Account"
@@ -115,10 +115,10 @@ function Nav() {
               {showSignInDropdown && (
                 <div className="absolute right-0 z-50 w-48 mt-2 bg-white border border-gray-200 rounded shadow-lg">
                   <div className="py-2">
-                    <Link to="/Login" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={closeDropdown}>
+                    <Link to="/login" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={closeDropdown}>
                       User Sign In
                     </Link>
-                    <Link to="/Doctor-Login" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={closeDropdown}>
+                    <Link to="/login-doctor" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={closeDropdown}>
                       Doctor Sign In
                     </Link>
                   </div>

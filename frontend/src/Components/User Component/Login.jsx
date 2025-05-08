@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
   Box,
   TextField,
@@ -63,34 +64,52 @@ function Login() {
       );
       localStorage.setItem("token", response.data.token);
 
-      // Check if the logged-in user is an admin and navigate accordingly
-      const adminEmails = [
-        "useradmin@gmail.com",
-        "pharmacyadmin@gmail.com",
-        "doctoradmin@gmail.com",
-        "appointmentadmin@gmail.com",
-      ];
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "✅ Login Successful",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+        background: "#f0f4ff",
+        color: "#2b2c6c",
+        iconColor: "#2fb297",
+        customClass: {
+          popup: "swal2-rounded",
+        },
+      });
 
-      if (adminEmails.includes(formData.email)) {
-        // Navigate to the respective admin dashboard based on the email
-        if (formData.email === "useradmin@gmail.com") {
-          navigate("/User-Dashboard");
-        } else if (formData.email === "pharmacyadmin@gmail.com") {
-          navigate("/Pharmacy-Dashboard");
-        } else if (formData.email === "doctoradmin@gmail.com") {
-          navigate("/Doctor-Dashboard");
-        } else if (formData.email === "appointmentadmin@gmail.com") {
-          navigate("/Appointment-Dashboard");
+      setTimeout(() => {
+        const adminEmails = [
+          "useradmin@gmail.com",
+          "pharmacyadmin@gmail.com",
+          "doctoradmin@gmail.com",
+          "appointmentadmin@gmail.com",
+        ];
+
+        if (adminEmails.includes(formData.email)) {
+          if (formData.email === "useradmin@gmail.com") {
+            navigate("/User-Dashboard");
+          } else if (formData.email === "pharmacyadmin@gmail.com") {
+            navigate("/Pharmacy-Dashboard");
+          } else if (formData.email === "doctoradmin@gmail.com") {
+            navigate("/Doctor-Dashboard");
+          } else if (formData.email === "appointmentadmin@gmail.com") {
+            navigate("/Appointment-Dashboard");
+          }
+        } else {
+          navigate("/Home");
         }
-      } else {
-        // Normal user navigation
-        navigate("/Home");
-      }
+      }, 2500);
     } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Login failed. Please check your credentials."
-      );
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text:
+          error.response?.data?.message ||
+          "Login failed. Please check your credentials.",
+      });
     } finally {
       setLoading(false);
     }
@@ -243,7 +262,7 @@ function Login() {
                   </Button>
                   <Button
                     color="primary"
-                    onClick={() => navigate("/Registration")}
+                    onClick={() => navigate("/registration")}
                     sx={{ textTransform: "none" }}
                   >
                     Create Account

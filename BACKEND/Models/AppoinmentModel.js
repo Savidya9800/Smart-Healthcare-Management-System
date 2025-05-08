@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const appoinmentSchema = new Schema({
-    indexno: { type: String, unique: true, },
+    indexno: { type: String, unique: true, required: true },
     name: {
         type: String,
         required: true,
@@ -10,12 +10,17 @@ const appoinmentSchema = new Schema({
     },
     address: {
         type: String,
-        required: true,
+        default: 'Not provided',
         trim: true,
+    },
+    patient_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
     nic: {
         type: String,
-        required: true,
+        default: 'Not provided',
         trim: true,
     },
     phone: {
@@ -30,7 +35,11 @@ const appoinmentSchema = new Schema({
     },
     doctorName: {
         type: String,
-        required: true,
+        default: 'Not specified',
+    },
+    doctor_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
     },
     specialization: {
         type: String,
@@ -45,9 +54,14 @@ const appoinmentSchema = new Schema({
         required: true,
     },
     slip: {
-        data: { type: Buffer, default: null }, // Stores binary image data
-        contentType: { type: String, default: null }, // Stores image type (e.g., "image/png", "image/jpeg")
-    }
+        data: { type: Buffer, default: null },
+        contentType: { type: String, default: null },
+    },
+    status: {
+        type: String,
+        enum: ["Pending", "Reviewed", "Completed"],
+        default: "Pending",
+    },
 });
 
 module.exports = mongoose.model("Appoinment", appoinmentSchema);

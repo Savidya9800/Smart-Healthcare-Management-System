@@ -10,7 +10,7 @@ import {
   MapPin,
   UserCircle,
   Clock,
-  Award,
+  Award ,
   ChevronLeft,
   CheckCircle,
   IdCard,
@@ -23,19 +23,6 @@ function BookAppointment() {
   const history = useNavigate();
   const [doctors, setDoctors] = useState([]);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/doctor/")
-      .then((response) => {
-        if (Array.isArray(response.data)) {
-          setDoctors(response.data);
-        } else {
-          console.error("Unexpected response format:", response.data);
-        }
-      })
-      .catch((error) => console.error("Error fetching doctors:", error));
-  }, []);
-
   const [input, setInputs] = useState({
     name: "",
     address: "",
@@ -43,6 +30,7 @@ function BookAppointment() {
     phone: "",
     email: "",
     doctorName: "",
+    doctor_id: "",
     specialization: "",
     date: "",
     time: "",
@@ -85,7 +73,7 @@ function BookAppointment() {
 
   const validate = () => {
     let tempErrors = {};
-    
+
     if (!/^[A-Za-z\s]+$/.test(input.name)) {
       tempErrors.name = "Name cannot contain numbers";
     }
@@ -107,21 +95,53 @@ function BookAppointment() {
   };
 
   const handleChange = (e) => {
-    setInputs({ ...input, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+  
+    if (name === "doctorName") {
+      const selectedDoctor = doctors.find((doctor) => doctor._id === value);
+      setInputs({
+        ...input,
+        doctor_id: selectedDoctor ? selectedDoctor._id : "",
+        doctorName: selectedDoctor ? selectedDoctor.name : "",
+        specialization: selectedDoctor ? selectedDoctor.specialization : ""
+      });
+    } else {
+      setInputs({ ...input, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validate()) {
       return;
     }
+
     try {
-      await axios.post("http://localhost:5000/api/appoinment", input);
+      await axios.post("http://localhost:5000/api/appoinment", {
+        ...input,
+        doctor_id: input.doctor_id,
+      });
+
       history("/Appoinment-Display");
     } catch (error) {
       console.error("Error submitting appointment:", error);
     }
   };
+
+  // Fetch doctors from API
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/doctor/");
+        setDoctors(response.data);
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   const [step, setStep] = useState(1);
 
@@ -206,7 +226,6 @@ function BookAppointment() {
               {/* Step 1 Form */}
               {step === 1 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {/* Doctor Selection */}
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Select Doctor
@@ -217,14 +236,14 @@ function BookAppointment() {
                       </div>
                       <select
                         name="doctorName"
-                        value={input.doctorName}
+                        value={input.doctor_id}  // Use doctor_id instead
                         onChange={handleChange}
                         className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       >
                         <option value="">Select a doctor</option>
                         {doctors.map((doctor) => (
-                          <option key={doctor._id} value={doctor.name}>
-                            {doctor.name} - {doctor.specialization}
+                          <option key={doctor._id} value={doctor._id}>
+                            {doctor.name}
                           </option>
                         ))}
                       </select>
@@ -236,38 +255,45 @@ function BookAppointment() {
                     )}
                   </div>
 
-                  {/* Specialization */}
                   <div>
-                    <label className="block text-gray-700 text-base font-medium mb-2">
-                      Specialization
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Stethoscope size={24} className="text-[#2b2c6c]" />
-                      </div>
-                      <select
-                        name="specialization"
-                        value={input.specialization}
-                        onChange={handleChange}
-                        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
-                      >
-                        <option value="">Select specialization</option>
-                        <option value="Cardiology">Cardiology</option>
-                        <option value="Neurology">Neurology</option>
-                        <option value="Orthopedics">Orthopedics</option>
-                        <option value="Pediatrics">Pediatrics</option>
-                        <option value="Dermatology">Dermatology</option>
-                        <option value="General">General Medicine</option>
-                      </select>
-                    </div>
-                    {errors.specialization && (
-                      <p className="text-[#e6317d] text-xs mt-1">
-                        {errors.specialization}
-                      </p>
-                    )}
-                  </div>
+  <label className="block text-gray-700 text-base font-medium mb-2">
+    Specialization
+  </label>
+  <div className="relative">
+    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+      <Stethoscope size={24} className="text-[#2b2c6c]" />
+    </div>
+    {input.doctor_id ? (
+      <input
+        name="specialization"
+        value={input.specialization}
+        readOnly
+        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
+      />
+    ) : (
+      <select
+        name="specialization"
+        value={input.specialization}
+        onChange={handleChange}
+        className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
+      >
+        <option value="">Select specialization</option>
+        <option value="Cardiology">Cardiology</option>
+        <option value="Neurology">Neurology</option>
+        <option value="Orthopedics">Orthopedics</option>
+        <option value="Pediatrics">Pediatrics</option>
+        <option value="Dermatology">Dermatology</option>
+        <option value="General">General Medicine</option>
+      </select>
+    )}
+  </div>
+  {errors.specialization && (
+    <p className="text-[#e6317d] text-xs mt-1">
+      {errors.specialization}
+    </p>
+  )}
+</div>
 
-                  {/* Date Selection */}
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Select Date
@@ -281,7 +307,7 @@ function BookAppointment() {
                         name="date"
                         value={input.date}
                         onChange={handleChange}
-                        min={new Date().toISOString().split('T')[0]}
+                        min={new Date().toISOString().split("T")[0]}
                         className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       />
                     </div>
@@ -292,7 +318,6 @@ function BookAppointment() {
                     )}
                   </div>
 
-                  {/* Time Selection */}
                   <div>
                     <label className="block text-gray-700 text-base font-medium mb-2">
                       Select Time
@@ -322,27 +347,29 @@ function BookAppointment() {
                     )}
                   </div>
 
-                  {/* Next Button - Full Width */}
                   <div className="md:col-span-2 mt-4">
-                  <div className="md:col-span-2 mt-4">
-  <button
-    onClick={() => {
-      if (validateStep1()) {
-        setStep(2);
-      }
-    }}
-    className={`w-full py-2.5 ${
-      !input.doctorName || !input.specialization || !input.date || !input.time
-        ? "bg-[#2b2c6c] hover:bg-gray-400 cursor-not-allowed"
-        : "bg-[#2b2c6c] hover:bg-gray-400"
-    } text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center`}
-    style={{ borderRadius: "7px" }}
-    type="button"
-  >
-    Continue to Patient Details
-    <CheckCircle size={24} className="ml-2" />
-  </button>
-</div>
+                    <div className="md:col-span-2 mt-4">
+                      <button
+                        onClick={() => {
+                          if (validateStep1()) {
+                            setStep(2);
+                          }
+                        }}
+                        className={`w-full py-2.5 ${
+                          !input.doctorName ||
+                          !input.specialization ||
+                          !input.date ||
+                          !input.time
+                            ? "bg-[#2b2c6c] hover:bg-gray-400 cursor-not-allowed"
+                            : "bg-[#2b2c6c] hover:bg-gray-400"
+                        } text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center`}
+                        style={{ borderRadius: "7px" }}
+                        type="button"
+                      >
+                        Continue to Patient Details
+                        <CheckCircle size={24} className="ml-2" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -351,7 +378,6 @@ function BookAppointment() {
               {step === 2 && (
                 <form onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {/* Full Name */}
                     <div>
                       <label className="block text-gray-700 text-sm font-medium mb-2">
                         Full Name
@@ -377,7 +403,6 @@ function BookAppointment() {
                       )}
                     </div>
 
-                    {/* Phone Number */}
                     <div>
                       <label className="block text-gray-700 text-sm font-medium mb-2">
                         Phone Number
@@ -403,7 +428,6 @@ function BookAppointment() {
                       )}
                     </div>
 
-                    {/* NIC */}
                     <div>
                       <label className="block text-gray-700 text-sm font-medium mb-2">
                         NIC
@@ -429,7 +453,6 @@ function BookAppointment() {
                       )}
                     </div>
 
-                    {/* Email */}
                     <div>
                       <label className="block text-gray-700 text-sm font-medium mb-2">
                         Email
@@ -455,34 +478,38 @@ function BookAppointment() {
                       )}
                     </div>
 
-                    {/* Address - Full Width */}
                     <div className="md:col-span-2">
-  <label className="block text-gray-700 text-sm font-medium mb-2">
-    Address <span className="text-xs text-gray-500">(max 30 characters)</span>
-  </label>
-  <div className="relative">
-    <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
-      <MapPin size={24} className="text-[#2b2c6c]" />
-    </div>
-    <textarea
-      name="address"
-      value={input.address}
-      onChange={handleChange}
-      required
-      maxLength={30}
-      placeholder="Enter your address (max 30 characters)"
-      className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent h-12 resize-none"
-    />
-    <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-      {input.address.length}/30
-    </div>
-  </div>
-  {errors.address && (
-    <p className="text-[#e6317d] text-xs mt-1">{errors.address}</p>
-  )}
-</div>
+                      <label className="block text-gray-700 text-sm font-medium mb-2">
+                        Address{" "}
+                        <span className="text-xs text-gray-500">
+                          (max 30 characters)
+                        </span>
+                      </label>
+                      <div className="relative">
+                        <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
+                          <MapPin size={24} className="text-[#2b2c6c]" />
+                        </div>
+                        <textarea
+                          name="address"
+                          value={input.address}
+                          onChange={handleChange}
+                          required
+                          maxLength={30}
+                          placeholder="Enter your address (max 30 characters)"
+                          className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent h-12 resize-none"
+                        />
+                        <div className="absolute bottom-2 right-2 text-xs text-gray-500">
+                          {input.address.length}/30
+                        </div>
+                      </div>
+                      {errors.address && (
+                        <p className="text-[#e6317d] text-xs mt-1">
+                          {errors.address}
+                        </p>
+                      )}
+                    </div>
 
-                    {/* Buttons - Full Width */}
+                    
                     <div className="md:col-span-2 mt-4 flex gap-4">
                       <button
                         type="button"
@@ -508,7 +535,7 @@ function BookAppointment() {
             </div>
           </div>
 
-          {/* Additional Info - More Compact */}
+         
           <div className="mt-4 bg-white rounded-lg p-4 shadow-sm border-l-4 border-[#2fb297] flex items-start">
             <div className="mr-3 text-[#2fb297] mt-1">
               <Calendar size={24} />

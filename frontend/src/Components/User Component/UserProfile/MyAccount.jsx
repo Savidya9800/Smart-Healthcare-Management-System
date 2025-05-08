@@ -29,7 +29,7 @@ function MyAccount() {
       >
         <CircularProgress />
       </Box>
-    ); // Show spinner while checking token
+    ); 
   }
 
   return (

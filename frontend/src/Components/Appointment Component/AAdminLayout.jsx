@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import {
   Home,
   BarChart2,
-  Package,
-  Search,
+  CheckCircle,
+  XCircle,
   Menu,
   Bell,
   ChevronDown,
@@ -32,7 +32,8 @@ function AAdminLayout({ children }) {
       icon: <BarChart2 size={20} />,
       path: "/Appoinment-Management",
     },
-    { name: "Orders", icon: <Package size={20} />, path: "#" },
+   
+    { name: "Reject Appointment", icon: <XCircle size={20} />, path: "/Rijected-Appoinment" },
   ];
 
   const currentPage = menuItems.find((item) => item.path === location.pathname);
@@ -51,7 +52,7 @@ function AAdminLayout({ children }) {
           isSidebarOpen ? "w-64" : "w-20"
         }`}
       >
-        {/* Top Logo */}
+        
         <div>
           <div className="flex items-center justify-center h-20 border-b border-gray-100">
             <div className="flex items-center justify-center w-10 h-10 font-bold text-white bg-indigo-600 rounded-lg">
@@ -96,8 +97,7 @@ function AAdminLayout({ children }) {
           </nav>
         </div>
 
-        {/* Footer - Support Icon */}
-        {/* Footer - Support Icon */}
+        
         <div className="px-4 py-3 border-t border-gray-100">
           <div
             className={`flex items-center w-full cursor-pointer rounded-xl hover:bg-gray-50 p-2 transition ${
@@ -117,7 +117,7 @@ function AAdminLayout({ children }) {
         </div>
       </div>
 
-      {/* Main Content */}
+     
       <div
         className={`flex flex-col flex-1 h-screen overflow-hidden transition-all duration-300 ${
           isSidebarOpen ? "pl-64" : "pl-20"
@@ -188,7 +188,7 @@ function AAdminLayout({ children }) {
                     <span>Settings</span>
                   </a>
                   <div className="h-px my-2 bg-gray-100"></div>
-                  {/* Logout Button */}
+                 
                   <button
                     onClick={handleLogout}
                     className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
@@ -202,7 +202,7 @@ function AAdminLayout({ children }) {
           </div>
         </div>
 
-        {/* Page Content */}
+      
         <div
           className="flex-1 p-6 overflow-y-auto"
           onClick={() => setIsProfileMenuOpen(false)}

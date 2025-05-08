@@ -18,7 +18,7 @@
 - Medicine ordering and tracking system
 - Automated medicine refill alerts
 
-### ✅ **Reception & Billing**
+### ✅ **Reception Management**
 - AI-powered dynamic wait-time estimation
 - Automated invoice & payment tracking
 
@@ -39,3 +39,5 @@
 ---
 
 ## 📂 Project Structure
+
+- uvicorn BACKEND.ai-model.main:app --reload --port 8000

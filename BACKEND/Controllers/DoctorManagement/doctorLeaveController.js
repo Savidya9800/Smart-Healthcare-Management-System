@@ -76,7 +76,7 @@ const deleteLeaveRequest = async (req, res) => {
     const leave = await DoctorLeave.findByIdAndDelete(req.params.id);
 
     if (!leave) {
-      return res.status(404).json({ message: "Leave request not found" });
+      return res.status(200).json({ leave, message: "Leave request not found" });
     }
 
     res.status(200).json({ message: "Leave request deleted" });
@@ -85,9 +85,63 @@ const deleteLeaveRequest = async (req, res) => {
   }
 };
 
+// Update leave request (only start and end dates)
+const updateLeaveRequest = async (req, res) => {
+  const { startDate, endDate } = req.body;
+
+  // Ensure startDate and endDate are provided
+  if (!startDate || !endDate) {
+    return res.status(400).json({ message: "Start Date and End Date are required." });
+  }
+
+  // Validate the dates
+  if (new Date(startDate) >= new Date(endDate)) {
+    return res.status(400).json({ message: "End date must be after start date." });
+  }
+
+  try {
+    const leave = await DoctorLeave.findById(req.params.id);
+    if (!leave) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Update the start and end dates
+    leave.startDate = new Date(startDate); // Ensure proper Date format
+    leave.endDate = new Date(endDate);
+
+    // Save the updated leave
+    await leave.save();
+
+    res.status(200).json({ message: "Leave request updated", leave });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// Get leaves by doctor ID
+const getLeavesByDoctorId = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const leaves = await DoctorLeave.find({ doctorId }).populate("doctorId");
+
+    if (leaves.length === 0) {
+      return res.status(200).json(leaves);
+    }
+
+    res.status(200).json(leaves);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+
+
 // Export Controllers
 exports.getAllLeaves = getAllLeaves;
 exports.getLeaveById = getLeaveById;
 exports.createLeaveRequest = createLeaveRequest;
 exports.updateLeaveStatus = updateLeaveStatus;
 exports.deleteLeaveRequest = deleteLeaveRequest;
+exports.updateLeaveRequest = updateLeaveRequest;
+exports.getLeavesByDoctorId = getLeavesByDoctorId;
