@@ -52,11 +52,13 @@ const DiagnosisForm = () => {
     const fetchAppointment = async () => {
       try {
         const response = await fetch(`http://localhost:5000/api/appoinment/${appointmentId}`);
+        console.log(response);
         if (!response.ok) {
           throw new Error('Failed to fetch appointment details');
         }
         const data = await response.json();
-        setAppointment(data);
+        console.log(data);
+        setAppointment(data.appoinment);
       } catch (err) {
         setError(err.message);
       } finally {
