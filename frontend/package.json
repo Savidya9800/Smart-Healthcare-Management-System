@@ -23,7 +23,7 @@
     "axios": "^1.9.0",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.9",
-    "framer-motion": "^12.9.4",
+    "framer-motion": "^12.10.5",
     "gsap": "^3.13.0",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
