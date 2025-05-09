@@ -262,7 +262,7 @@ function Login() {
                   </Button>
                   <Button
                     color="primary"
-                    onClick={() => navigate("/Registration")}
+                    onClick={() => navigate("/registration")}
                     sx={{ textTransform: "none" }}
                   >
                     Create Account
