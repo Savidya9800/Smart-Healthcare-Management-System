@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
-const appointmentSchema = new Schema({
+const appointmentSchema = new mongoose.Schema({
   indexno: {
     type: String,
     required: true,
@@ -31,7 +30,7 @@ const appointmentSchema = new Schema({
     required: true,
   },
   doctor_id: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Doctor",
     required: true,
   },
@@ -48,9 +47,14 @@ const appointmentSchema = new Schema({
     required: true,
   },
   user_id: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
+  },
+  status: {
+    type: String,
+    enum: ["Pending", "Accepted", "Completed", "Reviewed"],
+    default: "Pending",
   },
 });
 

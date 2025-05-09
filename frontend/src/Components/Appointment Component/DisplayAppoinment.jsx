@@ -86,8 +86,8 @@ function DisplayAppointment() {
       tempErrors.email = "Enter a valid email";
     }
 
-    if (formData.nic && !/^[0-9]{9}[Vv]$|^[0-9]{12}$/.test(formData.nic)) {
-      tempErrors.nic = "Invalid NIC (e.g., 123456789V or 200012345678)";
+    if (formData.nic && !/^[0-9]{11}[Vv]$|^[0-9]{12}$/.test(formData.nic)) {
+      tempErrors.nic = "Invalid NIC (e.g., 12345678912V or 200012345678)";
     }
 
     setErrors(tempErrors);

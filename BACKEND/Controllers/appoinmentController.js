@@ -1,5 +1,6 @@
 const Appointment = require("../Models/AppoinmentModel");
 const User = require("../Models/UserModel");
+const RejectedAppointment = require("../Models/RejectAppoinmentModel");
 const nodemailer = require("nodemailer");
 
 // Nodemailer transporter setup
@@ -181,6 +182,85 @@ const sendConfirmationEmail = async (req, res) => {
   }
 };
 
+// Reject appointment by ID
+const rejectAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rejectionReason } = req.body;
+
+    // Validate rejection reason
+    if (!rejectionReason || !rejectionReason.trim()) {
+      return res.status(400).json({ message: "Rejection reason is required" });
+    }
+
+    // Find the appointment
+    const appointment = await Appointment.findById(id);
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    // Create a new RejectedAppointment record
+    const rejectedAppointment = new RejectedAppointment({
+      indexno: appointment.indexno,
+      name: appointment.name,
+      address: appointment.address,
+      nic: appointment.nic,
+      phone: appointment.phone,
+      email: appointment.email,
+      doctorName: appointment.doctorName,
+      doctor_id: appointment.doctor_id,
+      specialization: appointment.specialization,
+      date: appointment.date,
+      time: appointment.time,
+      patient_id: appointment.user_id,
+      status: "Rejected",
+      rejectionReason,
+      rejectedAt: new Date(),
+      originalAppointmentId: appointment._id,
+    });
+
+    await rejectedAppointment.save();
+
+    // Delete the original appointment
+    await Appointment.findByIdAndDelete(id);
+
+    // Send rejection email to the user
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: appointment.email,
+      subject: "Appointment Rejection - Medi Flow",
+      html: `
+        <h2>Appointment Rejection</h2>
+        <p>Dear ${appointment.name},</p>
+        <p>We regret to inform you that your appointment has been rejected for the following reason:</p>
+        <p><strong>Reason:</strong> ${rejectionReason}</p>
+        <p>Appointment Details:</p>
+        <ul>
+          <li><strong>Appointment ID:</strong> ${appointment.indexno}</li>
+          <li><strong>Doctor:</strong> ${appointment.doctorName}</li>
+          <li><strong>Specialization:</strong> ${appointment.specialization}</li>
+          <li><strong>Date:</strong> ${new Date(
+            appointment.date
+          ).toLocaleDateString()}</li>
+          <li><strong>Time:</strong> ${appointment.time}</li>
+        </ul>
+        <p>Please contact us for further assistance or to reschedule.</p>
+        <p>Thank you for choosing Medi Flow.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      message: "Appointment rejected successfully",
+      rejectedAppointment,
+    });
+  } catch (error) {
+    console.error("Error rejecting appointment:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 module.exports = {
   createAppointment,
   getAppointments,
@@ -188,4 +268,5 @@ module.exports = {
   updateAppointment,
   deleteAppointment,
   sendConfirmationEmail,
+  rejectAppointment,
 };
