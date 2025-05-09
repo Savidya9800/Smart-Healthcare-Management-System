@@ -22,13 +22,14 @@ import {
   TablePagination,
   IconButton,
   Tooltip,
-  Box
+  Box,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { Search, PictureAsPdf } from '@mui/icons-material';
 import { jsPDF } from 'jspdf';
 import { autoTable } from 'jspdf-autotable';
 import Logo22 from "../../Components/Appointment Component/images/Logo2.png"
-
 
 const DoctorLeave = () => {
   const [leaves, setLeaves] = useState([]);
@@ -46,6 +47,16 @@ const DoctorLeave = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [currentLeaveId, setCurrentLeaveId] = useState(null);
   
+  // Alert states
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState('success');
+  
+  // Confirmation dialog states
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [selectedLeave, setSelectedLeave] = useState(null);
   
   // Table states
   const [page, setPage] = useState(0);
@@ -86,7 +97,7 @@ const DoctorLeave = () => {
       leave.endDate.includes(searchTerm)
     );
     setFilteredLeaves(results);
-    setPage(0); // Reset to first page when search changes
+    setPage(0);
   }, [searchTerm, leaves]);
 
   const validateDates = () => {
@@ -100,15 +111,12 @@ const DoctorLeave = () => {
       return false;
     }
 
-    
-    // Check for overlapping leave requests
     const overlappingLeave = leaves.some(leave => {
         const leaveStart = new Date(leave.startDate);
         const leaveEnd = new Date(leave.endDate);
         const newLeaveStart = new Date(leaveDetails.startDate);
         const newLeaveEnd = new Date(leaveDetails.endDate);
   
-        // Check if the new leave period overlaps with an existing one
         return (
           (newLeaveStart <= leaveEnd && newLeaveStart >= leaveStart) || 
           (newLeaveEnd <= leaveEnd && newLeaveEnd >= leaveStart) ||
@@ -137,20 +145,60 @@ const DoctorLeave = () => {
       });
       const updatedLeave = await response.json();
       setStatus(updatedLeave.status);
+      showAlert('Leave status updated successfully!', 'success');
     } catch (error) {
       console.error('Error updating leave status:', error);
+      showAlert('Failed to update leave status', 'error');
     }
   };
 
-  const handleDeleteLeave = async (leaveId) => {
+  const handleDeleteLeave = async (leave) => {
     try {
-      await fetch(`http://localhost:5000/api/doctorLeave/${leaveId}`, {
+      await fetch(`http://localhost:5000/api/doctorLeave/${leave._id}`, {
         method: 'DELETE',
       });
       setStatus('');
+      showAlert(`Leave request for ${leave.leaveType} has been deleted`, 'success');
     } catch (error) {
       console.error('Error deleting leave request:', error);
+      showAlert('Failed to delete leave request', 'error');
     }
+  };
+
+  const showAlert = (message, severity) => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+
+  const handleCloseAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setAlertOpen(false);
+  };
+
+  // Confirmation dialog handlers
+  const showConfirmDialog = (action, message, leave) => {
+    setConfirmAction(action);
+    setConfirmMessage(message);
+    setSelectedLeave(leave);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (confirmAction === 'delete') {
+      handleDeleteLeave(selectedLeave);
+    } else if (confirmAction === 'start') {
+      handleUpdateStatus(selectedLeave._id, 'Ongoing');
+    } else if (confirmAction === 'end') {
+      handleUpdateStatus(selectedLeave._id, 'Taken');
+    }
+    setConfirmOpen(false);
+  };
+
+  const handleCancelConfirm = () => {
+    setConfirmOpen(false);
   };
 
   const handleUpdateLeave = async (e) => {
@@ -185,8 +233,10 @@ const DoctorLeave = () => {
       });
       setIsUpdating(false);
       setOpenModal(false);
+      showAlert('Leave request updated successfully!', 'success');
     } catch (error) {
       console.error('Error updating leave request:', error);
+      showAlert('Failed to update leave request', 'error');
     }
   };
 
@@ -220,8 +270,10 @@ const DoctorLeave = () => {
         reason: '',
       });
       setOpenModal(false);
+      showAlert('Leave request created successfully!', 'success');
     } catch (error) {
       console.error('Error creating leave request:', error);
+      showAlert('Failed to create leave request', 'error');
     }
   };
 
@@ -259,44 +311,35 @@ const DoctorLeave = () => {
         unit: 'mm',
         format: 'a4'
       });
-      // Modern color palette
       const colors = {
-        primary: '#2C3E50',      // Deep midnight blue
-        accent: '#3498DB',       // Bright azure blue
-        background: '#ECF0F1',   // Light subtle gray
-        text: '#2C3E50',         // Dark charcoal
-        highlight: '#27AE60'     // Vibrant green
+        primary: '#2C3E50',
+        accent: '#3498DB',
+        background: '#ECF0F1',
+        text: '#2C3E50',
+        highlight: '#27AE60'
       };
-        // Page dimensions
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 20;
   
-        // Background design
         doc.setFillColor(colors.background);
         doc.rect(0, 0, pageWidth, pageHeight, 'F');
   
-        // Header Design
         doc.setFillColor(colors.primary);
         doc.rect(0, 0, pageWidth, 30, 'F');
   
-        // Logo
         const logoWidth = 30;
         const logoHeight = 30;
         doc.addImage(Logo22, 'PNG', margin, 5, logoWidth, logoHeight);
   
-        // Header Text
-        doc.setTextColor(255, 255, 255);  // White text
+        doc.setTextColor(255, 255, 255);
         doc.setFontSize(18);
         doc.setFont('helvetica', 'bold');
         doc.text('MEDI FLOW', margin + logoWidth + 10, 18);
   
-        // Subtitle
         doc.setFontSize(13);
         doc.text('Leaves Statement', margin + logoWidth + 10, 24);      
 
-     
-    // Add the table using the autoTable plugin
     autoTable(doc, {
         startY: 50,
         margin: { top: 50 },
@@ -324,21 +367,57 @@ const DoctorLeave = () => {
             fillColor: colors.background 
         },
         columnStyles: {
-            0: { halign: 'left' }, // Align first column (Leave Type) to left
+            0: { halign: 'left' },
             1: { halign: 'center' },
             2: { halign: 'center' },
-            3: { halign: 'center' }  // Align status to right
+            3: { halign: 'center' }
         }
     });
     
-    
     doc.save('doctor_leave_report.pdf');
+    showAlert('PDF report generated successfully!', 'success');
   };
-
 
   return (
     <DAdminLayout>
       <div className="leave-manager mx-auto p-4">
+        {/* Alert Notification */}
+        <Snackbar
+          open={alertOpen}
+          autoHideDuration={6000}
+          onClose={handleCloseAlert}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert 
+            onClose={handleCloseAlert} 
+            severity={alertSeverity}
+            sx={{ width: '100%' }}
+          >
+            {alertMessage}
+          </Alert>
+        </Snackbar>
+
+        {/* Confirmation Dialog */}
+        <Dialog
+          open={confirmOpen}
+          onClose={handleCancelConfirm}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Confirm Action</DialogTitle>
+          <DialogContent>
+            <p>{confirmMessage}</p>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCancelConfirm} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} color="primary" autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
           <div className="flex items-center gap-4">
             <Button
@@ -473,7 +552,11 @@ const DoctorLeave = () => {
                         <Button
                           variant="outlined"
                           size="small"
-                          onClick={() => handleUpdateStatus(leave._id, 'Ongoing')}
+                          onClick={() => showConfirmDialog(
+                            'start', 
+                            `Are you sure you want to start this ${leave.leaveType} leave?`, 
+                            leave
+                          )}
                           sx={{ 
                             backgroundColor: "#00cd96", 
                             color: "white", 
@@ -487,7 +570,11 @@ const DoctorLeave = () => {
                         <Button
                           variant="outlined"
                           size="small"
-                          onClick={() => handleUpdateStatus(leave._id, 'Taken')}
+                          onClick={() => showConfirmDialog(
+                            'end', 
+                            `Are you sure you want to end this ${leave.leaveType} leave?`, 
+                            leave
+                          )}
                           sx={{ 
                             backgroundColor: "#ff822e", 
                             color: "white", 
@@ -501,7 +588,11 @@ const DoctorLeave = () => {
                         <Button
                           variant="outlined"
                           size="small"
-                          onClick={() => handleDeleteLeave(leave._id)}
+                          onClick={() => showConfirmDialog(
+                            'delete', 
+                            `Are you sure you want to delete this ${leave.leaveType} leave request?`, 
+                            leave
+                          )}
                           sx={{ 
                             backgroundColor: "#fd0070", 
                             color: "white", 

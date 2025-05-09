@@ -482,26 +482,45 @@ const DiagnosisForm = () => {
       </div>
 
       {/* Prescription Dialog */}
-      <Dialog open={prescriptionOpen} onClose={() => setPrescriptionOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle className="flex justify-between items-center bg-indigo-50">
-          <Typography variant="h6" className="font-bold text-indigo-800">
+      <Dialog 
+        open={prescriptionOpen} 
+        onClose={() => setPrescriptionOpen(false)} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          className: "rounded-xl overflow-hidden"
+        }}
+      >
+        <DialogTitle className="flex justify-between items-center bg-gradient-to-r from-indigo-600 to-blue-500 text-white p-4">
+          <div className="flex items-center">
             <MedicalInformation className="mr-2" />
-            Add Prescription
-          </Typography>
-          <IconButton onClick={() => setPrescriptionOpen(false)}>
+            <span className="font-bold text-lg">Add Prescription</span>
+          </div>
+          <IconButton 
+            onClick={() => setPrescriptionOpen(false)}
+            className="text-white hover:bg-white/10"
+          >
             <Close />
           </IconButton>
         </DialogTitle>
-        <DialogContent className="p-6">
+        
+        <DialogContent className="p-6 bg-gray-50">
           <div className="space-y-6">
             {prescriptionData.medicine.map((med, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end border-b pb-4 mb-4">
+              <div 
+                key={index} 
+                className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end p-4 bg-white rounded-lg border border-gray-200 shadow-sm"
+              >
                 <TextField
                   label="Medicine Name"
                   value={med.medicineName}
                   onChange={(e) => handleMedicineChange(index, 'medicineName', e.target.value)}
                   fullWidth
                   required
+                  className="bg-white"
+                  InputProps={{
+                    className: "rounded-lg"
+                  }}
                 />
                 <TextField
                   label="Dosage"
@@ -509,33 +528,43 @@ const DiagnosisForm = () => {
                   onChange={(e) => handleMedicineChange(index, 'dosage', e.target.value)}
                   fullWidth
                   required
+                  className="bg-white"
+                  InputProps={{
+                    className: "rounded-lg"
+                  }}
                 />
                 <TextField
                   label="Description"
                   value={med.description}
                   onChange={(e) => handleMedicineChange(index, 'description', e.target.value)}
                   fullWidth
+                  className="bg-white"
+                  InputProps={{
+                    className: "rounded-lg"
+                  }}
                 />
                 {index > 0 && (
                   <Button
                     variant="outlined"
                     color="error"
                     onClick={() => handleRemoveMedicine(index)}
-                    className="h-10"
+                    className="h-10 border-red-500 text-red-500 hover:bg-red-50"
                   >
                     Remove
                   </Button>
                 )}
               </div>
             ))}
+            
             <Button
               variant="outlined"
               startIcon={<Add />}
               onClick={handleAddMedicine}
-              className="mb-4"
+              className="mb-4 border-indigo-500 text-indigo-500 hover:bg-indigo-50 w-full py-2"
             >
               Add Another Medicine
             </Button>
+            
             <TextField
               label="Additional Notes"
               multiline
@@ -543,11 +572,21 @@ const DiagnosisForm = () => {
               fullWidth
               value={prescriptionData.notes}
               onChange={(e) => setPrescriptionData({...prescriptionData, notes: e.target.value})}
+              className="bg-white"
+              InputProps={{
+                className: "rounded-lg"
+              }}
             />
           </div>
         </DialogContent>
-        <DialogActions className="p-4 border-t">
-          <Button onClick={() => setPrescriptionOpen(false)} variant="outlined" color="secondary">
+        
+        <DialogActions className="p-4 border-t border-gray-200 bg-gray-50">
+          <Button 
+            onClick={() => setPrescriptionOpen(false)} 
+            variant="outlined" 
+            color="secondary"
+            className="border-gray-500 text-gray-700 hover:bg-gray-100 px-6 py-2 rounded-lg"
+          >
             Cancel
           </Button>
           <Button 
@@ -555,6 +594,7 @@ const DiagnosisForm = () => {
             variant="contained" 
             color="primary"
             disabled={!prescriptionData.medicine.some(med => med.medicineName && med.dosage)}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg disabled:bg-gray-400 disabled:text-gray-100"
           >
             Save Prescription
           </Button>
