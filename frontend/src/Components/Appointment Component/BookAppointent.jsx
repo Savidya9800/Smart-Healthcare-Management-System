@@ -131,6 +131,7 @@ function BookAppointment() {
   }, []);
 
   const validateStep1 = () => {
+    console.log("BookAppointment: Validating Step 1...");
     let tempErrors = {};
     let isValid = true;
 
@@ -162,10 +163,12 @@ function BookAppointment() {
     }
 
     setErrors(tempErrors);
+    console.log("BookAppointment: Step 1 validation result:", { isValid, errors: tempErrors });
     return isValid;
   };
 
   const validate = () => {
+    console.log("BookAppointment: Validating Step 2...");
     let tempErrors = {};
 
     if (!/^[A-Za-z\s]+$/.test(input.name)) {
@@ -177,14 +180,20 @@ function BookAppointment() {
     if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(input.email)) {
       tempErrors.email = "Enter a valid email";
     }
-    if (input.nic && !/^[0-9]{11}[0-9V]$/.test(input.nic)) {
-      tempErrors.nic = "Invalid NIC";
-    }
-    if (input.address.length > 30) {
+    if (!input.nic) {
+  tempErrors.nic = "NIC is required";
+} else if (!/^\d{11}[Vv]$|^\d{12}$/.test(input.nic)) {
+  tempErrors.nic = "Invalid NIC (e.g., 12345678912V or 200012345678)";
+}
+
+    if (!input.address) {
+      tempErrors.address = "Address is required";
+    } else if (input.address.length > 30) {
       tempErrors.address = "Address must be 30 characters or less";
     }
 
     setErrors(tempErrors);
+    console.log("BookAppointment: Step 2 validation result:", { errors: tempErrors });
     return Object.keys(tempErrors).length === 0;
   };
 
@@ -210,12 +219,17 @@ function BookAppointment() {
 
     if (!validate()) {
       console.log("BookAppointment: Validation failed:", errors);
+      Swal.fire({
+        icon: "error",
+        title: "Incomplete or Invalid Fields",
+        text: "Please fill all required fields, including valid details.",
+      });
       return;
     }
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
+      const response = await axios.post(
         "http://localhost:5000/api/appoinment",
         {
           ...input,
@@ -227,15 +241,8 @@ function BookAppointment() {
         }
       );
 
-      Swal.fire({
-        toast: true,
-        position: "top-end",
-        icon: "success",
-        title: "✅ Appointment Booked",
-        showConfirmButton: false,
-        timer: 2500,
-        timerProgressBar: true,
-      });
+      console.log("BookAppointment: Appointment booked:", response.data);
+      
 
       navigate("/Appoinment-Display");
     } catch (error) {
@@ -518,16 +525,15 @@ function BookAppointment() {
                         onClick={() => {
                           if (validateStep1()) {
                             setStep(2);
+                          } else {
+                            Swal.fire({
+                              icon: "error",
+                              title: "Incomplete Fields",
+                              text: "Please fill all required fields in Step 1.",
+                            });
                           }
                         }}
-                        className={`w-full py-2.5 ${
-                          !input.doctorName ||
-                          !input.specialization ||
-                          !input.date ||
-                          !input.time
-                            ? "bg-[#2b2c6c] hover:bg-gray-400 cursor-not-allowed"
-                            : "bg-[#2b2c6c] hover:bg-gray-400"
-                        } text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center`}
+                        className="w-full py-2.5 bg-[#2b2c6c] hover:bg-[#71717d] text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center"
                         style={{ borderRadius: "7px" }}
                         type="button"
                       >
@@ -605,7 +611,8 @@ function BookAppointment() {
                             name="nic"
                             value={input.nic}
                             onChange={handleChange}
-                            placeholder="Enter your NIC (optional)"
+                            required
+                            placeholder="Enter your NIC "
                             className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                           />
                         </div>

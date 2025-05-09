@@ -86,8 +86,8 @@ function DisplayAppointment() {
       tempErrors.email = "Enter a valid email";
     }
 
-    if (formData.nic && !/^([0-9]{9}[vVxX]|[0-9]{12})$/.test(formData.nic)) {
-      tempErrors.nic = "Invalid NIC (e.g., 123456789V or 123456789012)";
+    if (formData.nic && !/^[0-9]{9}[Vv]$|^[0-9]{12}$/.test(formData.nic)) {
+      tempErrors.nic = "Invalid NIC (e.g., 123456789V or 200012345678)";
     }
 
     setErrors(tempErrors);
@@ -169,9 +169,22 @@ function DisplayAppointment() {
         timer: 2500,
       });
 
-      setTimeout(() => {
+      // Show PDF download prompt
+      Swal.fire({
+        title: "Download PDF",
+        text: "Would you like to download your appointment details as a PDF?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#2b2c6c",
+        cancelButtonColor: "#e6317d",
+        confirmButtonText: "Yes, Download",
+        cancelButtonText: "No, Return Home",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          generateAppointmentPDF(patientDetails);
+        }
         navigate("/Home");
-      }, 2000);
+      });
     } catch (error) {
       console.error("Error sending confirmation email:", error);
       setEmailStatus({
@@ -191,36 +204,50 @@ function DisplayAppointment() {
   };
 
   const handleDelete = () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this appointment?"
-    );
-    if (confirmDelete) {
-      const token = localStorage.getItem("token");
-      axios
-        .delete(`http://localhost:5000/api/appoinment/${patientDetails._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          Swal.fire({
-            toast: true,
-            position: "top-end",
-            icon: "success",
-            title: "✅ Appointment Deleted",
-            showConfirmButton: false,
-            timer: 2500,
+    Swal.fire({
+      title: "Cancel Appointment",
+      text: "Are you sure you want to cancel this appointment? This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e6317d",
+      cancelButtonColor: "#828487",
+      confirmButtonText: "Yes, Cancel Appointment",
+      cancelButtonText: "No, Keep Appointment",
+      reverseButtons: true,
+      customClass: {
+        popup: "rounded-xl",
+        confirmButton: "px-4 py-2 rounded-lg",
+        cancelButton: "px-4 py-2 rounded-lg",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
+        axios
+          .delete(`http://localhost:5000/api/appoinment/${patientDetails._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "success",
+              title: "✅ Appointment Cancelled",
+              showConfirmButton: false,
+              timer: 2500,
+            });
+            navigate("/Home");
+          })
+          .catch((error) => {
+            console.error("Error deleting appointment:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Cancellation Failed",
+              text:
+                error.response?.data?.message || "Failed to cancel appointment.",
+            });
           });
-          navigate("/Home");
-        })
-        .catch((error) => {
-          console.error("Error deleting appointment:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Deletion Failed",
-            text:
-              error.response?.data?.message || "Failed to delete appointment.",
-          });
-        });
-    }
+      }
+    });
   };
 
   const generateAppointmentPDF = (patientDetails) => {
@@ -250,13 +277,17 @@ function DisplayAppointment() {
     doc.setFillColor(colors.primary);
     doc.rect(0, 0, pageWidth, 30, "F");
 
+    const logoWidth = 30;
+          const logoHeight = 30;
+          doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
+    
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("MEDI FLOW", margin, 18);
+    doc.text("MEDI FLOW",  margin + logoWidth + 10, 18);
 
     doc.setFontSize(13);
-    doc.text("Appointment Confirmation", margin, 24);
+    doc.text("Appointment Confirmation", margin + logoWidth + 10, 24);
 
     doc.setFontSize(18);
     doc.setTextColor(colors.primary);
@@ -519,7 +550,7 @@ function DisplayAppointment() {
                         name="nic"
                         value={formData.nic}
                         onChange={handleChange}
-                        placeholder="Enter your NIC (e.g., 123456789V or 123456789012)"
+                        placeholder="Enter your NIC (e.g., 123456789V or 200012345678)"
                         className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       />
                     </div>
@@ -556,7 +587,8 @@ function DisplayAppointment() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-gray-700 text-base font-medium mb-2">
+                    <label className="block text-gray-7
+00 text-base font-medium mb-2">
                       Address
                     </label>
                     <div className="relative">
@@ -682,17 +714,7 @@ function DisplayAppointment() {
                       <Trash2 size={18} className="mr-2" />
                       Cancel Appointment
                     </button>
-                    <button
-                      onClick={() => generateAppointmentPDF(patientDetails)}
-                      className="py-2.5 bg-[#2fb297] hover:bg-[#71717d] text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2fb297] focus:ring-opacity-50 flex items-center justify-center"
-                      style={{ borderRadius: "7px" }}
-                    >
-                      <Download size={18} className="mr-2" />
-                      Download PDF
-                    </button>
-                  </div>
-
-                  <div className="md:col-span-2">
+                    
                     <button
                       onClick={handleConfirm}
                       disabled={isSendingEmail}
@@ -730,11 +752,14 @@ function DisplayAppointment() {
                       ) : (
                         <>
                           <CheckCircle size={18} className="mr-2" />
-                          Confirm & Return Home
+                          Confirm 
                         </>
                       )}
                     </button>
                   </div>
+                
+
+                  
                 </div>
               </div>
             )}
