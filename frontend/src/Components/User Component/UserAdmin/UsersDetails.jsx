@@ -164,7 +164,7 @@ export default function UsersDetails({ onAddPatientClick }) {
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
     doc.text("123 Healthcare Boulevard, Medical District", 15, 32);
-    doc.text("Phone: (123) 456-7890 | Email: info@smarthealthcare.com", 15, 36);
+    doc.text("Phone: (071) 145-7890 | Email: info@smarthealthcare.com", 15, 36);
     doc.text("www.smarthealthcare.com", 15, 40);
 
     // Add date in header (right side)
