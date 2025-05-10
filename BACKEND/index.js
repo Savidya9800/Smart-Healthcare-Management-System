@@ -44,6 +44,14 @@ app.use("/api/novelty", noveltyRoutes); // This links the API to the Novelty Rou
 app.use("/api/analysis", analysisRoutes);
 app.use("/api/vitals", vitalsRoutes);
 
+//Medical Report Routes
+const medicalReportRoutes = require("./Routes/medicalReportRoutes");
+app.use("/api/reports", medicalReportRoutes);
+
+const path = require("path");
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
 // Database Connection
 mongoose
   .connect(process.env.MONGO_URI)

@@ -41,7 +41,7 @@ import ViewAppointments from "./Components/Doctor Component/ViewAppoinments";
 import DoctorLeave from "./Components/Doctor Component/DoctorLeave";
 import DoctorDiagnosis from "./Components/Doctor Component/DoctorDiagnosis";
 
-//Novelty Component
+//Novelty Components
 import NoveltyComponent from "./Components/Novelty Component/NoveltyComponent";
 import AnalysisHistory from "./Components/Novelty Component/AnalysisHistory";
 import HealthTrends from "./Components/Novelty Component/HealthTrends";
@@ -111,11 +111,9 @@ function App() {
             path="/Appoinment-Management"
             element={<AppoinmentManagement />}
           />
-          <Route path="Rijected-Appoinment" element={<RejectedAppoinment />} />
-          
+          <Route path="Rijected-Appoinment" element={<RejectedAppoinment />} />      
         </Routes>
-
-        {/*  Conditionally show Chatbot */}
+{/*  Conditionally show Chatbot */}
         {showChatbot && (
           <>
             <ChatbotLauncher onOpen={() => setChatOpen(true)} />
