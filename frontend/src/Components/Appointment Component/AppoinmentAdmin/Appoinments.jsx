@@ -31,7 +31,6 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -46,8 +45,39 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
 import Logo22 from "../../Appointment Component/images/Logo2.png";
+
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Box sx={{ p: 3, textAlign: "center" }}>
+          <Typography variant="h5" color="error">
+            Something went wrong!
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {this.state.error?.message || "An unexpected error occurred."}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => window.location.reload()}
+            sx={{ mt: 2 }}
+          >
+            Reload Page
+          </Button>
+        </Box>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const colors = {
   darkGray: "#71717D",
@@ -64,9 +94,10 @@ const URL = "http://localhost:5000/api/appoinment";
 const fetchHandler = async () => {
   try {
     const response = await axios.get(URL);
+    console.log("Fetch Appointments Response:", response.data);
     return response.data.appoinments || [];
   } catch (error) {
-    console.error('Error fetching appointments:', error);
+    console.error("Error fetching appointments:", error);
     throw error;
   }
 };
@@ -74,6 +105,7 @@ const fetchHandler = async () => {
 const deleteOldAppointments = async (appointmentId) => {
   try {
     await axios.delete(`${URL}/${appointmentId}`);
+    console.log(`Deleted appointment ${appointmentId}`);
     return true;
   } catch (error) {
     console.error("Error deleting appointment:", error);
@@ -81,8 +113,12 @@ const deleteOldAppointments = async (appointmentId) => {
   }
 };
 
-function AppointmentRow({ appointment, index, onAccept, onReject }) {
+function AppointmentRow({ appointment, onReject }) {
   const [open, setOpen] = useState(false);
+
+  if (!appointment) {
+    return null;
+  }
 
   return (
     <>
@@ -101,13 +137,15 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
           </IconButton>
         </TableCell>
         <TableCell sx={{ fontWeight: "600", color: colors.darkGray }}>
-          {appointment.indexno}
+          {appointment.indexno || "N/A"}
         </TableCell>
-        <TableCell sx={{ fontWeight: "500" }}>{appointment.name}</TableCell>
+        <TableCell sx={{ fontWeight: "500" }}>
+          {appointment.name || "N/A"}
+        </TableCell>
         <TableCell align="center">
           <Chip
             icon={<LocalHospitalIcon />}
-            label={appointment.specialization}
+            label={appointment.specialization || "Unknown"}
             size="small"
             sx={{
               bgcolor: `${colors.blue}20`,
@@ -119,17 +157,19 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
         <TableCell>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <EventIcon fontSize="small" sx={{ color: colors.gray }} />
-            {new Date(appointment.date).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
+            {appointment.date
+              ? new Date(appointment.date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })
+              : "N/A"}
           </Box>
         </TableCell>
         <TableCell>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <AccessTimeIcon fontSize="small" sx={{ color: colors.gray }} />
-            {appointment.time}
+            {appointment.time || "N/A"}
           </Box>
         </TableCell>
         <TableCell align="right">
@@ -139,20 +179,6 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
             </Typography>
           ) : (
             <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-              <IconButton
-                sx={{
-                  backgroundColor: `${colors.green}20`,
-                  borderRadius: "8px",
-                  transition: "all 0.3s",
-                  "&:hover": {
-                    backgroundColor: `${colors.green}30`,
-                    transform: "translateY(-2px)",
-                  },
-                }}
-                onClick={() => onAccept(index)}
-              >
-                <CheckCircleIcon sx={{ color: colors.green }} />
-              </IconButton>
               <IconButton
                 sx={{
                   backgroundColor: `${colors.pink}20`,
@@ -201,7 +227,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <PersonIcon fontSize="small" sx={{ color: colors.gray }} />
                   <Typography variant="body2" color="text.secondary">
-                    Patient ID: {appointment.indexno}
+                    Patient ID: {appointment.indexno || "N/A"}
                   </Typography>
                 </Box>
               </Box>
@@ -237,7 +263,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                         fontWeight="500"
                         sx={{ color: colors.darkGray }}
                       >
-                        {appointment.nic}
+                        {appointment.nic || "N/A"}
                       </Typography>
                     </Box>
                   </Box>
@@ -264,7 +290,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                         fontWeight="500"
                         sx={{ color: colors.darkGray }}
                       >
-                        {appointment.phone}
+                        {appointment.phone || "N/A"}
                       </Typography>
                     </Box>
                   </Box>
@@ -300,7 +326,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                         fontWeight="500"
                         sx={{ color: colors.darkGray }}
                       >
-                        {appointment.email}
+                        {appointment.email || "N/A"}
                       </Typography>
                     </Box>
                   </Box>
@@ -328,7 +354,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                         sx={{ color: colors.darkGray }}
                         noWrap
                       >
-                        {appointment.address}
+                        {appointment.address || "N/A"}
                       </Typography>
                     </Box>
                   </Box>
@@ -359,7 +385,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                       fontWeight="500"
                       sx={{ color: colors.darkGray }}
                     >
-                      {appointment.doctorName}
+                      {appointment.doctorName || "N/A"}
                     </Typography>
                   </Box>
                   <Box>
@@ -371,7 +397,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                       fontWeight="500"
                       sx={{ color: colors.darkGray }}
                     >
-                      {appointment.specialization}
+                      {appointment.specialization || "N/A"}
                     </Typography>
                   </Box>
                 </Box>
@@ -402,20 +428,6 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                 >
                   Close
                 </Button>
-                {appointment.status !== "Accepted" && (
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => onAccept(index)}
-                    sx={{
-                      bgcolor: colors.pink,
-                      "&:hover": { bgcolor: "#d02b6e" },
-                      textTransform: "none",
-                    }}
-                  >
-                    Accept Appointment
-                  </Button>
-                )}
               </Box>
             </Card>
           </Collapse>
@@ -483,12 +495,14 @@ function Appointments() {
   useEffect(() => {
     fetchHandler()
       .then((data) => {
+        console.log("Appointments Loaded:", data);
         setAppointments(data);
         setFilteredAppointments(data);
         cleanupOldAppointments(data);
         setLoading(false);
       })
       .catch((error) => {
+        console.error("Fetch Appointments Error:", error);
         setSnackbarMessage("Failed to fetch appointments");
         setSnackbarSeverity("error");
         setOpenSnackbar(true);
@@ -510,14 +524,14 @@ function Appointments() {
     if (searchTerm) {
       results = results.filter(
         (appointment) =>
-          appointment.nic?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          appointment.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          appointment.doctorName
+          appointment?.nic?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+          appointment?.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+          appointment?.doctorName
             ?.toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          appointment.specialization
+            ?.includes(searchTerm.toLowerCase()) ||
+          appointment?.specialization
             ?.toLowerCase()
-            .includes(searchTerm.toLowerCase())
+            ?.includes(searchTerm.toLowerCase())
       );
     }
 
@@ -558,26 +572,8 @@ function Appointments() {
     setPage(0);
   }, [appointments, searchTerm, dateFilter, selectedDate]);
 
-  const handleAccept = async (index) => {
-    try {
-      const appointment = appointments[index];
-      await axios.put(`${URL}/${appointment._id}/status`, { status: "Accepted" });
-      const updatedAppointments = [...appointments];
-      updatedAppointments[index].status = "Accepted";
-      setAppointments(updatedAppointments);
-      setFilteredAppointments(updatedAppointments);
-      setSnackbarMessage("Appointment accepted successfully!");
-      setSnackbarSeverity("success");
-      setOpenSnackbar(true);
-    } catch (error) {
-      console.error("Error accepting appointment:", error);
-      setSnackbarMessage("Failed to accept appointment");
-      setSnackbarSeverity("error");
-      setOpenSnackbar(true);
-    }
-  };
-
   const handleReject = (appointmentId) => {
+    console.log("Opening reject dialog for appointment:", appointmentId);
     setCurrentAppointmentId(appointmentId);
     setRejectDialogOpen(true);
   };
@@ -591,12 +587,22 @@ function Appointments() {
     }
 
     try {
-      console.log(`Sending reject request for appointment ID: ${currentAppointmentId} with reason: ${rejectionReason}`);
-      const response = await axios.post(`${URL}/${currentAppointmentId}/reject`, {
-        rejectionReason,
-      });
+      console.log(
+        `Sending reject request for appointment ID: ${currentAppointmentId} with reason: ${rejectionReason}`
+      );
+      const response = await axios.post(
+        `${URL}/${currentAppointmentId}/reject`,
+        {
+          rejectionReason,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-      console.log('Reject response:', response.data);
+      console.log("Reject response:", response.data);
 
       const updatedAppointments = appointments.filter(
         (appt) => appt._id !== currentAppointmentId
@@ -620,9 +626,13 @@ function Appointments() {
       if (error.response) {
         switch (error.response.status) {
           case 400:
-            errorMessage = "Invalid appointment ID or request";
+            errorMessage = error.response.data.message || "Invalid request";
+            break;
+          case 401:
+            errorMessage = "Unauthorized: Please log in again";
             break;
           case 404:
+            errorMessagevait(axios.delete(`${URL}/${appointmentId}`));
             errorMessage = "Appointment not found";
             break;
           case 500:
@@ -653,154 +663,224 @@ function Appointments() {
 
   const generateReport = async () => {
     try {
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
+      const doc = new jsPDF();
+
+      // Set document properties
+      doc.setProperties({
+        title: `Appointments-Report-${new Date()
+          .toISOString()
+          .slice(0, 10)}`,
+        subject: "Appointments Report",
+        author: "MediFlow Healthcare System",
+        keywords: "appointments, healthcare, report",
+        creator: "MediFlow",
       });
 
-      const colors = {
-        primary: "#2C3E50",
-        accent: "#3498DB",
-        background: "#ECF0F1",
-        text: "#2C3E50",
-        highlight: "#27AE60",
+      // Add watermark
+      const addWatermark = (doc) => {
+        const totalPages = doc.internal.getNumberOfPages();
+        doc.setFontSize(60);
+        doc.setTextColor(230, 230, 230);
+        doc.setFont("helvetica", "bold");
+
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i);
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          doc.setGState(new doc.GState({ opacity: 0.2 }));
+          doc.text("MEDIFLOW", pageWidth / 2, pageHeight / 2, {
+            align: "center",
+            angle: -45,
+          });
+        }
       };
 
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 20;
+      // --- HEADER SECTION ---
+      doc.setDrawColor(43, 44, 108);
+      doc.setFillColor(43, 44, 108);
+      doc.rect(0, 0, doc.internal.pageSize.width, 2, "F");
 
-      doc.setFillColor(colors.background);
-      doc.rect(0, 0, pageWidth, pageHeight, "F");
-
-      doc.setFillColor(colors.primary);
-      doc.rect(0, 0, pageWidth, 30, "F");
+      doc.setFillColor(47, 178, 151);
+      doc.rect(0, 2, 8, 40, "F");
 
       const logoWidth = 30;
       const logoHeight = 30;
-      doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
+      doc.addImage(Logo22, "PNG", 15, 5, logoWidth, logoHeight);
 
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
-      doc.text("MEDI FLOW", margin + logoWidth + 10, 18);
+      doc.setFontSize(22);
+      doc.setTextColor(43, 44, 108);
+      doc.text("MEDIFLOW", 15 + logoWidth + 5, 18);
 
-      doc.setFontSize(13);
-      doc.text("Appointments Report", margin + logoWidth + 10, 24);
-
-      doc.setFontSize(18);
-      doc.setTextColor(colors.primary);
-      doc.text("Appointments List", margin, 50);
-
-      doc.setLineWidth(0.5);
-      doc.setDrawColor(colors.accent);
-      doc.line(margin, 55, pageWidth - margin, 55);
-
-      let yPosition = 65;
-      const colWidths = [15, 35, 30, 35, 30, 25];
-      const rowHeight = 10;
-
-      doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 255, 255);
-
-      doc.setFillColor(colors.primary);
-      doc.rect(margin, yPosition, pageWidth - margin * 2, rowHeight, "F");
-
-      let xPosition = margin;
-      const headers = [
-        "ID",
-        "Patient Name",
-        "NIC",
-        "Doctor Name",
-        "Specialization",
-        "Date",
-      ];
-      headers.forEach((header, i) => {
-        doc.text(
-          header,
-          xPosition + colWidths[i] / 2,
-          yPosition + rowHeight / 2 + 3,
-          { align: "center" }
-        );
-        xPosition += colWidths[i];
-      });
-      yPosition += rowHeight;
-
       doc.setFontSize(10);
+      doc.setTextColor(47, 178, 151);
+      doc.text("HEALTHCARE MANAGEMENT SYSTEM", 15 + logoWidth + 5, 26);
+
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(colors.text);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text("123 Medical Center Drive, Healthcare City", 15 + logoWidth + 5, 32);
+      doc.text("Phone: (123) 456-7890 | Email: support@mediflow.com", 15 + logoWidth + 5, 36);
+      doc.text("www.mediflow.com", 15 + logoWidth + 5, 40);
 
+      
+      doc.setDrawColor(230, 230, 230);
+      doc.line(15, 44, 185, 44);
+
+      doc.setFillColor(245, 250, 250);
+      doc.setDrawColor(47, 178, 151);
+      doc.roundedRect(140, 10, 60, 30, 3, 3, "FD");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(43, 44, 108);
+      doc.text("APPOINTMENTS REPORT", 170, 20, { align: "center" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(60, 60, 60);
+      doc.text(`Total: ${filteredAppointments.length} Appointments`, 170, 28, {
+        align: "center",
+      });
+
+      const statusColor = [47, 178, 151];
+      const statusWidth = 40;
+      const statusX = 170 - statusWidth / 2;
+      doc.setFillColor(...statusColor, 0.15);
+      doc.setDrawColor(...statusColor);
+      doc.roundedRect(statusX, 31, statusWidth, 8, 2, 2, "FD");
+
+      doc.setTextColor(...statusColor);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text("SUMMARY", 170, 36, { align: "center" });
+
+      doc.setDrawColor(230, 230, 230);
+      doc.line(10, 50, 200, 50);
+
+      // --- MAIN CONTENT SECTION ---
+      doc.setTextColor(43, 44, 108);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("Appointments Summary", 10, 65);
+
+      let yPos = 80;
       filteredAppointments.forEach((appointment, index) => {
-        if (index % 2 === 0) {
-          doc.setFillColor(240, 240, 240);
-        } else {
-          doc.setFillColor(255, 255, 255);
-        }
+        // --- APPOINTMENT SECTION ---
+        doc.setFillColor(240, 240, 250);
+        doc.setDrawColor(220, 220, 240);
+        doc.roundedRect(10, yPos, 190, 80, 2, 2, "FD");
 
-        doc.rect(margin, yPosition, pageWidth - margin * 2, rowHeight, "F");
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(43, 44, 108);
+        doc.text(`APPOINTMENT ${appointment.indexno || "N/A"}`, 15, yPos + 10);
 
-        doc.setDrawColor(200, 200, 200);
-        xPosition = margin;
-        colWidths.forEach((width) => {
-          doc.line(xPosition, yPosition, xPosition, yPosition + rowHeight);
-          xPosition += width;
-        });
-        doc.line(xPosition, yPosition, xPosition, yPosition + rowHeight);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(60, 60, 60);
 
-        xPosition = margin;
-        const rowData = [
-          appointment.indexno || "N/A",
-          appointment.name || "N/A",
-          appointment.nic || "N/A",
-          appointment.doctorName || "N/A",
-          appointment.specialization || "N/A",
-          appointment.date
-            ? new Date(appointment.date).toLocaleDateString()
-            : "N/A",
+        const patientInfo = [
+          { label: "Patient Name:", value: appointment.name || "N/A" },
+          { label: "NIC:", value: appointment.nic || "N/A" },
+          { label: "Phone:", value: appointment.phone || "N/A" },
+          { label: "Email:", value: appointment.email || "N/A" },
+          { label: "Address:", value: appointment.address || "N/A" },
         ];
 
-        rowData.forEach((text, i) => {
-          const maxLength = Math.floor(colWidths[i] / 2.5);
-          const displayText =
-            text.length > maxLength
-              ? text.substring(0, maxLength) + "..."
-              : text;
-
-          doc.text(displayText, xPosition + 2, yPosition + rowHeight / 2 + 3, {
-            align: "left",
-          });
-          xPosition += colWidths[i];
+        let yPosInner = yPos + 20;
+        patientInfo.forEach((info) => {
+          doc.setFont("helvetica", "bold");
+          doc.text(info.label, 15, yPosInner);
+          doc.setFont("helvetica", "normal");
+          const splitValue = doc.splitTextToSize(String(info.value), 80);
+          doc.text(splitValue, 50, yPosInner);
+          yPosInner += 10 + (splitValue.length - 1) * 5;
         });
 
-        yPosition += rowHeight;
+        const apptInfo = [
+          { label: "Doctor:", value: appointment.doctorName || "N/A" },
+          { label: "Specialization:", value: appointment.specialization || "N/A" },
+          {
+            label: "Date:",
+            value: appointment.date
+              ? new Date(appointment.date).toLocaleDateString("en-GB")
+              : "N/A",
+          },
+          { label: "Time:", value: appointment.time || "N/A" },
+          { label: "Status:", value: appointment.status || "Pending" },
+        ];
 
-        if (yPosition > pageHeight - 30) {
-          addFooter(doc, colors, pageWidth, pageHeight, margin);
+        yPosInner = yPos + 20;
+        apptInfo.forEach((info) => {
+          doc.setFont("helvetica", "bold");
+          doc.text(info.label, 105, yPosInner);
+          doc.setFont("helvetica", "normal");
+          const splitValue = doc.splitTextToSize(String(info.value), 80);
+          doc.text(splitValue, 140, yPosInner);
+          yPosInner += 10 + (splitValue.length - 1) * 5;
+        });
+
+        yPos += 90;
+
+        // Check for page break
+        if (yPos > doc.internal.pageSize.height - 40) {
           doc.addPage();
-          yPosition = 20;
-
-          doc.setFillColor(colors.primary);
-          doc.rect(0, 0, pageWidth, 30, "F");
-          doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(13);
-          doc.text(
-            "Appointments Report (Continued)",
-            margin + logoWidth + 10,
-            24
-          );
-
-          yPosition = 50;
+          yPos = 20;
         }
       });
 
-      addFooter(doc, colors, pageWidth, pageHeight, margin);
-
-      doc.save(
-        `appointments_report_${new Date().toISOString().slice(0, 10)}.pdf`
+      // --- FOOTER SECTION ---
+      doc.setDrawColor(43, 44, 108);
+      doc.setFillColor(43, 44, 108);
+      doc.rect(
+        0,
+        doc.internal.pageSize.height - 20,
+        doc.internal.pageSize.width,
+        2,
+        "F"
       );
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.text(
+          "Appointments report - Internal use only",
+          10,
+          doc.internal.pageSize.height - 12
+        );
+        doc.text(
+          "www.mediflow.com",
+          doc.internal.pageSize.getWidth() / 2,
+          doc.internal.pageSize.height - 12,
+          { align: "center" }
+        );
+        doc.text(
+          `Generated: ${new Date().toLocaleDateString()} | Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.getWidth() - 10,
+          doc.internal.pageSize.height - 12,
+          { align: "right" }
+        );
+        doc.setFillColor(47, 178, 151);
+        doc.rect(
+          0,
+          doc.internal.pageSize.height - 5,
+          doc.internal.pageSize.getWidth(),
+          5,
+          "F"
+        );
+      }
+
+      // Add watermark
+      addWatermark(doc);
+
+      // Save the PDF
+      doc.save(`Appointments-Report-${new Date().toISOString().slice(0, 10)}.pdf`);
 
       setSnackbarMessage("PDF report generated successfully!");
       setSnackbarSeverity("success");
@@ -813,345 +893,336 @@ function Appointments() {
     }
   };
 
-  const addFooter = (doc, colors, pageWidth, pageHeight, margin) => {
-    doc.setLineWidth(0.2);
-    doc.setDrawColor(colors.primary);
-    doc.line(margin, pageHeight - 20, pageWidth - margin, pageHeight - 20);
-
-    doc.setFontSize(8);
-    doc.setTextColor(colors.text);
-    doc.text(
-      `Generated: ${new Date().toLocaleString()}`,
-      margin,
-      pageHeight - 10
-    );
-    doc.text("Confidential Document", pageWidth - margin - 40, pageHeight - 10);
-  };
-
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "67vh" }}>
-      <Box sx={{ p: 3, flexGrow: 1 }}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            justifyContent: "space-between",
-            alignItems: { xs: "flex-start", md: "center" },
-            mb: 3,
-            gap: 2,
-          }}
-        >
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: "600",
-              color: colors.blue,
-              borderBottom: `3px solid ${colors.pink}`,
-              display: "inline-block",
-              pb: 1,
-            }}
-          >
-            Appointments
-          </Typography>
-
+    <ErrorBoundary>
+      <Box sx={{ display: "flex", flexDirection: "column", minHeight: "67vh" }}>
+        <Box sx={{ p: 3, flexGrow: 1 }}>
           <Box
             sx={{
               display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
+              flexDirection: { xs: "column", md: "row" },
+              justifyContent: "space-between",
+              alignItems: { xs: "flex-start", md: "center" },
+              mb: 3,
               gap: 2,
-              width: { xs: "100%", md: "auto" },
             }}
           >
-            <Tooltip title="Generate PDF Report">
-              <Button
-                variant="contained"
-                onClick={generateReport}
-                startIcon={<PictureAsPdfIcon fontSize="small" />}
-                sx={{
-                  backgroundColor: "#4f39f6",
-                  borderRadius: "8px",
-                  color: "white",
-                  minWidth: "auto",
-                  padding: "4px 8px",
-                  fontSize: "0.75rem",
-                  "& .MuiButton-startIcon": {
-                    marginRight: "4px",
-                  },
-                  "&:hover": {
-                    backgroundColor: "#3a2bb5",
-                  },
-                }}
-              >
-                PDF
-              </Button>
-            </Tooltip>
-
-            <TextField
-              variant="outlined"
-              size="small"
-              placeholder="Search appointments..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              InputProps={{
-                startAdornment: (
-                  <SearchIcon sx={{ color: "action.active", mr: 1 }} />
-                ),
-              }}
+            <Typography
+              variant="h4"
               sx={{
-                minWidth: 250,
-                "& .MuiOutlinedInput-root": { borderRadius: 3 },
+                fontWeight: "600",
+                color: colors.blue,
+                borderBottom: `3px solid ${colors.pink}`,
+                display: "inline-block",
+                pb: 1,
               }}
-            />
+            >
+              Appointments
+            </Typography>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <FormControl size="small" sx={{ minWidth: 120 }}>
-                <InputLabel>Date Filter</InputLabel>
-                <Select
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  label="Date Filter"
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+                width: { xs: "100%", md: "auto" },
+              }}
+            >
+              <Tooltip title="Generate PDF Report">
+                <Button
+                  variant="contained"
+                  onClick={generateReport}
+                  startIcon={<PictureAsPdfIcon fontSize="small" />}
+                  sx={{
+                    backgroundColor: "#4f39f6",
+                    borderRadius: "8px",
+                    color: "white",
+                    minWidth: "auto",
+                    padding: "4px 8px",
+                    fontSize: "0.75rem",
+                    "& .MuiButton-startIcon": {
+                      marginRight: "4px",
+                    },
+                    "&:hover": {
+                      backgroundColor: "#3a2bb5",
+                    },
+                  }}
                 >
-                  <MenuItem value="all">All Dates</MenuItem>
-                  <MenuItem value="today">Today</MenuItem>
-                  <MenuItem value="upcoming">Upcoming</MenuItem>
-                  <MenuItem value="past">Past</MenuItem>
-                  <MenuItem value="specific">Specific Date</MenuItem>
-                </Select>
-              </FormControl>
+                  PDF
+                </Button>
+              </Tooltip>
 
-              {dateFilter === "specific" && (
-                <TextField
-                  type="date"
-                  size="small"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                  sx={{ width: 150 }}
-                />
-              )}
+              <TextField
+                variant="outlined"
+                size="small"
+                placeholder="Search appointments..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                InputProps={{
+                  startAdornment: (
+                    <SearchIcon sx={{ color: "action.active", mr: 1 }} />
+                  ),
+                }}
+                sx={{
+                  minWidth: 250,
+                  "& .MuiOutlinedInput-root": { borderRadius: 3 },
+                }}
+              />
+
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>Date Filter</InputLabel>
+                  <Select
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    label="Date Filter"
+                  >
+                    <MenuItem value="all">All Dates</MenuItem>
+                    <MenuItem value="today">Today</MenuItem>
+                    <MenuItem value="upcoming">Upcoming</MenuItem>
+                    <MenuItem value="past">Past</MenuItem>
+                    <MenuItem value="specific">Specific Date</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {dateFilter === "specific" && (
+                  <TextField
+                    type="date"
+                    size="small"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ width: 150 }}
+                  />
+                )}
+              </Box>
             </Box>
           </Box>
-        </Box>
 
-        <Card
-          sx={{
-            borderRadius: "16px",
-            overflow: "hidden",
-            boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
-          }}
-        >
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: colors.green }}>
-                  <TableCell
-                    width="50px"
-                    sx={{ color: colors.white }}
-                  ></TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                  >
-                    Appointment ID
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                  >
-                    Patient Name
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                    align="center"
-                  >
-                    Specialization
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                  >
-                    Date
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                  >
-                    Time
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                    align="right"
-                  >
-                    Actions
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
-                ) : filteredAppointments.length > 0 ? (
-                  filteredAppointments
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((appointment, index) => (
-                      <AppointmentRow
-                        key={appointment._id}
-                        appointment={appointment}
-                        index={index}
-                        onAccept={handleAccept}
-                        onReject={handleReject}
-                      />
-                    ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: 2,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            width: 80,
-                            height: 80,
-                            borderRadius: "50%",
-                            bgcolor: "#f5f5f5",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <EventIcon
-                            sx={{ fontSize: 40, color: colors.gray }}
-                          />
-                        </Box>
-                        <Typography
-                          variant="h6"
-                          sx={{ color: colors.darkGray }}
-                        >
-                          {searchTerm || dateFilter !== "all"
-                            ? "No matching appointments found"
-                            : "No Appointments Found"}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {searchTerm || dateFilter !== "all"
-                            ? "Try different search criteria"
-                            : "New appointment requests will appear here"}
-                        </Typography>
-                        {deletedCount > 0 && (
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ fontStyle: "italic" }}
-                          >
-                            {deletedCount} old appointment(s) were automatically
-                            removed
-                          </Typography>
-                        )}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={filteredAppointments.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            sx={{ borderTop: "1px solid rgba(224, 224, 224, 1)" }}
-          />
-        </Card>
-
-        <Dialog
-          open={rejectDialogOpen}
-          onClose={() => setRejectDialogOpen(false)}
-        >
-          <DialogTitle>Reject Appointment</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Reason for Rejection"
-              type="text"
-              fullWidth
-              multiline
-              rows={4}
-              value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
-              variant="outlined"
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setRejectDialogOpen(false)} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={confirmReject} color="error">
-              Reject
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={() => setOpenSnackbar(false)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert
-            onClose={() => setOpenSnackbar(false)}
-            severity={snackbarSeverity}
-            variant="filled"
+          <Card
             sx={{
-              width: "100%",
-              boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
-              borderRadius: "10px",
-              bgcolor:
-                snackbarSeverity === "success"
-                  ? colors.green
-                  : snackbarSeverity === "info"
-                  ? colors.blue
-                  : snackbarSeverity === "warning"
-                  ? "#f4b400"
-                  : colors.pink,
+              borderRadius: "16px",
+              overflow: "hidden",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
             }}
           >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: colors.green }}>
+                    <TableCell
+                      width="50px"
+                      sx={{ color: colors.white }}
+                    ></TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                    >
+                      Appointment ID
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                    >
+                      Patient Name
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                      align="center"
+                    >
+                      Specialization
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                    >
+                      Date
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                    >
+                      Time
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                      align="right"
+                    >
+                      Actions
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredAppointments.length > 0 ? (
+                    filteredAppointments
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((appointment, index) => (
+                        <AppointmentRow
+                          key={appointment?._id || index}
+                          appointment={appointment}
+                          onReject={handleReject}
+                        />
+                      ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 2,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 80,
+                              height: 80,
+                              borderRadius: "50%",
+                              bgcolor: "#f5f5f5",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <EventIcon
+                              sx={{ fontSize: 40, color: colors.gray }}
+                            />
+                          </Box>
+                          <Typography
+                            variant="h6"
+                            sx={{ color: colors.darkGray }}
+                          >
+                            {searchTerm || dateFilter !== "all"
+                              ? "No matching appointments found"
+                              : "No Appointments Found"}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {searchTerm || dateFilter !== "all"
+                              ? "Try different search criteria"
+                              : "New appointment requests will appear here"}
+                          </Typography>
+                          {deletedCount > 0 && (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ fontStyle: "italic" }}
+                            >
+                              {deletedCount} old appointment(s) were
+                              automatically removed
+                            </Typography>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredAppointments.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{ borderTop: "1px solid rgba(224, 224, 224, 1)" }}
+            />
+          </Card>
+
+          <Dialog
+            open={rejectDialogOpen}
+            onClose={() => setRejectDialogOpen(false)}
+          >
+            <DialogTitle>Reject Appointment</DialogTitle>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Reason for Rejection"
+                type="text"
+                fullWidth
+                multiline
+                rows={4}
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                variant="outlined"
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => setRejectDialogOpen(false)}
+                color="primary"
+              >
+                Cancel
+              </Button>
+              <Button onClick={confirmReject} color="error">
+                Reject
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={() => setOpenSnackbar(false)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          >
+            <Alert
+              onClose={() => setOpenSnackbar(false)}
+              severity={snackbarSeverity}
+              variant="filled"
+              sx={{
+                width: "100%",
+                boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
+                borderRadius: "10px",
+                bgcolor:
+                  snackbarSeverity === "success"
+                    ? colors.green
+                    : snackbarSeverity === "info"
+                    ? colors.blue
+                    : snackbarSeverity === "warning"
+                    ? "#f4b400"
+                    : colors.pink,
+              }}
+            >
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+        </Box>
       </Box>
-    </Box>
+    </ErrorBoundary>
   );
 }
 

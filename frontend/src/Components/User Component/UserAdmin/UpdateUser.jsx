@@ -1,7 +1,6 @@
-// ✅ Updated version of your UpdateUser component with real-time validation (with red border live like shown in image)
-
 import React, { useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 import {
   Modal,
   Box,
@@ -96,20 +95,63 @@ function UpdateUser({ user, onClose }) {
 
   const handleUpdate = async () => {
     if (!isFormValid()) return;
-    try {
-      const response = await axios.put(
-        `http://localhost:5000/api/users/${user._id}`,
-        formData
-      );
-      if (response.status === 200) {
-        alert("Patient details updated successfully!");
-        window.location.reload();
-        if (onUpdate) onUpdate(response.data);
-        onClose();
+
+    // Show confirmation dialog before updating with higher z-index
+    Swal.fire({
+      title: "Confirm Update",
+      text: "Are you sure you want to update this patient information?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: colors.green,
+      cancelButtonColor: colors.pink,
+      confirmButtonText: "Yes, update it!",
+      // Add custom class for z-index control
+      customClass: {
+        container: "swal-container-class",
+        popup: "swal-popup-class",
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.put(
+            `http://localhost:5000/api/users/${user._id}`,
+            formData
+          );
+          if (response.status === 200) {
+            // Success alert with higher z-index
+            Swal.fire({
+              title: "Success!",
+              text: "Patient details updated successfully!",
+              icon: "success",
+              confirmButtonColor: colors.green,
+              // Add custom class for z-index control
+              customClass: {
+                container: "swal-container-class",
+                popup: "swal-popup-class",
+              },
+            }).then(() => {
+              window.location.reload();
+              if (onUpdate) onUpdate(response.data);
+              onClose();
+            });
+          }
+        } catch (error) {
+          console.error("Error updating user:", error);
+          // Error alert with higher z-index
+          Swal.fire({
+            title: "Error!",
+            text: "Failed to update patient details. Please try again.",
+            icon: "error",
+            confirmButtonColor: colors.pink,
+            // Add custom class for z-index control
+            customClass: {
+              container: "swal-container-class",
+              popup: "swal-popup-class",
+            },
+          });
+        }
       }
-    } catch (error) {
-      console.error("Error updating user:", error);
-    }
+    });
   };
 
   const colors = {
@@ -161,6 +203,23 @@ function UpdateUser({ user, onClose }) {
       color: colors.darkGray,
     },
   };
+  React.useEffect(() => {
+    // Add global styles for SweetAlert z-index
+    const style = document.createElement("style");
+    style.innerHTML = `
+    .swal-container-class {
+      z-index: 1500 !important; /* Higher than Material-UI Modal (1300) */
+    }
+    .swal-popup-class {
+      z-index: 1500 !important; 
+    }
+  `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   return (
     <Modal open={true} onClose={onClose}>
@@ -212,6 +271,7 @@ function UpdateUser({ user, onClose }) {
               onChange={handleChange}
               error={!!errors.name}
               helperText={errors.name}
+              placeholder="Enter full name (e.g., John Smith)"
               sx={inputStyle}
               InputProps={{
                 startAdornment: (
@@ -232,6 +292,7 @@ function UpdateUser({ user, onClose }) {
               onChange={handleChange}
               error={!!errors.email}
               helperText={errors.email}
+              placeholder="Enter valid email (e.g., user@example.com)"
               sx={inputStyle}
               InputProps={{
                 startAdornment: (
@@ -252,6 +313,7 @@ function UpdateUser({ user, onClose }) {
               onChange={handleChange}
               error={!!errors.mobile}
               helperText={errors.mobile}
+              placeholder="07XXXXXXXX"
               inputProps={{
                 inputMode: "numeric",
                 pattern: "07[0-9]{8}",
@@ -281,6 +343,7 @@ function UpdateUser({ user, onClose }) {
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
               inputProps={{ max: today }}
+              placeholder="YYYY-MM-DD"
               error={!!errors.dateOfBirth}
               helperText={errors.dateOfBirth}
               sx={inputStyle}
@@ -302,6 +365,7 @@ function UpdateUser({ user, onClose }) {
               name="bloodGroup"
               value={formData.bloodGroup}
               onChange={handleChange}
+              placeholder="Select blood group"
               sx={inputStyle}
             >
               {bloodGroupOptions.map((option) => (
@@ -320,6 +384,7 @@ function UpdateUser({ user, onClose }) {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
+              placeholder="Select gender"
               sx={inputStyle}
             >
               {genderOptions.map((option) => (
@@ -338,6 +403,7 @@ function UpdateUser({ user, onClose }) {
               name="country"
               value={formData.country}
               onChange={handleChange}
+              placeholder="Select country"
               sx={inputStyle}
             >
               {countryList.map((option) => (
@@ -356,6 +422,7 @@ function UpdateUser({ user, onClose }) {
               name="city"
               value={formData.city}
               onChange={handleChange}
+              placeholder="Select city"
               sx={inputStyle}
             >
               {countryOptions[formData.country]?.map((city) => (

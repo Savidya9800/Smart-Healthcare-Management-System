@@ -41,7 +41,9 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
 
   const [formData, setFormData] = useState({
     ...user,
-    dateOfBirth: new Date(user.dateOfBirth).toISOString().split("T")[0], // Format date for input
+    dateOfBirth: user.dateOfBirth && !isNaN(new Date(user.dateOfBirth).getTime()) 
+      ? new Date(user.dateOfBirth).toISOString().split("T")[0] 
+      : "", // Safely format date for input or use empty string
     country: user.country || Object.keys(countryOptions)[0],
     city: user.city || "",
   });
@@ -110,12 +112,17 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
         break;
 
       case "dateOfBirth":
-        if (!value) {
-          newErrors.dateOfBirth = "Date of birth is required.";
-        } else if (value >= today) {
-          newErrors.dateOfBirth = "Date must be in the past.";
+        if (value) {
+          const birthDate = new Date(value);
+          const today = new Date();
+          
+          if (birthDate > today) {
+            newErrors.dateOfBirth = "Date of birth cannot be in the future";
+          } else {
+            delete newErrors.dateOfBirth;
+          }
         } else {
-          delete newErrors.dateOfBirth;
+          delete newErrors.dateOfBirth; // Optional field
         }
         break;
     }
@@ -270,6 +277,7 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       onChange={handleChange}
                       error={!!errors.name}
                       helperText={errors.name}
+                      placeholder="Enter your full name (e.g., John Smith)"
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -292,6 +300,7 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       onChange={handleChange}
                       error={!!errors.email}
                       helperText={errors.email}
+                      placeholder="Enter your email (e.g., name@gmail.com)"
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -312,6 +321,7 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       onChange={handleChange}
                       error={!!errors.mobile}
                       helperText={errors.mobile}
+                      placeholder="07XXXXXXXX"
                       inputProps={{
                         inputMode: "numeric",
                         pattern: "07[0-9]{8}",
@@ -344,6 +354,7 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       InputLabelProps={{ shrink: true }}
                       inputProps={{
                         max: today,
+                        placeholder: "YYYY-MM-DD"
                       }}
                       error={!!errors.dateOfBirth}
                       helperText={errors.dateOfBirth}
@@ -402,6 +413,7 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                     <Divider sx={{ mb: 2 }} />
                   </Grid>
 
+                  {/* Country Dropdown */}
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
@@ -410,6 +422,16 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       name="country"
                       value={formData.country || ""}
                       onChange={handleChange}
+                      placeholder="Select your country"
+                      displayEmpty
+                      SelectProps={{
+                        renderValue: (selected) => {
+                          if (!selected) {
+                            return <em style={{color: "#757575"}}>Select your country</em>;
+                          }
+                          return selected;
+                        },
+                      }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -419,6 +441,9 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       }}
                       sx={inputStyles}
                     >
+                      <MenuItem disabled value="">
+                        <em>Select your country</em>
+                      </MenuItem>
                       {Object.keys(countryOptions).map((country) => (
                         <MenuItem key={country} value={country}>
                           {country}
@@ -427,6 +452,7 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                     </TextField>
                   </Grid>
 
+                  {/* City Dropdown */}
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
@@ -435,9 +461,20 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       name="city"
                       value={formData.city || ""}
                       onChange={handleChange}
-                      disabled={
-                        !formData.country || availableCities.length === 0
-                      }
+                      displayEmpty
+                      SelectProps={{
+                        renderValue: (selected) => {
+                          if (!selected) {
+                            return (
+                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <em style={{color: "#757575"}}>Select your city</em>
+                              </Box>
+                            );
+                          }
+                          return selected;
+                        },
+                      }}
+                      disabled={!formData.country || availableCities.length === 0}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -447,6 +484,9 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       }}
                       sx={inputStyles}
                     >
+                      <MenuItem disabled value="">
+                        <em>Select your city</em>
+                      </MenuItem>
                       {availableCities.map((city) => (
                         <MenuItem key={city} value={city}>
                           {city}
@@ -468,6 +508,7 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                     <Divider sx={{ mb: 2 }} />
                   </Grid>
 
+                  {/* Gender Dropdown */}
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
@@ -476,6 +517,15 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       name="gender"
                       value={formData.gender || ""}
                       onChange={handleChange}
+                      displayEmpty
+                      SelectProps={{
+                        renderValue: (selected) => {
+                          if (!selected) {
+                            return <em style={{color: "#757575"}}>Select your gender</em>;
+                          }
+                          return selected;
+                        },
+                      }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -485,6 +535,9 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       }}
                       sx={inputStyles}
                     >
+                      <MenuItem disabled value="">
+                        <em>Select your gender</em>
+                      </MenuItem>
                       {genderOptions.map((option) => (
                         <MenuItem key={option} value={option}>
                           {option}
@@ -493,6 +546,7 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                     </TextField>
                   </Grid>
 
+                  {/* Blood Group Dropdown */}
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
@@ -501,6 +555,15 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       name="bloodGroup"
                       value={formData.bloodGroup || ""}
                       onChange={handleChange}
+                      displayEmpty
+                      SelectProps={{
+                        renderValue: (selected) => {
+                          if (!selected) {
+                            return <em style={{color: "#757575"}}>Select your blood group</em>;
+                          }
+                          return selected;
+                        },
+                      }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -510,6 +573,9 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
                       }}
                       sx={bloodGroupStyles}
                     >
+                      <MenuItem disabled value="">
+                        <em>Select your blood group</em>
+                      </MenuItem>
                       {bloodGroupOptions.map((option) => (
                         <MenuItem key={option} value={option}>
                           {option}
