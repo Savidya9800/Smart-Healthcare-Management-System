@@ -37,7 +37,10 @@ function PAdminLayout({ children }) {
       icon: <BarChart2 size={20} />,
       path: "/Pharmacy-Stocks",
     },
-    { name: "Orders", icon: <Package size={20} />, path: "/Pharmacy-Orders" },
+    { name: "Orders",
+      icon: <Package size={20} />,
+      path: "/recent-orders" ,
+    }
   ];
 
   const currentPage = menuItems.find((item) => item.path === location.pathname);
@@ -145,8 +148,6 @@ function PAdminLayout({ children }) {
           </div>
 
           <div className="flex items-center space-x-2">
-            
-
             <button className="p-2 rounded-lg hover:bg-gray-100">
               <Settings size={20} className="text-gray-600" />
             </button>

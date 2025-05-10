@@ -24,6 +24,7 @@ import PDashboard from "./Components/Pharmacy Component/PDashboard";
 import StockAnalytics from "./Components/Pharmacy Component/StockAnalytics";
 import OrderAnalytics from "./Components/Pharmacy Component/OrderAnalytics";
 import StockAdding from "./Components/Pharmacy Component/StockAdding";
+import RecentOrders from "./Components/Prescription Component/RecentOrders";
 
 //Appointment Components
 import ADashboard from "./Components/Appointment Component/ADashboard";
@@ -50,7 +51,7 @@ import HealthChatBot from "./Components/Novelty Component/HealthChatBot";
 
 function App() {
   const [chatOpen, setChatOpen] = useState(false);
-  const location = useLocation(); // ⬅️ get current route
+  const location = useLocation(); // get current route
 
   //  Hide chatbot on login & registration
   const hideChatbotOn = ["/login", "/registration"];
@@ -86,6 +87,7 @@ function App() {
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
           <Route path="/Stock-Adding" element={<StockAdding />} />
+          <Route path="/recent-orders" element={<RecentOrders />} />
 
           {/*Doctor Components*/}
           <Route path="/login-doctor" element={<DoctorLogin />} />
@@ -110,6 +112,7 @@ function App() {
             element={<AppoinmentManagement />}
           />
           <Route path="Rijected-Appoinment" element={<RejectedAppoinment />} />
+          
         </Routes>
 
         {/*  Conditionally show Chatbot */}
