@@ -47,6 +47,8 @@ import VitalsInputForm from "./Components/Novelty Component/VitalsInputForm";
 import ChatbotLauncher from "./Components/Novelty Component/ChatbotLauncher";
 import HealthChatBot from "./Components/Novelty Component/HealthChatBot";
 
+import RecentOrders from "./Components/Prescription Component/RecentOrders";
+
 function App() {
   const [chatOpen, setChatOpen] = useState(false);
   const location = useLocation(); // ⬅️ get current route
@@ -104,9 +106,11 @@ function App() {
             path="/Appoinment-Management"
             element={<AppoinmentManagement />}
           />
-           <Route path="Rijected-Appoinment" element={<RejectedAppoinment/>}/>
+          <Route path="Rijected-Appoinment" element={<RejectedAppoinment />} />
+          {/* Prescription Component */}
+          <Route path="/recent-orders" element={<RecentOrders />} />
         </Routes>
-       
+
         {/* ✅ Conditionally show Chatbot */}
         {showChatbot && (
           <>
