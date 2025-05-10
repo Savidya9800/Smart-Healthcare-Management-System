@@ -173,10 +173,14 @@ function PatientProfile() {
     );
   }
 
-
   // Format date of birth
   const formatDate = (dateString) => {
+    if (!dateString) return "Not provided";
+    
     const date = new Date(dateString);
+    // Check if date is valid
+    if (isNaN(date.getTime())) return "Not provided";
+    
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -186,8 +190,13 @@ function PatientProfile() {
 
   // Calculate age from date of birth
   const calculateAge = (dateString) => {
-    const today = new Date();
+    if (!dateString) return "";
+    
     const birthDate = new Date(dateString);
+    // Check if date is valid and in the past
+    if (isNaN(birthDate.getTime()) || birthDate > new Date()) return "";
+    
+    const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
 
@@ -389,15 +398,17 @@ function PatientProfile() {
                           <Typography variant="body1" fontWeight="medium">
                             {formatDate(user.dateOfBirth)}
                           </Typography>
-                          <Chip
-                            label={`${calculateAge(user.dateOfBirth)} years`}
-                            size="small"
-                            sx={{
-                              ml: 2,
-                              bgcolor: "#f0f0f0",
-                              fontSize: "0.75rem",
-                            }}
-                          />
+                          {calculateAge(user.dateOfBirth) && (
+                            <Chip
+                              label={`${calculateAge(user.dateOfBirth)} years`}
+                              size="small"
+                              sx={{
+                                ml: 2,
+                                bgcolor: "#f0f0f0",
+                                fontSize: "0.75rem",
+                              }}
+                            />
+                          )}
                         </Box>
                       </Box>
                     </Box>

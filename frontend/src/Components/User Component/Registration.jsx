@@ -198,6 +198,7 @@ function Registration() {
                   margin="normal"
                   label="Full Name"
                   name="name"
+                  placeholder="Enter your full name"
                   value={formData.name}
                   onChange={handleChange}
                   error={!!errors.name}
@@ -215,6 +216,7 @@ function Registration() {
                   margin="normal"
                   label="Email"
                   name="email"
+                  placeholder="example@gmail.com"
                   value={formData.email}
                   onChange={handleChange}
                   error={!!errors.email}
@@ -232,6 +234,7 @@ function Registration() {
                   margin="normal"
                   label="Password"
                   name="password"
+                  placeholder="Minimum 8 characters with letter, number & symbol"
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
@@ -260,6 +263,7 @@ function Registration() {
                   margin="normal"
                   label="Confirm Password"
                   name="confirmPassword"
+                  placeholder="Re-enter your password"
                   type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={handleChange}
