@@ -11,7 +11,6 @@ const diagnosisSchema = new Schema(
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // References the patient
-      required: true,
     },
     doctorId: {
       type: mongoose.Schema.Types.ObjectId,
