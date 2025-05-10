@@ -32,6 +32,7 @@ app.use("/api/rejected-appointments", rejectedAppointmentRoutes);
 app.use("/api/doctor", doctorRoute); // Routes for Doctor Management
 app.use("/api/stock", stockRoute); // Routes for Stock Management
 app.use("/api/prescription", prescriptionRoute); // Routes for Prescription Management
+app.use("/api/prescriptions", require("./Routes/DoctorManagement/prescriptionRoute")); // Register prescription routes
 app.use("/api/doctorLeave", doctorLeaveRoutes); // Routes for Doctor Leave Management
 app.use("/api/diagnosis", diagnosisRoute); // Routes for Diagnosis Management
 
