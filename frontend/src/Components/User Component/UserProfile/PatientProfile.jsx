@@ -36,11 +36,18 @@ import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import HistoryIcon from "@mui/icons-material/History";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import Swal from "sweetalert2";
+import { getMedicalReports } from "../../../services/medicalReportService";
+import ReportUploadDialog from "../MedicalReports/ReportUploadDialog";
+import ReportItem from "../MedicalReports/ReportItem";
+import FileIcon from "@mui/icons-material/InsertDriveFile";
 
 function PatientProfile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -64,6 +71,23 @@ function PatientProfile() {
     };
 
     fetchUser();
+  }, []);
+
+  // Fetch medical reports
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        setLoadingReports(true);
+        const data = await getMedicalReports();
+        setReports(data);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      } finally {
+        setLoadingReports(false);
+      }
+    };
+
+    fetchReports();
   }, []);
 
   // Handle updated user data after edit
@@ -158,6 +182,29 @@ function PatientProfile() {
     });
   };
 
+  // Handle upload dialog
+  const handleOpenUploadDialog = () => {
+    setIsUploadDialogOpen(true);
+  };
+
+  const handleCloseUploadDialog = () => {
+    setIsUploadDialogOpen(false);
+  };
+
+  const handleUploadSuccess = async () => {
+    // Refresh reports list
+    try {
+      const data = await getMedicalReports();
+      setReports(data);
+    } catch (error) {
+      console.error("Error refreshing reports:", error);
+    }
+  };
+
+  const handleDeleteReport = (reportId) => {
+    setReports(reports.filter((report) => report._id !== reportId));
+  };
+
   if (loading) {
     return (
       <Box
@@ -176,11 +223,11 @@ function PatientProfile() {
   // Format date of birth
   const formatDate = (dateString) => {
     if (!dateString) return "Not provided";
-    
+
     const date = new Date(dateString);
     // Check if date is valid
     if (isNaN(date.getTime())) return "Not provided";
-    
+
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -191,11 +238,11 @@ function PatientProfile() {
   // Calculate age from date of birth
   const calculateAge = (dateString) => {
     if (!dateString) return "";
-    
+
     const birthDate = new Date(dateString);
     // Check if date is valid and in the past
     if (isNaN(birthDate.getTime()) || birthDate > new Date()) return "";
-    
+
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -533,8 +580,157 @@ function PatientProfile() {
                 </Grid>
               </Grid>
             </Grid>
+
+            {/* Medical Reports Section */}
+            <Grid item xs={12}>
+              <Paper
+                elevation={2}
+                sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  bgcolor: "#ffffff",
+                  border: `1px solid ${theme.palette.grey[300]}`,
+                  mb: 3,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="#2b2c6c"
+                  gutterBottom
+                >
+                  Medical Reports
+                </Typography>
+                <Divider sx={{ mb: 3, bgcolor: "#e6e6e6" }} />
+
+                <Grid container spacing={3}>
+                  {/* Upload Area */}
+                  <Grid item xs={12} md={6}>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 3,
+                        borderRadius: 2,
+                        border: `1px dashed ${theme.palette.grey[400]}`,
+                        bgcolor: "rgba(43, 44, 108, 0.03)",
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <MedicalIcon
+                        sx={{ fontSize: 48, color: "#e6317d", mb: 2 }}
+                      />
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="medium"
+                        textAlign="center"
+                        gutterBottom
+                      >
+                        Upload your medical reports
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="#71717d"
+                        textAlign="center"
+                        sx={{ mb: 3 }}
+                      >
+                        Supported formats: PDF, JPEG, PNG (Max size: 10MB)
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        onClick={handleOpenUploadDialog}
+                        sx={{
+                          bgcolor: "#e6317d",
+                          "&:hover": { bgcolor: "#c62a6a" },
+                          borderRadius: 2,
+                          px: 3,
+                        }}
+                      >
+                        Upload Report
+                      </Button>
+                    </Paper>
+                  </Grid>
+
+                  {/* Recent Reports Area */}
+                  <Grid item xs={12} md={6}>
+                    <Box sx={{ height: "100%" }}>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="medium"
+                        gutterBottom
+                      >
+                        Recent Reports
+                      </Typography>
+
+                      {loadingReports ? (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: "100%",
+                          }}
+                        >
+                          <CircularProgress sx={{ color: "#e6317d" }} />
+                        </Box>
+                      ) : reports.length === 0 ? (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            mt: 4,
+                            mb: 2,
+                          }}
+                        >
+                          <Typography
+                            variant="body2"
+                            color="#71717d"
+                            textAlign="center"
+                          >
+                            No medical reports uploaded yet
+                          </Typography>
+                        </Box>
+                      ) : (
+                        <Box sx={{ mt: 2 }}>
+                          {reports.map((report) => (
+                            <ReportItem
+                              key={report._id}
+                              report={report}
+                              onDelete={handleDeleteReport}
+                            />
+                          ))}
+                        </Box>
+                      )}
+
+                      <Box
+                        sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
+                      >
+                        <Button
+                          variant="outlined"
+                          sx={{
+                            borderColor: "#2b2c6c",
+                            color: "#2b2c6c",
+                            "&:hover": {
+                              borderColor: "#1e1f4b",
+                              bgcolor: "rgba(43, 44, 108, 0.04)",
+                            },
+                            borderRadius: 2,
+                          }}
+                        >
+                          View All Reports
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Paper>
+            </Grid>
+
             {/* Smart Health Tools Section */}
-            {/* Smart Health Tools (Direct Navigation) */}
             <Grid item xs={12}>
               <Paper
                 elevation={2}
@@ -672,6 +868,14 @@ function PatientProfile() {
           user={user}
           onClose={() => setIsEditing(false)}
           onUpdate={handleProfileUpdate}
+        />
+      )}
+
+      {/* Report Upload Dialog */}
+      {isUploadDialogOpen && (
+        <ReportUploadDialog
+          onClose={handleCloseUploadDialog}
+          onSuccess={handleUploadSuccess}
         />
       )}
     </Box>
