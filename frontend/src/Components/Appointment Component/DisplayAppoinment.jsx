@@ -16,7 +16,6 @@ import {
   Trash2,
   CheckCircle,
   ArrowLeft,
-  Download,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -181,7 +180,7 @@ function DisplayAppointment() {
         cancelButtonText: "No, Return Home",
       }).then((result) => {
         if (result.isConfirmed) {
-          generateAppointmentPDF(patientDetails);
+          generatePDF(patientDetails);
         }
         navigate("/Home");
       });
@@ -250,145 +249,276 @@ function DisplayAppointment() {
     });
   };
 
-  const generateAppointmentPDF = (patientDetails) => {
-    if (!patientDetails) return;
+  // Generate and download PDF - Enhanced professional version
+  const generatePDF = (item) => {
+    const doc = new jsPDF();
 
-    const doc = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
+    // Set document properties
+    doc.setProperties({
+      title: `Appointment-${item.name.replace(/\s+/g, "-")}`,
+      subject: "Appointment Confirmation Details",
+      author: "MediFlow Healthcare System",
+      keywords: "appointment, healthcare, confirmation",
+      creator: "MediFlow",
     });
 
-    const colors = {
-      primary: "#2C3E50",
-      accent: "#3498DB",
-      background: "#ECF0F1",
-      text: "#2C3E50",
-      highlight: "#27AE60",
+    // Add watermark
+    const addWatermark = (doc) => {
+      const totalPages = doc.internal.getNumberOfPages();
+
+      // Watermark text
+      doc.setFontSize(60);
+      doc.setTextColor(230, 230, 230); // Light gray
+      doc.setFont("helvetica", "bold");
+
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+
+        // Position watermark in center of page
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Set transparency
+        doc.setGState(new doc.GState({ opacity: 0.2 }));
+
+        // Add watermark with angle parameter
+        doc.text("MEDIFLOW", pageWidth / 2, pageHeight / 2, {
+          align: "center",
+          angle: -45,
+        });
+      }
     };
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
+    // --- HEADER SECTION ---
 
-    doc.setFillColor(colors.background);
-    doc.rect(0, 0, pageWidth, pageHeight, "F");
+    // Create top border
+    doc.setDrawColor(43, 44, 108); // #2b2c6c
+    doc.setFillColor(43, 44, 108);
+    doc.rect(0, 0, doc.internal.pageSize.width, 2, "F");
 
-    doc.setFillColor(colors.primary);
-    doc.rect(0, 0, pageWidth, 30, "F");
+    // Add colored accent on left side
+    doc.setFillColor(47, 178, 151); // #2fb297
+    doc.rect(0, 2, 8, 40, "F");
 
+    // Add logo
     const logoWidth = 30;
-          const logoHeight = 30;
-          doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
+    const logoHeight = 30;
+    doc.addImage(Logo22, "PNG", 15, 5, logoWidth, logoHeight);
+
+    // Add header text
     doc.setFont("helvetica", "bold");
-    doc.text("MEDI FLOW",  margin + logoWidth + 10, 18);
+    doc.setFontSize(22);
+    doc.setTextColor(43, 44, 108); // #2b2c6c
+    doc.text("MEDIFLOW", 15 + logoWidth + 5, 18);
 
-    doc.setFontSize(13);
-    doc.text("Appointment Confirmation", margin + logoWidth + 10, 24);
-
-    doc.setFontSize(18);
-    doc.setTextColor(colors.primary);
+    // Add sub-header text
     doc.setFont("helvetica", "bold");
-    doc.text("Patient Information", margin, 50);
+    doc.setFontSize(10);
+    doc.setTextColor(47, 178, 151); // #2fb297 - Green color for emphasis
+    doc.text("HEALTHCARE MANAGEMENT SYSTEM", 15 + logoWidth + 5, 26);
 
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(colors.accent);
-    doc.line(margin, 55, pageWidth - margin, 55);
-
+    // Add contact details
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.setTextColor(colors.text);
-
-    const detailsStartY = 65;
-    const lineHeight = 7;
-    const labelColor = colors.accent;
-
-    const patientDetailsLayout = [
-      { label: "Appointment ID", value: patientDetails.indexno || "N/A" },
-      { label: "Full Name", value: patientDetails.name || "N/A" },
-      { label: "Phone Number", value: patientDetails.phone || "N/A" },
-      { label: "National ID", value: patientDetails.nic || "N/A" },
-      { label: "Email", value: patientDetails.email || "N/A" },
-      { label: "Address", value: patientDetails.address || "N/A" },
-    ];
-
-    patientDetailsLayout.forEach((detail, index) => {
-      doc.setTextColor(labelColor);
-      doc.setFont("helvetica", "bold");
-      doc.text(detail.label + ":", margin, detailsStartY + index * lineHeight);
-
-      doc.setTextColor(colors.text);
-      doc.setFont("helvetica", "normal");
-      doc.text(detail.value, margin + 40, detailsStartY + index * lineHeight);
-    });
-
-    doc.setFontSize(18);
-    doc.setTextColor(colors.primary);
-    doc.setFont("helvetica", "bold");
-    doc.text(
-      "Appointment Details",
-      margin,
-      detailsStartY + patientDetailsLayout.length * lineHeight + 10
-    );
-
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(colors.accent);
-    doc.line(
-      margin,
-      detailsStartY + patientDetailsLayout.length * lineHeight + 15,
-      pageWidth - margin,
-      detailsStartY + patientDetailsLayout.length * lineHeight + 15
-    );
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.setTextColor(colors.text);
-
-    const appointmentDetailsStartY =
-      detailsStartY + patientDetailsLayout.length * lineHeight + 25;
-    const appointmentDetailsLayout = [
-      { label: "Doctor", value: patientDetails.doctorName || "N/A" },
-      { label: "Specialization", value: patientDetails.specialization || "N/A" },
-      {
-        label: "Date",
-        value: patientDetails.date
-          ? new Date(patientDetails.date).toLocaleDateString("en-GB")
-          : "N/A",
-      },
-      { label: "Time", value: patientDetails.time || "N/A" },
-    ];
-
-    appointmentDetailsLayout.forEach((detail, index) => {
-      doc.setTextColor(labelColor);
-      doc.setFont("helvetica", "bold");
-      doc.text(
-        detail.label + ":",
-        margin,
-        appointmentDetailsStartY + index * lineHeight
-      );
-
-      doc.setTextColor(colors.text);
-      doc.setFont("helvetica", "normal");
-      doc.text(
-        detail.value,
-        margin + 40,
-        appointmentDetailsStartY + index * lineHeight
-      );
-    });
-
-    doc.setLineWidth(0.2);
-    doc.setDrawColor(colors.primary);
-    doc.line(margin, pageHeight - 20, pageWidth - margin, pageHeight - 20);
-
     doc.setFontSize(8);
-    doc.setTextColor(colors.text);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, margin, pageHeight - 10);
-    doc.text("Confidential Document", pageWidth - margin - 40, pageHeight - 10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("123 Medical Center Drive, Healthcare City", 15 + logoWidth + 5, 32);
+    doc.text("Phone: (123) 456-7890 | Email: support@mediflow.com", 15 + logoWidth + 5, 36);
+    doc.text("www.mediflow.com", 15 + logoWidth + 5, 40);
 
-    doc.save(`MediFlow_Appointment_${patientDetails.name}_${Date.now()}.pdf`);
+  
+    // Add header line separator
+    doc.setDrawColor(230, 230, 230);
+    doc.line(15, 44, 185, 44);
+
+    // Add appointment details box
+    doc.setFillColor(245, 250, 250); // Light background
+    doc.setDrawColor(47, 178, 151); // Green border
+    doc.roundedRect(140, 10, 60, 30, 3, 3, "FD"); // Filled rectangle with rounded corners
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(43, 44, 108); // #2b2c6c
+    doc.text("APPOINTMENT", 170, 20, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`ID: ${item.indexno || "N/A"}`, 170, 28, {
+      align: "center",
+    });
+
+    // Add status box
+    const status = "CONFIRMED";
+    const statusColor = [47, 178, 151]; // Green for confirmed
+    const statusWidth = 40;
+    const statusX = 170 - statusWidth / 2;
+    doc.setFillColor(...statusColor, 0.15); // Semi-transparent green
+    doc.setDrawColor(...statusColor);
+    doc.roundedRect(statusX, 31, statusWidth, 8, 2, 2, "FD");
+
+    doc.setTextColor(...statusColor);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text(status, 170, 36, { align: "center" });
+
+    // Add divider below header
+    doc.setDrawColor(230, 230, 230);
+    doc.line(10, 50, 200, 50);
+
+    // --- MAIN CONTENT SECTION ---
+
+    // Appointment title
+    doc.setTextColor(43, 44, 108); // #2b2c6c
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("Appointment Confirmation", 10, 65);
+
+    // --- PATIENT INFO SECTION ---
+    doc.setFillColor(240, 240, 250);
+    doc.setDrawColor(220, 220, 240);
+    doc.roundedRect(10, 80, 90, 90, 2, 2, "FD");
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(43, 44, 108); // #2b2c6c
+    doc.text("PATIENT INFORMATION", 15, 90);
+
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 60, 60);
+
+    const patientInfo = [
+      { label: "Full Name:", value: item.name || "N/A" },
+      { label: "Phone:", value: item.phone || "N/A" },
+      { label: "NIC:", value: item.nic || "N/A" },
+      { label: "Email:", value: item.email || "N/A" },
+      { label: "Address:", value: item.address || "N/A" },
+    ];
+
+    let yPos = 100;
+    patientInfo.forEach((info) => {
+      doc.setFont("helvetica", "bold");
+      doc.text(info.label, 15, yPos);
+      doc.setFont("helvetica", "normal");
+      const splitValue = doc.splitTextToSize(String(info.value), 60); // Wrap text if too long
+      doc.text(splitValue, 50, yPos);
+      yPos += 10 + (splitValue.length - 1) * 5; // Adjust for multi-line text
+    });
+
+    // --- APPOINTMENT INFO SECTION ---
+    doc.setFillColor(240, 250, 245);
+    doc.setDrawColor(220, 240, 230);
+    doc.roundedRect(105, 80, 90, 90, 2, 2, "FD");
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(43, 44, 108); // #2b2c6c
+    doc.text("APPOINTMENT DETAILS", 110, 90);
+
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 60, 60);
+
+    const appointmentInfo = [
+      { label: "Doctor:", value: item.doctorName || "N/A" },
+      { label: "Specialization:", value: item.specialization || "N/A" },
+      {
+        label: "Date:",
+        value: item.date ? new Date(item.date).toLocaleDateString("en-GB") : "N/A",
+      },
+      { label: "Time:", value: item.time || "N/A" },
+    ];
+
+    yPos = 100;
+    appointmentInfo.forEach((info) => {
+      doc.setFont("helvetica", "bold");
+      doc.text(info.label, 110, yPos);
+      doc.setFont("helvetica", "normal");
+      const splitValue = doc.splitTextToSize(String(info.value), 60);
+      doc.text(splitValue, 145, yPos);
+      yPos += 10 + (splitValue.length - 1) * 5;
+    });
+
+    // --- INSTRUCTIONS SECTION ---
+    doc.setFillColor(250, 250, 250);
+    doc.setDrawColor(230, 230, 230);
+    doc.roundedRect(10, 180, 190, 40, 2, 2, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(43, 44, 108); // #2b2c6c
+    doc.text("INSTRUCTIONS", 15, 190);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(60, 60, 60);
+    const instructions = "Please arrive 15 minutes before your appointment time. Bring your ID and insurance information if applicable. Contact our help desk at 1-800-HEALTH for rescheduling or inquiries.";
+    const splitInstructions = doc.splitTextToSize(instructions, 180);
+    doc.text(splitInstructions, 15, 200);
+
+    // --- FOOTER SECTION ---
+
+    // Create bottom border
+    doc.setDrawColor(43, 44, 108); // #2b2c6c
+    doc.setFillColor(43, 44, 108);
+    doc.rect(
+      0,
+      doc.internal.pageSize.height - 20,
+      doc.internal.pageSize.width,
+      2,
+      "F"
+    );
+
+    // Footer text
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+
+      // Left side - notice
+      doc.text(
+        "Appointment confirmation document - Internal use only",
+        10,
+        doc.internal.pageSize.height - 12
+      );
+
+      // Center - website
+      doc.text(
+        "www.mediflow.com",
+        doc.internal.pageSize.getWidth() / 2,
+        doc.internal.pageSize.height - 12,
+        {
+          align: "center",
+        }
+      );
+
+      // Right - page number and generation date
+      doc.text(
+        `Generated: ${new Date().toLocaleDateString()} | Page ${i} of ${pageCount}`,
+        doc.internal.pageSize.getWidth() - 10,
+        doc.internal.pageSize.height - 12,
+        { align: "right" }
+      );
+
+      // Add color accent at bottom
+      doc.setFillColor(47, 178, 151); // #2fb297
+      doc.rect(
+        0,
+        doc.internal.pageSize.height - 5,
+        doc.internal.pageSize.width,
+        5,
+        "F"
+      );
+    }
+
+    // Add the watermark after all pages are created
+    addWatermark(doc);
+
+    // Save the PDF
+    doc.save(`Appointment-${item.name.replace(/\s+/g, "-")}_${Date.now()}.pdf`);
   };
 
   if (!patientDetails) {
@@ -587,8 +717,7 @@ function DisplayAppointment() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-gray-7
-00 text-base font-medium mb-2">
+                    <label className="block text-gray-700 text-base font-medium mb-2">
                       Address
                     </label>
                     <div className="relative">
@@ -714,7 +843,6 @@ function DisplayAppointment() {
                       <Trash2 size={18} className="mr-2" />
                       Cancel Appointment
                     </button>
-                    
                     <button
                       onClick={handleConfirm}
                       disabled={isSendingEmail}
@@ -752,14 +880,11 @@ function DisplayAppointment() {
                       ) : (
                         <>
                           <CheckCircle size={18} className="mr-2" />
-                          Confirm 
+                          Confirm
                         </>
                       )}
                     </button>
                   </div>
-                
-
-                  
                 </div>
               </div>
             )}

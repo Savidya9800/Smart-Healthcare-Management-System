@@ -45,7 +45,6 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
 import Logo22 from "../../Appointment Component/images/Logo2.png";
 
 // Error Boundary Component
@@ -633,6 +632,7 @@ function Appointments() {
             errorMessage = "Unauthorized: Please log in again";
             break;
           case 404:
+            errorMessagevait(axios.delete(`${URL}/${appointmentId}`));
             errorMessage = "Appointment not found";
             break;
           case 500:
@@ -663,154 +663,224 @@ function Appointments() {
 
   const generateReport = async () => {
     try {
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
+      const doc = new jsPDF();
+
+      // Set document properties
+      doc.setProperties({
+        title: `Appointments-Report-${new Date()
+          .toISOString()
+          .slice(0, 10)}`,
+        subject: "Appointments Report",
+        author: "MediFlow Healthcare System",
+        keywords: "appointments, healthcare, report",
+        creator: "MediFlow",
       });
 
-      const colors = {
-        primary: "#2C3E50",
-        accent: "#3498DB",
-        background: "#ECF0F1",
-        text: "#2C3E50",
-        highlight: "#27AE60",
+      // Add watermark
+      const addWatermark = (doc) => {
+        const totalPages = doc.internal.getNumberOfPages();
+        doc.setFontSize(60);
+        doc.setTextColor(230, 230, 230);
+        doc.setFont("helvetica", "bold");
+
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i);
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          doc.setGState(new doc.GState({ opacity: 0.2 }));
+          doc.text("MEDIFLOW", pageWidth / 2, pageHeight / 2, {
+            align: "center",
+            angle: -45,
+          });
+        }
       };
 
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 20;
+      // --- HEADER SECTION ---
+      doc.setDrawColor(43, 44, 108);
+      doc.setFillColor(43, 44, 108);
+      doc.rect(0, 0, doc.internal.pageSize.width, 2, "F");
 
-      doc.setFillColor(colors.background);
-      doc.rect(0, 0, pageWidth, pageHeight, "F");
-
-      doc.setFillColor(colors.primary);
-      doc.rect(0, 0, pageWidth, 30, "F");
+      doc.setFillColor(47, 178, 151);
+      doc.rect(0, 2, 8, 40, "F");
 
       const logoWidth = 30;
       const logoHeight = 30;
-      doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
+      doc.addImage(Logo22, "PNG", 15, 5, logoWidth, logoHeight);
 
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
-      doc.text("MEDI FLOW", margin + logoWidth + 10, 18);
+      doc.setFontSize(22);
+      doc.setTextColor(43, 44, 108);
+      doc.text("MEDIFLOW", 15 + logoWidth + 5, 18);
 
-      doc.setFontSize(13);
-      doc.text("Appointments Report", margin + logoWidth + 10, 24);
-
-      doc.setFontSize(18);
-      doc.setTextColor(colors.primary);
-      doc.text("Appointments List", margin, 50);
-
-      doc.setLineWidth(0.5);
-      doc.setDrawColor(colors.accent);
-      doc.line(margin, 55, pageWidth - margin, 55);
-
-      let yPosition = 65;
-      const colWidths = [15, 35, 30, 35, 30, 25];
-      const rowHeight = 10;
-
-      doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 255, 255);
-
-      doc.setFillColor(colors.primary);
-      doc.rect(margin, yPosition, pageWidth - margin * 2, rowHeight, "F");
-
-      let xPosition = margin;
-      const headers = [
-        "ID",
-        "Patient Name",
-        "NIC",
-        "Doctor Name",
-        "Specialization",
-        "Date",
-      ];
-      headers.forEach((header, i) => {
-        doc.text(
-          header,
-          xPosition + colWidths[i] / 2,
-          yPosition + rowHeight / 2 + 3,
-          { align: "center" }
-        );
-        xPosition += colWidths[i];
-      });
-      yPosition += rowHeight;
-
       doc.setFontSize(10);
+      doc.setTextColor(47, 178, 151);
+      doc.text("HEALTHCARE MANAGEMENT SYSTEM", 15 + logoWidth + 5, 26);
+
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(colors.text);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text("123 Medical Center Drive, Healthcare City", 15 + logoWidth + 5, 32);
+      doc.text("Phone: (123) 456-7890 | Email: support@mediflow.com", 15 + logoWidth + 5, 36);
+      doc.text("www.mediflow.com", 15 + logoWidth + 5, 40);
 
+      
+      doc.setDrawColor(230, 230, 230);
+      doc.line(15, 44, 185, 44);
+
+      doc.setFillColor(245, 250, 250);
+      doc.setDrawColor(47, 178, 151);
+      doc.roundedRect(140, 10, 60, 30, 3, 3, "FD");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(43, 44, 108);
+      doc.text("APPOINTMENTS REPORT", 170, 20, { align: "center" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(60, 60, 60);
+      doc.text(`Total: ${filteredAppointments.length} Appointments`, 170, 28, {
+        align: "center",
+      });
+
+      const statusColor = [47, 178, 151];
+      const statusWidth = 40;
+      const statusX = 170 - statusWidth / 2;
+      doc.setFillColor(...statusColor, 0.15);
+      doc.setDrawColor(...statusColor);
+      doc.roundedRect(statusX, 31, statusWidth, 8, 2, 2, "FD");
+
+      doc.setTextColor(...statusColor);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text("SUMMARY", 170, 36, { align: "center" });
+
+      doc.setDrawColor(230, 230, 230);
+      doc.line(10, 50, 200, 50);
+
+      // --- MAIN CONTENT SECTION ---
+      doc.setTextColor(43, 44, 108);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("Appointments Summary", 10, 65);
+
+      let yPos = 80;
       filteredAppointments.forEach((appointment, index) => {
-        if (index % 2 === 0) {
-          doc.setFillColor(240, 240, 240);
-        } else {
-          doc.setFillColor(255, 255, 255);
-        }
+        // --- APPOINTMENT SECTION ---
+        doc.setFillColor(240, 240, 250);
+        doc.setDrawColor(220, 220, 240);
+        doc.roundedRect(10, yPos, 190, 80, 2, 2, "FD");
 
-        doc.rect(margin, yPosition, pageWidth - margin * 2, rowHeight, "F");
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(43, 44, 108);
+        doc.text(`APPOINTMENT ${appointment.indexno || "N/A"}`, 15, yPos + 10);
 
-        doc.setDrawColor(200, 200, 200);
-        xPosition = margin;
-        colWidths.forEach((width) => {
-          doc.line(xPosition, yPosition, xPosition, yPosition + rowHeight);
-          xPosition += width;
-        });
-        doc.line(xPosition, yPosition, xPosition, yPosition + rowHeight);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(60, 60, 60);
 
-        xPosition = margin;
-        const rowData = [
-          appointment.indexno || "N/A",
-          appointment.name || "N/A",
-          appointment.nic || "N/A",
-          appointment.doctorName || "N/A",
-          appointment.specialization || "N/A",
-          appointment.date
-            ? new Date(appointment.date).toLocaleDateString()
-            : "N/A",
+        const patientInfo = [
+          { label: "Patient Name:", value: appointment.name || "N/A" },
+          { label: "NIC:", value: appointment.nic || "N/A" },
+          { label: "Phone:", value: appointment.phone || "N/A" },
+          { label: "Email:", value: appointment.email || "N/A" },
+          { label: "Address:", value: appointment.address || "N/A" },
         ];
 
-        rowData.forEach((text, i) => {
-          const maxLength = Math.floor(colWidths[i] / 2.5);
-          const displayText =
-            text.length > maxLength
-              ? text.substring(0, maxLength) + "..."
-              : text;
-
-          doc.text(displayText, xPosition + 2, yPosition + rowHeight / 2 + 3, {
-            align: "left",
-          });
-          xPosition += colWidths[i];
+        let yPosInner = yPos + 20;
+        patientInfo.forEach((info) => {
+          doc.setFont("helvetica", "bold");
+          doc.text(info.label, 15, yPosInner);
+          doc.setFont("helvetica", "normal");
+          const splitValue = doc.splitTextToSize(String(info.value), 80);
+          doc.text(splitValue, 50, yPosInner);
+          yPosInner += 10 + (splitValue.length - 1) * 5;
         });
 
-        yPosition += rowHeight;
+        const apptInfo = [
+          { label: "Doctor:", value: appointment.doctorName || "N/A" },
+          { label: "Specialization:", value: appointment.specialization || "N/A" },
+          {
+            label: "Date:",
+            value: appointment.date
+              ? new Date(appointment.date).toLocaleDateString("en-GB")
+              : "N/A",
+          },
+          { label: "Time:", value: appointment.time || "N/A" },
+          { label: "Status:", value: appointment.status || "Pending" },
+        ];
 
-        if (yPosition > pageHeight - 30) {
-          addFooter(doc, colors, pageWidth, pageHeight, margin);
+        yPosInner = yPos + 20;
+        apptInfo.forEach((info) => {
+          doc.setFont("helvetica", "bold");
+          doc.text(info.label, 105, yPosInner);
+          doc.setFont("helvetica", "normal");
+          const splitValue = doc.splitTextToSize(String(info.value), 80);
+          doc.text(splitValue, 140, yPosInner);
+          yPosInner += 10 + (splitValue.length - 1) * 5;
+        });
+
+        yPos += 90;
+
+        // Check for page break
+        if (yPos > doc.internal.pageSize.height - 40) {
           doc.addPage();
-          yPosition = 20;
-
-          doc.setFillColor(colors.primary);
-          doc.rect(0, 0, pageWidth, 30, "F");
-          doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(13);
-          doc.text(
-            "Appointments Report (Continued)",
-            margin + logoWidth + 10,
-            24
-          );
-
-          yPosition = 50;
+          yPos = 20;
         }
       });
 
-      addFooter(doc, colors, pageWidth, pageHeight, margin);
-
-      doc.save(
-        `appointments_report_${new Date().toISOString().slice(0, 10)}.pdf`
+      // --- FOOTER SECTION ---
+      doc.setDrawColor(43, 44, 108);
+      doc.setFillColor(43, 44, 108);
+      doc.rect(
+        0,
+        doc.internal.pageSize.height - 20,
+        doc.internal.pageSize.width,
+        2,
+        "F"
       );
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.text(
+          "Appointments report - Internal use only",
+          10,
+          doc.internal.pageSize.height - 12
+        );
+        doc.text(
+          "www.mediflow.com",
+          doc.internal.pageSize.getWidth() / 2,
+          doc.internal.pageSize.height - 12,
+          { align: "center" }
+        );
+        doc.text(
+          `Generated: ${new Date().toLocaleDateString()} | Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.getWidth() - 10,
+          doc.internal.pageSize.height - 12,
+          { align: "right" }
+        );
+        doc.setFillColor(47, 178, 151);
+        doc.rect(
+          0,
+          doc.internal.pageSize.height - 5,
+          doc.internal.pageSize.getWidth(),
+          5,
+          "F"
+        );
+      }
+
+      // Add watermark
+      addWatermark(doc);
+
+      // Save the PDF
+      doc.save(`Appointments-Report-${new Date().toISOString().slice(0, 10)}.pdf`);
 
       setSnackbarMessage("PDF report generated successfully!");
       setSnackbarSeverity("success");
@@ -821,21 +891,6 @@ function Appointments() {
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
     }
-  };
-
-  const addFooter = (doc, colors, pageWidth, pageHeight, margin) => {
-    doc.setLineWidth(0.2);
-    doc.setDrawColor(colors.primary);
-    doc.line(margin, pageHeight - 20, pageWidth - margin, pageHeight - 20);
-
-    doc.setFontSize(8);
-    doc.setTextColor(colors.text);
-    doc.text(
-      `Generated: ${new Date().toLocaleString()}`,
-      margin,
-      pageHeight - 10
-    );
-    doc.text("Confidential Document", pageWidth - margin - 40, pageHeight - 10);
   };
 
   return (
