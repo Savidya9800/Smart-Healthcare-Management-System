@@ -93,57 +93,237 @@ export default function UsersDetails({ onAddPatientClick }) {
       alert("No matching patients found for the PDF.");
       return;
     }
-  
+
     // Create a new jsPDF instance
     const doc = new jsPDF();
-  
-    // Add Logo to Header
-    const logoUrl = '/Logo2.png'; // Path to your logo (assuming it's in the public folder)
-    doc.addImage(logoUrl, "PNG", 10, 10, 30, 30); // Adjust the size and position as necessary
-  
-    // Add Title to the Header
+
+    // Set document properties
+    doc.setProperties({
+      title: "Registered Patients Report",
+      subject: "Patient Registration Details",
+      author: "Smart Healthcare Management System",
+      keywords: "patients, healthcare, registration, medical records",
+      creator: "Smart Healthcare",
+    });
+
+    // Add watermark function
+    const addWatermark = (doc) => {
+      const totalPages = doc.internal.getNumberOfPages();
+
+      // Watermark text
+      doc.setFontSize(60);
+      doc.setTextColor(230, 230, 230); // Light gray
+      doc.setFont("helvetica", "bold");
+
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+
+        // Position watermark in center of page
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Set transparency
+        doc.saveGraphicsState();
+        doc.setGState(new doc.GState({ opacity: 0.2 }));
+
+        // Add watermark with angle parameter
+        doc.text("HEALTHCARE", pageWidth / 2, pageHeight / 2, {
+          align: "center",
+          angle: -45,
+        });
+
+        doc.restoreGraphicsState();
+      }
+    };
+
+    // --- HEADER SECTION ---
+
+    // Create top border
+    doc.setDrawColor(43, 44, 108); // #2b2c6c
+    doc.setFillColor(43, 44, 108);
+    doc.rect(0, 0, doc.internal.pageSize.width, 2, "F");
+
+    // Add colored accent on left side
+    doc.setFillColor(47, 178, 151); // #2fb297
+    doc.rect(0, 2, 8, 40, "F");
+
+    // Add header text - moved left since logo is removed
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("Registered Patients", 50, 20);
-  
-    // Add some space between the title and the table
+    doc.setFontSize(22);
+    doc.setTextColor(43, 44, 108); // #2b2c6c
+    doc.text("PATIENT REGISTRY", 15, 18);
+
+    // Add sub-header text
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(47, 178, 151); // #2fb297 - Green color for emphasis
+    doc.text("HEALTHCARE MANAGEMENT SYSTEM", 15, 26);
+
+    // Add contact details
     doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text("123 Healthcare Boulevard, Medical District", 15, 32);
+    doc.text("Phone: (123) 456-7890 | Email: info@smarthealthcare.com", 15, 36);
+    doc.text("www.smarthealthcare.com", 15, 40);
+
+    // Add date in header (right side)
+    doc.setFontSize(9);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 195, 15, { align: "right" });
+
+    // Add report summary box
+    doc.setFillColor(245, 250, 250); // Light background
+    doc.setDrawColor(47, 178, 151); // Green border
+    doc.roundedRect(140, 10, 60, 30, 3, 3, "FD"); // Filled rectangle with rounded corners
+
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-  
+    doc.setTextColor(43, 44, 108);
+    doc.text("PATIENT REPORT", 170, 20, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`Total Patients: ${filteredUsers.length}`, 170, 28, {
+      align: "center",
+    });
+
+    // Add mini-box for report type
+    doc.setFillColor(47, 178, 151, 0.15);
+    doc.setDrawColor(47, 178, 151);
+    doc.roundedRect(150, 31, 40, 8, 2, 2, "FD");
+
+    doc.setTextColor(47, 178, 151);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text("OFFICIAL RECORD", 170, 36, { align: "center" });
+
+    // Add a divider below the header
+    doc.setDrawColor(230, 230, 230); // Light gray
+    doc.line(10, 50, 200, 50);
+
+    // --- MAIN CONTENT SECTION ---
+
+    // Add title for the table section
+    doc.setTextColor(43, 44, 108);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("Registered Patients Details", 14, 60);
+
+    // Add subtitle/description
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "normal");
+    doc.text("Complete list of all registered patients in the system with their contact information", 14, 67);
+
+    // Define the table headers and data - remove Registration Date
     const headers = [
       "Name",
       "Email",
-      "Mobile Number",
+      "Mobile",
       "Gender",
-      "Blood Group",
+      "Blood Group"
     ];
-  
-    // Ensure filteredUsers contains the necessary data
-    const data = filteredUsers.map((user) => [
-      user.name,
-      user.email,
-      user.mobile,
-      user.gender,
-      user.bloodGroup 
-    ]);
-  
-    // Add table to PDF
+
+    // Ensure filteredUsers contains the necessary data with proper handling for missing values
+    const data = filteredUsers.map((user) => {
+      // Extended debug logging to specifically check date fields
+      console.log("User data:", user);
+      
+      // Check for mobile number in different possible property names
+      const mobileNumber = user.mobileNumber || user.mobile || user.phoneNumber || user.phone || "N/A";
+      
+      return [
+        user.name || "N/A",
+        user.email || "N/A",
+        mobileNumber,
+        user.gender || "N/A",
+        user.bloodGroup || "N/A"
+      ];
+    });
+
+    // Add table to PDF with enhanced styling
     autoTable(doc, {
       head: [headers],
       body: data,
-      startY: 40, // Starting position for the table
-      margin: { horizontal: 10 },
-      theme: "grid",
+      startY: 75,
+      margin: { horizontal: 14 },
+      headStyles: {
+        fillColor: [43, 44, 108],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        halign: 'left'
+      },
+      bodyStyles: {
+        textColor: [60, 60, 60],
+        fontSize: 9
+      },
+      alternateRowStyles: {
+        fillColor: [245, 250, 250]
+      },
+      columnStyles: {
+        0: { fontStyle: 'bold' }, // Make Name column bold
+        4: { halign: 'center' }   // Center Blood Group
+      },
       didDrawPage: function (data) {
-        // Add footer (page number)
+        // Add footer on each page
+        const pageHeight = doc.internal.pageSize.height;
+
+        // Create bottom border
+        doc.setDrawColor(43, 44, 108);
+        doc.setFillColor(43, 44, 108);
+        doc.rect(0, pageHeight - 20, doc.internal.pageSize.width, 2, "F");
+
+        // Footer text
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+
         const pageCount = doc.internal.getNumberOfPages();
-        doc.setFontSize(10);
-        doc.text(`Page ${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10, null, null, "right");
+        const currentPage = data.pageNumber;
+
+        // Left side - confidentiality notice
+        doc.text(
+          "CONFIDENTIAL - For authorized personnel only",
+          10,
+          pageHeight - 12
+        );
+
+        // Center - website
+        doc.text(
+          "www.smarthealthcare.com",
+          doc.internal.pageSize.getWidth() / 2,
+          pageHeight - 12,
+          {
+            align: "center",
+          }
+        );
+
+        // Right - page number and generation date
+        doc.text(
+          `Page ${currentPage} of ${pageCount}`,
+          doc.internal.pageSize.getWidth() - 10,
+          pageHeight - 12,
+          { align: "right" }
+        );
+
+        // Add color accent at bottom
+        doc.setFillColor(47, 178, 151);
+        doc.rect(
+          0,
+          pageHeight - 5,
+          doc.internal.pageSize.width,
+          5,
+          "F"
+        );
       },
     });
-  
-    // Save the generated PDF
-    doc.save("registered_patients.pdf");
+
+    // Add the watermark
+    addWatermark(doc);
+
+    // Save the PDF
+    doc.save("Registered_Patients_Report.pdf");
   };
 
   if (loading) {
