@@ -31,7 +31,6 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -49,6 +48,38 @@ import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import Logo22 from "../../Appointment Component/images/Logo2.png";
 
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Box sx={{ p: 3, textAlign: "center" }}>
+          <Typography variant="h5" color="error">
+            Something went wrong!
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {this.state.error?.message || "An unexpected error occurred."}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => window.location.reload()}
+            sx={{ mt: 2 }}
+          >
+            Reload Page
+          </Button>
+        </Box>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const colors = {
   darkGray: "#71717D",
   gray: "#828487",
@@ -64,9 +95,10 @@ const URL = "http://localhost:5000/api/appoinment";
 const fetchHandler = async () => {
   try {
     const response = await axios.get(URL);
+    console.log("Fetch Appointments Response:", response.data);
     return response.data.appoinments || [];
   } catch (error) {
-    console.error('Error fetching appointments:', error);
+    console.error("Error fetching appointments:", error);
     throw error;
   }
 };
@@ -74,6 +106,7 @@ const fetchHandler = async () => {
 const deleteOldAppointments = async (appointmentId) => {
   try {
     await axios.delete(`${URL}/${appointmentId}`);
+    console.log(`Deleted appointment ${appointmentId}`);
     return true;
   } catch (error) {
     console.error("Error deleting appointment:", error);
@@ -81,8 +114,12 @@ const deleteOldAppointments = async (appointmentId) => {
   }
 };
 
-function AppointmentRow({ appointment, index, onAccept, onReject }) {
+function AppointmentRow({ appointment, onReject }) {
   const [open, setOpen] = useState(false);
+
+  if (!appointment) {
+    return null;
+  }
 
   return (
     <>
@@ -101,13 +138,15 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
           </IconButton>
         </TableCell>
         <TableCell sx={{ fontWeight: "600", color: colors.darkGray }}>
-          {appointment.indexno}
+          {appointment.indexno || "N/A"}
         </TableCell>
-        <TableCell sx={{ fontWeight: "500" }}>{appointment.name}</TableCell>
+        <TableCell sx={{ fontWeight: "500" }}>
+          {appointment.name || "N/A"}
+        </TableCell>
         <TableCell align="center">
           <Chip
             icon={<LocalHospitalIcon />}
-            label={appointment.specialization}
+            label={appointment.specialization || "Unknown"}
             size="small"
             sx={{
               bgcolor: `${colors.blue}20`,
@@ -119,17 +158,19 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
         <TableCell>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <EventIcon fontSize="small" sx={{ color: colors.gray }} />
-            {new Date(appointment.date).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
+            {appointment.date
+              ? new Date(appointment.date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })
+              : "N/A"}
           </Box>
         </TableCell>
         <TableCell>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <AccessTimeIcon fontSize="small" sx={{ color: colors.gray }} />
-            {appointment.time}
+            {appointment.time || "N/A"}
           </Box>
         </TableCell>
         <TableCell align="right">
@@ -139,20 +180,6 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
             </Typography>
           ) : (
             <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-              <IconButton
-                sx={{
-                  backgroundColor: `${colors.green}20`,
-                  borderRadius: "8px",
-                  transition: "all 0.3s",
-                  "&:hover": {
-                    backgroundColor: `${colors.green}30`,
-                    transform: "translateY(-2px)",
-                  },
-                }}
-                onClick={() => onAccept(index)}
-              >
-                <CheckCircleIcon sx={{ color: colors.green }} />
-              </IconButton>
               <IconButton
                 sx={{
                   backgroundColor: `${colors.pink}20`,
@@ -201,7 +228,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <PersonIcon fontSize="small" sx={{ color: colors.gray }} />
                   <Typography variant="body2" color="text.secondary">
-                    Patient ID: {appointment.indexno}
+                    Patient ID: {appointment.indexno || "N/A"}
                   </Typography>
                 </Box>
               </Box>
@@ -237,7 +264,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                         fontWeight="500"
                         sx={{ color: colors.darkGray }}
                       >
-                        {appointment.nic}
+                        {appointment.nic || "N/A"}
                       </Typography>
                     </Box>
                   </Box>
@@ -264,7 +291,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                         fontWeight="500"
                         sx={{ color: colors.darkGray }}
                       >
-                        {appointment.phone}
+                        {appointment.phone || "N/A"}
                       </Typography>
                     </Box>
                   </Box>
@@ -300,7 +327,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                         fontWeight="500"
                         sx={{ color: colors.darkGray }}
                       >
-                        {appointment.email}
+                        {appointment.email || "N/A"}
                       </Typography>
                     </Box>
                   </Box>
@@ -328,7 +355,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                         sx={{ color: colors.darkGray }}
                         noWrap
                       >
-                        {appointment.address}
+                        {appointment.address || "N/A"}
                       </Typography>
                     </Box>
                   </Box>
@@ -359,7 +386,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                       fontWeight="500"
                       sx={{ color: colors.darkGray }}
                     >
-                      {appointment.doctorName}
+                      {appointment.doctorName || "N/A"}
                     </Typography>
                   </Box>
                   <Box>
@@ -371,7 +398,7 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                       fontWeight="500"
                       sx={{ color: colors.darkGray }}
                     >
-                      {appointment.specialization}
+                      {appointment.specialization || "N/A"}
                     </Typography>
                   </Box>
                 </Box>
@@ -402,20 +429,6 @@ function AppointmentRow({ appointment, index, onAccept, onReject }) {
                 >
                   Close
                 </Button>
-                {appointment.status !== "Accepted" && (
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => onAccept(index)}
-                    sx={{
-                      bgcolor: colors.pink,
-                      "&:hover": { bgcolor: "#d02b6e" },
-                      textTransform: "none",
-                    }}
-                  >
-                    Accept Appointment
-                  </Button>
-                )}
               </Box>
             </Card>
           </Collapse>
@@ -483,12 +496,14 @@ function Appointments() {
   useEffect(() => {
     fetchHandler()
       .then((data) => {
+        console.log("Appointments Loaded:", data);
         setAppointments(data);
         setFilteredAppointments(data);
         cleanupOldAppointments(data);
         setLoading(false);
       })
       .catch((error) => {
+        console.error("Fetch Appointments Error:", error);
         setSnackbarMessage("Failed to fetch appointments");
         setSnackbarSeverity("error");
         setOpenSnackbar(true);
@@ -510,14 +525,14 @@ function Appointments() {
     if (searchTerm) {
       results = results.filter(
         (appointment) =>
-          appointment.nic?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          appointment.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          appointment.doctorName
+          appointment?.nic?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+          appointment?.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+          appointment?.doctorName
             ?.toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          appointment.specialization
+            ?.includes(searchTerm.toLowerCase()) ||
+          appointment?.specialization
             ?.toLowerCase()
-            .includes(searchTerm.toLowerCase())
+            ?.includes(searchTerm.toLowerCase())
       );
     }
 
@@ -558,26 +573,8 @@ function Appointments() {
     setPage(0);
   }, [appointments, searchTerm, dateFilter, selectedDate]);
 
-  const handleAccept = async (index) => {
-    try {
-      const appointment = appointments[index];
-      await axios.put(`${URL}/${appointment._id}/status`, { status: "Accepted" });
-      const updatedAppointments = [...appointments];
-      updatedAppointments[index].status = "Accepted";
-      setAppointments(updatedAppointments);
-      setFilteredAppointments(updatedAppointments);
-      setSnackbarMessage("Appointment accepted successfully!");
-      setSnackbarSeverity("success");
-      setOpenSnackbar(true);
-    } catch (error) {
-      console.error("Error accepting appointment:", error);
-      setSnackbarMessage("Failed to accept appointment");
-      setSnackbarSeverity("error");
-      setOpenSnackbar(true);
-    }
-  };
-
   const handleReject = (appointmentId) => {
+    console.log("Opening reject dialog for appointment:", appointmentId);
     setCurrentAppointmentId(appointmentId);
     setRejectDialogOpen(true);
   };
@@ -591,12 +588,22 @@ function Appointments() {
     }
 
     try {
-      console.log(`Sending reject request for appointment ID: ${currentAppointmentId} with reason: ${rejectionReason}`);
-      const response = await axios.post(`${URL}/${currentAppointmentId}/reject`, {
-        rejectionReason,
-      });
+      console.log(
+        `Sending reject request for appointment ID: ${currentAppointmentId} with reason: ${rejectionReason}`
+      );
+      const response = await axios.post(
+        `${URL}/${currentAppointmentId}/reject`,
+        {
+          rejectionReason,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-      console.log('Reject response:', response.data);
+      console.log("Reject response:", response.data);
 
       const updatedAppointments = appointments.filter(
         (appt) => appt._id !== currentAppointmentId
@@ -620,7 +627,10 @@ function Appointments() {
       if (error.response) {
         switch (error.response.status) {
           case 400:
-            errorMessage = "Invalid appointment ID or request";
+            errorMessage = error.response.data.message || "Invalid request";
+            break;
+          case 401:
+            errorMessage = "Unauthorized: Please log in again";
             break;
           case 404:
             errorMessage = "Appointment not found";
@@ -829,329 +839,335 @@ function Appointments() {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "67vh" }}>
-      <Box sx={{ p: 3, flexGrow: 1 }}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            justifyContent: "space-between",
-            alignItems: { xs: "flex-start", md: "center" },
-            mb: 3,
-            gap: 2,
-          }}
-        >
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: "600",
-              color: colors.blue,
-              borderBottom: `3px solid ${colors.pink}`,
-              display: "inline-block",
-              pb: 1,
-            }}
-          >
-            Appointments
-          </Typography>
-
+    <ErrorBoundary>
+      <Box sx={{ display: "flex", flexDirection: "column", minHeight: "67vh" }}>
+        <Box sx={{ p: 3, flexGrow: 1 }}>
           <Box
             sx={{
               display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
+              flexDirection: { xs: "column", md: "row" },
+              justifyContent: "space-between",
+              alignItems: { xs: "flex-start", md: "center" },
+              mb: 3,
               gap: 2,
-              width: { xs: "100%", md: "auto" },
             }}
           >
-            <Tooltip title="Generate PDF Report">
-              <Button
-                variant="contained"
-                onClick={generateReport}
-                startIcon={<PictureAsPdfIcon fontSize="small" />}
-                sx={{
-                  backgroundColor: "#4f39f6",
-                  borderRadius: "8px",
-                  color: "white",
-                  minWidth: "auto",
-                  padding: "4px 8px",
-                  fontSize: "0.75rem",
-                  "& .MuiButton-startIcon": {
-                    marginRight: "4px",
-                  },
-                  "&:hover": {
-                    backgroundColor: "#3a2bb5",
-                  },
-                }}
-              >
-                PDF
-              </Button>
-            </Tooltip>
-
-            <TextField
-              variant="outlined"
-              size="small"
-              placeholder="Search appointments..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              InputProps={{
-                startAdornment: (
-                  <SearchIcon sx={{ color: "action.active", mr: 1 }} />
-                ),
-              }}
+            <Typography
+              variant="h4"
               sx={{
-                minWidth: 250,
-                "& .MuiOutlinedInput-root": { borderRadius: 3 },
+                fontWeight: "600",
+                color: colors.blue,
+                borderBottom: `3px solid ${colors.pink}`,
+                display: "inline-block",
+                pb: 1,
               }}
-            />
+            >
+              Appointments
+            </Typography>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <FormControl size="small" sx={{ minWidth: 120 }}>
-                <InputLabel>Date Filter</InputLabel>
-                <Select
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  label="Date Filter"
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+                width: { xs: "100%", md: "auto" },
+              }}
+            >
+              <Tooltip title="Generate PDF Report">
+                <Button
+                  variant="contained"
+                  onClick={generateReport}
+                  startIcon={<PictureAsPdfIcon fontSize="small" />}
+                  sx={{
+                    backgroundColor: "#4f39f6",
+                    borderRadius: "8px",
+                    color: "white",
+                    minWidth: "auto",
+                    padding: "4px 8px",
+                    fontSize: "0.75rem",
+                    "& .MuiButton-startIcon": {
+                      marginRight: "4px",
+                    },
+                    "&:hover": {
+                      backgroundColor: "#3a2bb5",
+                    },
+                  }}
                 >
-                  <MenuItem value="all">All Dates</MenuItem>
-                  <MenuItem value="today">Today</MenuItem>
-                  <MenuItem value="upcoming">Upcoming</MenuItem>
-                  <MenuItem value="past">Past</MenuItem>
-                  <MenuItem value="specific">Specific Date</MenuItem>
-                </Select>
-              </FormControl>
+                  PDF
+                </Button>
+              </Tooltip>
 
-              {dateFilter === "specific" && (
-                <TextField
-                  type="date"
-                  size="small"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                  sx={{ width: 150 }}
-                />
-              )}
+              <TextField
+                variant="outlined"
+                size="small"
+                placeholder="Search appointments..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                InputProps={{
+                  startAdornment: (
+                    <SearchIcon sx={{ color: "action.active", mr: 1 }} />
+                  ),
+                }}
+                sx={{
+                  minWidth: 250,
+                  "& .MuiOutlinedInput-root": { borderRadius: 3 },
+                }}
+              />
+
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>Date Filter</InputLabel>
+                  <Select
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    label="Date Filter"
+                  >
+                    <MenuItem value="all">All Dates</MenuItem>
+                    <MenuItem value="today">Today</MenuItem>
+                    <MenuItem value="upcoming">Upcoming</MenuItem>
+                    <MenuItem value="past">Past</MenuItem>
+                    <MenuItem value="specific">Specific Date</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {dateFilter === "specific" && (
+                  <TextField
+                    type="date"
+                    size="small"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ width: 150 }}
+                  />
+                )}
+              </Box>
             </Box>
           </Box>
-        </Box>
 
-        <Card
-          sx={{
-            borderRadius: "16px",
-            overflow: "hidden",
-            boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
-          }}
-        >
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: colors.green }}>
-                  <TableCell
-                    width="50px"
-                    sx={{ color: colors.white }}
-                  ></TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                  >
-                    Appointment ID
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                  >
-                    Patient Name
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                    align="center"
-                  >
-                    Specialization
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                  >
-                    Date
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                  >
-                    Time
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                      color: colors.white,
-                    }}
-                    align="right"
-                  >
-                    Actions
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
-                ) : filteredAppointments.length > 0 ? (
-                  filteredAppointments
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((appointment, index) => (
-                      <AppointmentRow
-                        key={appointment._id}
-                        appointment={appointment}
-                        index={index}
-                        onAccept={handleAccept}
-                        onReject={handleReject}
-                      />
-                    ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: 2,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            width: 80,
-                            height: 80,
-                            borderRadius: "50%",
-                            bgcolor: "#f5f5f5",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <EventIcon
-                            sx={{ fontSize: 40, color: colors.gray }}
-                          />
-                        </Box>
-                        <Typography
-                          variant="h6"
-                          sx={{ color: colors.darkGray }}
-                        >
-                          {searchTerm || dateFilter !== "all"
-                            ? "No matching appointments found"
-                            : "No Appointments Found"}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {searchTerm || dateFilter !== "all"
-                            ? "Try different search criteria"
-                            : "New appointment requests will appear here"}
-                        </Typography>
-                        {deletedCount > 0 && (
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ fontStyle: "italic" }}
-                          >
-                            {deletedCount} old appointment(s) were automatically
-                            removed
-                          </Typography>
-                        )}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={filteredAppointments.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            sx={{ borderTop: "1px solid rgba(224, 224, 224, 1)" }}
-          />
-        </Card>
-
-        <Dialog
-          open={rejectDialogOpen}
-          onClose={() => setRejectDialogOpen(false)}
-        >
-          <DialogTitle>Reject Appointment</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Reason for Rejection"
-              type="text"
-              fullWidth
-              multiline
-              rows={4}
-              value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
-              variant="outlined"
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setRejectDialogOpen(false)} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={confirmReject} color="error">
-              Reject
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={() => setOpenSnackbar(false)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert
-            onClose={() => setOpenSnackbar(false)}
-            severity={snackbarSeverity}
-            variant="filled"
+          <Card
             sx={{
-              width: "100%",
-              boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
-              borderRadius: "10px",
-              bgcolor:
-                snackbarSeverity === "success"
-                  ? colors.green
-                  : snackbarSeverity === "info"
-                  ? colors.blue
-                  : snackbarSeverity === "warning"
-                  ? "#f4b400"
-                  : colors.pink,
+              borderRadius: "16px",
+              overflow: "hidden",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
             }}
           >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: colors.green }}>
+                    <TableCell
+                      width="50px"
+                      sx={{ color: colors.white }}
+                    ></TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                    >
+                      Appointment ID
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                    >
+                      Patient Name
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                      align="center"
+                    >
+                      Specialization
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                    >
+                      Date
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                    >
+                      Time
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "600",
+                        fontSize: "1.1rem",
+                        color: colors.white,
+                      }}
+                      align="right"
+                    >
+                      Actions
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredAppointments.length > 0 ? (
+                    filteredAppointments
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((appointment, index) => (
+                        <AppointmentRow
+                          key={appointment?._id || index}
+                          appointment={appointment}
+                          onReject={handleReject}
+                        />
+                      ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 2,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 80,
+                              height: 80,
+                              borderRadius: "50%",
+                              bgcolor: "#f5f5f5",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <EventIcon
+                              sx={{ fontSize: 40, color: colors.gray }}
+                            />
+                          </Box>
+                          <Typography
+                            variant="h6"
+                            sx={{ color: colors.darkGray }}
+                          >
+                            {searchTerm || dateFilter !== "all"
+                              ? "No matching appointments found"
+                              : "No Appointments Found"}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {searchTerm || dateFilter !== "all"
+                              ? "Try different search criteria"
+                              : "New appointment requests will appear here"}
+                          </Typography>
+                          {deletedCount > 0 && (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ fontStyle: "italic" }}
+                            >
+                              {deletedCount} old appointment(s) were
+                              automatically removed
+                            </Typography>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredAppointments.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{ borderTop: "1px solid rgba(224, 224, 224, 1)" }}
+            />
+          </Card>
+
+          <Dialog
+            open={rejectDialogOpen}
+            onClose={() => setRejectDialogOpen(false)}
+          >
+            <DialogTitle>Reject Appointment</DialogTitle>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Reason for Rejection"
+                type="text"
+                fullWidth
+                multiline
+                rows={4}
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                variant="outlined"
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => setRejectDialogOpen(false)}
+                color="primary"
+              >
+                Cancel
+              </Button>
+              <Button onClick={confirmReject} color="error">
+                Reject
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={() => setOpenSnackbar(false)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          >
+            <Alert
+              onClose={() => setOpenSnackbar(false)}
+              severity={snackbarSeverity}
+              variant="filled"
+              sx={{
+                width: "100%",
+                boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
+                borderRadius: "10px",
+                bgcolor:
+                  snackbarSeverity === "success"
+                    ? colors.green
+                    : snackbarSeverity === "info"
+                    ? colors.blue
+                    : snackbarSeverity === "warning"
+                    ? "#f4b400"
+                    : colors.pink,
+              }}
+            >
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+        </Box>
       </Box>
-    </Box>
+    </ErrorBoundary>
   );
 }
 

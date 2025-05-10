@@ -19,6 +19,7 @@ import {
   Download,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function DisplayAppointment() {
   const [patientDetails, setPatientDetails] = useState(null);
@@ -36,8 +37,16 @@ function DisplayAppointment() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/Login");
+      return;
+    }
+
     axios
-      .get("http://localhost:5000/api/appoinment/")
+      .get("http://localhost:5000/api/appoinment/", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((response) => {
         const lastAppointment =
           response.data.appoinments[response.data.appoinments.length - 1];
@@ -46,8 +55,13 @@ function DisplayAppointment() {
       })
       .catch((error) => {
         console.error("Error fetching appointment details:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch appointment details.",
+        });
       });
-  }, []);
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,11 +73,11 @@ function DisplayAppointment() {
 
   const validate = () => {
     let tempErrors = {};
-    
+
     if (!/^[A-Za-z\s]+$/.test(formData.name)) {
       tempErrors.name = "Name cannot contain numbers";
     }
-    
+
     if (!/^0[1-9][0-9]{8}$/.test(formData.phone)) {
       tempErrors.phone = "Phone must start with 0 and be 10 digits";
     }
@@ -71,9 +85,9 @@ function DisplayAppointment() {
     if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(formData.email)) {
       tempErrors.email = "Enter a valid email";
     }
-    
-    if (!/^([0-9]{9}[vVxX]|[0-9]{12})$/.test(formData.nic)) {
-      tempErrors.nic = "Invalid NIC (e.g., 123456789V or 123456789012)";
+
+    if (formData.nic && !/^[0-9]{11}[Vv]$|^[0-9]{12}$/.test(formData.nic)) {
+      tempErrors.nic = "Invalid NIC (e.g., 12345678912V or 200012345678)";
     }
 
     setErrors(tempErrors);
@@ -87,18 +101,35 @@ function DisplayAppointment() {
       return;
     }
 
+    const token = localStorage.getItem("token");
     axios
       .put(
         `http://localhost:5000/api/appoinment/${patientDetails._id}`,
-        formData
+        formData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       )
       .then((response) => {
         setPatientDetails(formData);
         setIsEditing(false);
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: "✅ Details Updated",
+          showConfirmButton: false,
+          timer: 2500,
+        });
         navigate("/Appoinment-Display");
       })
       .catch((error) => {
         console.error("Error updating appointment details:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Update Failed",
+          text: error.response?.data?.message || "Failed to update details.",
+        });
       });
   };
 
@@ -106,34 +137,66 @@ function DisplayAppointment() {
     if (!patientDetails || !patientDetails._id) {
       setEmailStatus({
         success: false,
-        message: "No appointment details available to send confirmation"
+        message: "No appointment details available to send confirmation",
       });
       return;
     }
 
     setIsSendingEmail(true);
     setEmailStatus(null);
-    
+
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:5000/api/appoinment/send-confirmation",
-        { appointmentId: patientDetails._id }
+        { appointmentId: patientDetails._id },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
       setEmailStatus({
         success: true,
-        message: "Confirmation email sent successfully!"
+        message: "Confirmation email sent successfully!",
       });
-      
-      // Redirect after a short delay
-      setTimeout(() => {
+
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "✅ Email Sent",
+        showConfirmButton: false,
+        timer: 2500,
+      });
+
+      // Show PDF download prompt
+      Swal.fire({
+        title: "Download PDF",
+        text: "Would you like to download your appointment details as a PDF?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#2b2c6c",
+        cancelButtonColor: "#e6317d",
+        confirmButtonText: "Yes, Download",
+        cancelButtonText: "No, Return Home",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          generateAppointmentPDF(patientDetails);
+        }
         navigate("/Home");
-      }, 2000);
+      });
     } catch (error) {
       console.error("Error sending confirmation email:", error);
       setEmailStatus({
         success: false,
-        message: error.response?.data?.error || "Failed to send confirmation email. Please try again later."
+        message:
+          error.response?.data?.error ||
+          "Failed to send confirmation email. Please try again later.",
+      });
+      Swal.fire({
+        icon: "error",
+        title: "Email Failed",
+        text: error.response?.data?.error || "Failed to send confirmation email.",
       });
     } finally {
       setIsSendingEmail(false);
@@ -141,20 +204,50 @@ function DisplayAppointment() {
   };
 
   const handleDelete = () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this appointment?"
-    );
-    if (confirmDelete) {
-      axios
-        .delete(`http://localhost:5000/api/appoinment/${patientDetails._id}`)
-        .then((response) => {
-          console.log("Appointment deleted successfully");
-          navigate("/Home");
-        })
-        .catch((error) => {
-          console.error("Error deleting appointment:", error);
-        });
-    }
+    Swal.fire({
+      title: "Cancel Appointment",
+      text: "Are you sure you want to cancel this appointment? This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e6317d",
+      cancelButtonColor: "#828487",
+      confirmButtonText: "Yes, Cancel Appointment",
+      cancelButtonText: "No, Keep Appointment",
+      reverseButtons: true,
+      customClass: {
+        popup: "rounded-xl",
+        confirmButton: "px-4 py-2 rounded-lg",
+        cancelButton: "px-4 py-2 rounded-lg",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
+        axios
+          .delete(`http://localhost:5000/api/appoinment/${patientDetails._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "success",
+              title: "✅ Appointment Cancelled",
+              showConfirmButton: false,
+              timer: 2500,
+            });
+            navigate("/Home");
+          })
+          .catch((error) => {
+            console.error("Error deleting appointment:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Cancellation Failed",
+              text:
+                error.response?.data?.message || "Failed to cancel appointment.",
+            });
+          });
+      }
+    });
   };
 
   const generateAppointmentPDF = (patientDetails) => {
@@ -167,11 +260,11 @@ function DisplayAppointment() {
     });
 
     const colors = {
-      primary: "#2C3E50", 
-      accent: "#3498DB", 
-      background: "#ECF0F1", 
-      text: "#2C3E50", 
-      highlight: "#27AE60", 
+      primary: "#2C3E50",
+      accent: "#3498DB",
+      background: "#ECF0F1",
+      text: "#2C3E50",
+      highlight: "#27AE60",
     };
 
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -184,18 +277,17 @@ function DisplayAppointment() {
     doc.setFillColor(colors.primary);
     doc.rect(0, 0, pageWidth, 30, "F");
 
-    // You'd normally need to import the logo separately, but for now we'll skip it
-    // const logoWidth = 30;
-    // const logoHeight = 30;
-    // doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
-
+    const logoWidth = 30;
+          const logoHeight = 30;
+          doc.addImage(Logo22, "PNG", margin, 5, logoWidth, logoHeight);
+    
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("MEDI FLOW", margin, 18);
+    doc.text("MEDI FLOW",  margin + logoWidth + 10, 18);
 
     doc.setFontSize(13);
-    doc.text("Appointment Confirmation", margin, 24);
+    doc.text("Appointment Confirmation", margin + logoWidth + 10, 24);
 
     doc.setFontSize(18);
     doc.setTextColor(colors.primary);
@@ -215,7 +307,7 @@ function DisplayAppointment() {
     const labelColor = colors.accent;
 
     const patientDetailsLayout = [
-      { label: "Appoinment ID", value: patientDetails.indexno || "N/A" },
+      { label: "Appointment ID", value: patientDetails.indexno || "N/A" },
       { label: "Full Name", value: patientDetails.name || "N/A" },
       { label: "Phone Number", value: patientDetails.phone || "N/A" },
       { label: "National ID", value: patientDetails.nic || "N/A" },
@@ -226,19 +318,11 @@ function DisplayAppointment() {
     patientDetailsLayout.forEach((detail, index) => {
       doc.setTextColor(labelColor);
       doc.setFont("helvetica", "bold");
-      doc.text(
-        detail.label + ":",
-        margin,
-        detailsStartY + index * lineHeight
-      );
+      doc.text(detail.label + ":", margin, detailsStartY + index * lineHeight);
 
       doc.setTextColor(colors.text);
       doc.setFont("helvetica", "normal");
-      doc.text(
-        detail.value,
-        margin + 40,
-        detailsStartY + index * lineHeight
-      );
+      doc.text(detail.value, margin + 40, detailsStartY + index * lineHeight);
     });
 
     doc.setFontSize(18);
@@ -270,7 +354,9 @@ function DisplayAppointment() {
       { label: "Specialization", value: patientDetails.specialization || "N/A" },
       {
         label: "Date",
-        value: patientDetails.date ? new Date(patientDetails.date).toLocaleDateString("en-GB") : "N/A",
+        value: patientDetails.date
+          ? new Date(patientDetails.date).toLocaleDateString("en-GB")
+          : "N/A",
       },
       { label: "Time", value: patientDetails.time || "N/A" },
     ];
@@ -299,20 +385,10 @@ function DisplayAppointment() {
 
     doc.setFontSize(8);
     doc.setTextColor(colors.text);
-    doc.text(
-      `Generated: ${new Date().toLocaleString()}`,
-      margin,
-      pageHeight - 10
-    );
-    doc.text(
-      "Confidential Document",
-      pageWidth - margin - 40,
-      pageHeight - 10
-    );
+    doc.text(`Generated: ${new Date().toLocaleString()}`, margin, pageHeight - 10);
+    doc.text("Confidential Document", pageWidth - margin - 40, pageHeight - 10);
 
-    doc.save(
-      `MediFlow_Appointment_${patientDetails.name}_${Date.now()}.pdf`
-    );
+    doc.save(`MediFlow_Appointment_${patientDetails.name}_${Date.now()}.pdf`);
   };
 
   if (!patientDetails) {
@@ -332,7 +408,7 @@ function DisplayAppointment() {
               Your appointment information could not be found.
             </p>
             <button
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/Home")}
               className="flex items-center justify-center mx-auto bg-[#2b2c6c] hover:bg-[#71717d] text-white py-3 px-6 rounded-lg transition duration-200"
             >
               <ArrowLeft size={18} className="mr-2" />
@@ -353,13 +429,18 @@ function DisplayAppointment() {
       <div className="container mx-auto px-4 py-8 flex justify-center">
         <div className="w-full max-w-2xl">
           {emailStatus && (
-            <div className={`mb-4 p-4 rounded-lg ${emailStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            <div
+              className={`mb-4 p-4 rounded-lg ${
+                emailStatus.success
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
               {emailStatus.message}
             </div>
           )}
 
           <div className="bg-[#eaecee] rounded-xl shadow-lg overflow-hidden border border-[#2fb297]">
-            {/* Card Header */}
             <div className="bg-gradient-to-r from-[#2b2c6c] to-[#e6317d] py-5 px-6">
               <h2 className="text-xl font-bold text-white flex items-center">
                 {isEditing ? (
@@ -380,8 +461,7 @@ function DisplayAppointment() {
                   : `Appointment with ${patientDetails.doctorName} - ${patientDetails.specialization}`}
               </p>
             </div>
-            
-            {/* Appointment Summary */}
+
             {!isEditing && (
               <div className="bg-indigo-50 p-4 border-b border-gray-200">
                 <div className="flex justify-between items-center">
@@ -390,9 +470,7 @@ function DisplayAppointment() {
                       Date & Time
                     </p>
                     <p className="text-indigo-800 font-medium">
-                      {new Date(patientDetails.date).toLocaleDateString(
-                        "en-GB"
-                      )}{" "}
+                      {new Date(patientDetails.date).toLocaleDateString("en-GB")}{" "}
                       | {patientDetails.time}
                     </p>
                   </div>
@@ -402,8 +480,7 @@ function DisplayAppointment() {
                 </div>
               </div>
             )}
-            
-            {/* Form Content */}
+
             {isEditing ? (
               <div className="p-6">
                 <form
@@ -473,8 +550,7 @@ function DisplayAppointment() {
                         name="nic"
                         value={formData.nic}
                         onChange={handleChange}
-                        required
-                        placeholder="Enter your NIC (e.g., 123456789V or 123456789012)"
+                        placeholder="Enter your NIC (e.g., 123456789V or 200012345678)"
                         className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent"
                       />
                     </div>
@@ -511,7 +587,8 @@ function DisplayAppointment() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-gray-700 text-base font-medium mb-2">
+                    <label className="block text-gray-7
+00 text-base font-medium mb-2">
                       Address
                     </label>
                     <div className="relative">
@@ -590,7 +667,7 @@ function DisplayAppointment() {
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <IdCard size={24} className="text-[#2b2c6c]" />
                       </div>
-                      <p className="text-gray-700">{patientDetails.nic}</p>
+                      <p className="text-gray-700">{patientDetails.nic || "N/A"}</p>
                     </div>
                   </div>
 
@@ -637,39 +714,52 @@ function DisplayAppointment() {
                       <Trash2 size={18} className="mr-2" />
                       Cancel Appointment
                     </button>
-                    <button
-                      onClick={() => generateAppointmentPDF(patientDetails)}
-                      className="py-2.5 bg-[#2fb297] hover:bg-[#71717d] text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2fb297] focus:ring-opacity-50 flex items-center justify-center"
-                      style={{ borderRadius: "7px" }}
-                    >
-                      <Download size={18} className="mr-2" />
-                      Download PDF
-                    </button>
-                  </div>
-
-                  <div className="md:col-span-2">
+                    
                     <button
                       onClick={handleConfirm}
                       disabled={isSendingEmail}
-                      className={`w-full py-2.5 ${isSendingEmail ? 'bg-gray-400' : 'bg-[#2fb297] hover:bg-[#71717d]'} text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2fb297] focus:ring-opacity-50 flex items-center justify-center`}
+                      className={`w-full py-2.5 ${
+                        isSendingEmail
+                          ? "bg-gray-400"
+                          : "bg-[#2fb297] hover:bg-[#71717d]"
+                      } text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2fb297] focus:ring-opacity-50 flex items-center justify-center`}
                       style={{ borderRadius: "7px" }}
                     >
                       {isSendingEmail ? (
                         <>
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
                           </svg>
                           Sending...
                         </>
                       ) : (
                         <>
                           <CheckCircle size={18} className="mr-2" />
-                          Confirm & Return Home
+                          Confirm 
                         </>
                       )}
                     </button>
                   </div>
+                
+
+                  
                 </div>
               </div>
             )}
@@ -684,8 +774,8 @@ function DisplayAppointment() {
                 Important Information
               </h3>
               <p className="text-sm text-[#828487] mt-1">
-                If you need to reschedule your appointment or have any
-                questions, please contact our help desk at{" "}
+                If you need to reschedule your appointment or have any questions,
+                please contact our help desk at{" "}
                 <span className="font-medium">1-800-HEALTH</span>. Please arrive
                 15 minutes before your appointment time. Bring your ID and
                 insurance information if applicable.
