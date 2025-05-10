@@ -236,34 +236,46 @@ function Stock() {
     doc.setTextColor(43, 44, 108); // #2b2c6c
     doc.text("MEDIFLOW", 15, 18);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.setTextColor(100, 100, 100);
+    // Add sub-header text
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(47, 178, 151); // #2fb297 - Green color for emphasis
     doc.text("HEALTHCARE MANAGEMENT SYSTEM", 15, 26);
 
-    // Add contact information
+    // Add contact details
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
     doc.text("123 Medical Center Drive, Healthcare City", 15, 32);
     doc.text("Phone: (123) 456-7890 | Email: pharmacy@mediflow.com", 15, 36);
     doc.text("www.mediflow.com", 15, 40);
 
-    // Add medicine details box
-    doc.setFillColor(47, 178, 151, 0.1); // Light green background
+    // Add date in header (moved to right side)
+    doc.setFontSize(9);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 135, 36, { align: "right" });
+
+    // Add header line separator (moved down slightly)
+    doc.setDrawColor(230, 230, 230);
+    doc.line(15, 44, 185, 44);
+
+    // Add medicine details box - IMPROVED VERSION
+    doc.setFillColor(245, 250, 250); // Light background for better visibility
     doc.setDrawColor(47, 178, 151); // Green border
     doc.roundedRect(140, 10, 60, 30, 3, 3, "FD"); // Filled rectangle with rounded corners
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.setTextColor(43, 44, 108); // #2b2c6c
+    doc.setTextColor(43, 44, 108); // #2b2c6c - Dark blue for main title
     doc.text("INVENTORY ITEM", 170, 20, { align: "center" });
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
+    doc.setTextColor(60, 60, 60); // Darker text for better readability
     doc.text(`ID: ${item._id?.substring(0, 8) || "N/A"}`, 170, 28, {
       align: "center",
     });
 
-    doc.setFontSize(8);
+    // Add contrasting background for stock status
     const stockStatus =
       item.quantity <= 10
         ? "LOW STOCK"
@@ -272,13 +284,22 @@ function Stock() {
         : "GOOD STOCK";
     const statusColor =
       item.quantity <= 10
-        ? [230, 49, 125]
+        ? [230, 49, 125] // Red for low
         : item.quantity <= 30
-        ? [255, 153, 0]
-        : [47, 178, 151];
+        ? [255, 153, 0] // Orange for medium
+        : [47, 178, 151]; // Green for good
+
+    // Add mini-box for stock status
+    const statusWidth = 40;
+    const statusX = 170 - statusWidth / 2;
+    doc.setFillColor(...statusColor, 0.15); // Semi-transparent background matching status
+    doc.setDrawColor(...statusColor);
+    doc.roundedRect(statusX, 31, statusWidth, 8, 2, 2, "FD");
+
     doc.setTextColor(...statusColor);
     doc.setFont("helvetica", "bold");
-    doc.text(stockStatus, 170, 35, { align: "center" });
+    doc.setFontSize(8);
+    doc.text(stockStatus, 170, 36, { align: "center" });
 
     // Add a divider below the header
     doc.setDrawColor(230, 230, 230); // Light gray
