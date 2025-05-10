@@ -54,7 +54,21 @@ function App() {
   const location = useLocation(); // get current route
 
   //  Hide chatbot on login & registration
-  const hideChatbotOn = ["/login", "/registration"];
+  const hideChatbotOn = [
+    "/login",
+    "/registration",
+    "/User-Management",
+    "/Add-New-Patient",
+    "/Pharmacy-Dashboard",
+    "/Pharmacy-Stocks",
+    "/Pharmacy-Orders",
+    "/Stock-Adding",
+    "/Appoinment-Management",
+    "/Rijected-Appoinment",
+    "/Doctor-Dashboard",
+    "/Appointment-Dashboard",
+    "/User-Dashboard",
+  ];
   const showChatbot = !hideChatbotOn.includes(location.pathname);
   return (
     <div>
@@ -111,9 +125,9 @@ function App() {
             path="/Appoinment-Management"
             element={<AppoinmentManagement />}
           />
-          <Route path="Rijected-Appoinment" element={<RejectedAppoinment />} />      
+          <Route path="Rijected-Appoinment" element={<RejectedAppoinment />} />
         </Routes>
-{/*  Conditionally show Chatbot */}
+        {/*  Conditionally show Chatbot */}
         {showChatbot && (
           <>
             <ChatbotLauncher onOpen={() => setChatOpen(true)} />
