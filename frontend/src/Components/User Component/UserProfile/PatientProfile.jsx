@@ -36,10 +36,10 @@ import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import HistoryIcon from "@mui/icons-material/History";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import Swal from "sweetalert2";
-import { getMedicalReports } from "../../../services/medicalReportService";
-import ReportUploadDialog from "../MedicalReports/ReportUploadDialog";
-import ReportItem from "../MedicalReports/ReportItem";
-import FileIcon from "@mui/icons-material/InsertDriveFile";
+import ReportUploadDialog from "../MedicalReports/ReportUploadDialog"; 
+import ReportItem from "../MedicalReports/ReportItem"; 
+import { getMedicalReports } from "../../../services/reportService";
+import { useNavigate } from 'react-router-dom';
 
 function PatientProfile() {
   const [user, setUser] = useState(null);
@@ -50,6 +50,7 @@ function PatientProfile() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
 
   // Fetch user profile from API
   useEffect(() => {
@@ -707,10 +708,15 @@ function PatientProfile() {
                       )}
 
                       <Box
-                        sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          mt: 3,
+                        }}
                       >
                         <Button
                           variant="outlined"
+                         
                           sx={{
                             borderColor: "#2b2c6c",
                             color: "#2b2c6c",
