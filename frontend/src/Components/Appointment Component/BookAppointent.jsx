@@ -280,42 +280,70 @@ function BookAppointment() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="bg-[#ffffff] min-h-screen">
-        <Nav />
-        <SectionHeader title="Book An Appointment" />
-        <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[60vh]">
-          <div className="bg-[#f5f5f5] rounded-xl shadow-lg p-8 text-center">
-            <div className="text-[#2b2c6c] mb-4 flex justify-center">
-              <UserCircle size={64} strokeWidth={1.5} />
-            </div>
-            <h2 className="text-xl font-bold text-[#2b2c6c] mb-4">
-              Please Log In or Register
-            </h2>
-            <p className="text-[#828487] mb-6">
-              You need to be a registered user to book an appointment.
-            </p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => navigate("/Login")}
-                className="bg-[#2b2c6c] hover:bg-[#71717d] text-white py-3 px-6 rounded-lg transition duration-200"
-              >
-                Log In
-              </button>
-              <button
-                onClick={() => navigate("/Registration")}
-                className="bg-[#e6317d] hover:bg-[#71717d] text-white py-3 px-6 rounded-lg transition duration-200"
-              >
-                Register
-              </button>
+ if (!isAuthenticated) {
+  return (
+    <div className="bg-[#ffffff] min-h-screen">
+      <Nav />
+      <SectionHeader title="Book An Appointment" />
+      <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[60vh]">
+        <div className="w-full max-w-md overflow-hidden">
+          {/* Card with glass morphism effect */}
+          <div className="backdrop-blur-sm bg-white/80 rounded-2xl shadow-xl border border-gray-100">
+            {/* Top accent bar */}
+            <div className="h-2 bg-gradient-to-r from-[#2b2c6c] via-[#8e44ad] to-[#e6317d]"></div>
+            
+            <div className="p-10">
+              {/* Animated icon */}
+              <div className="flex justify-center mb-6">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#2b2c6c] to-[#e6317d] flex items-center justify-center shadow-lg">
+                  <UserCircle size={50} className="text-white animate-pulse" />
+                </div>
+              </div>
+              
+              <h2 className="text-2xl font-bold text-center text-[#2b2c6c] mb-4">
+                Sign In Required
+              </h2>
+              
+              <p className="text-[#6c757d] text-center mb-8 text-base">
+                Please sign in or create an account to schedule your medical appointment
+              </p>
+              
+              {/* Buttons with hover effects */}
+              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+                <button
+                  onClick={() => navigate("/Login")}
+                  className="bg-gradient-to-r from-[#2b2c6c] to-[#3b3c8c] hover:from-[#3b3c8c] hover:to-[#2b2c6c] text-white py-3 px-6 text-base rounded-2xl transition-all duration-300 font-medium shadow-md hover:shadow-lg hover:translate-y-[-2px] flex items-center justify-center"
+                >
+                  <UserCircle size={22} className="mr-2" />
+                  Sign In
+                </button>
+                
+                <button
+                  onClick={() => navigate("/Registration")}
+                  className="bg-gradient-to-r from-[#e6317d] to-[#e64d7d] hover:from-[#e64d7d] hover:to-[#e6317d] text-white py-3 px-6 text-base rounded-2xl transition-all duration-300 font-medium shadow-md hover:shadow-lg hover:translate-y-[-2px] flex items-center justify-center"
+                >
+                  <IdCard size={22} className="mr-2" />
+                  Register
+                </button>
+              </div>
+              
+              {/* Information card */}
+              <div className="mt-6 bg-gray-50 rounded-2xl p-4 border-l-4 border-[#2fb297] flex items-start">
+                <div className="mr-3 text-[#2fb297] mt-1">
+                  <CheckCircle size={20} />
+                </div>
+                <div className="text-sm text-gray-600">
+                  Creating an account allows you to manage appointments, view medical history, and receive important updates about your healthcare.
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <Footer />
       </div>
-    );
-  }
+      <Footer />
+    </div>
+  );
+}
 
   return (
     <ErrorBoundary>
