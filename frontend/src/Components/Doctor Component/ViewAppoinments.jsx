@@ -85,6 +85,7 @@ function ViewAppointments() {
         results = results.filter(appointment =>
           (appointment.name && appointment.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (appointment.status && appointment.status.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (appointment.indexno && appointment.indexno.toString().includes(searchTerm)) ||
           (appointment.date && appointment.date.includes(searchTerm)) ||
           (appointment.time && appointment.time.includes(searchTerm))
         );
