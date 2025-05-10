@@ -1,48 +1,41 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const rejectedAppointmentSchema = new mongoose.Schema({
-  indexno: { type: String, unique: true, required: true },
+  indexno: {
+    type: String,
+    required: true,
+  },
   name: {
     type: String,
     required: true,
-    trim: true,
   },
   address: {
     type: String,
-    default: 'Not provided',
-    trim: true,
-  },
-  patient_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    default: null,
+    required: true,
   },
   nic: {
     type: String,
-    default: 'Not provided',
-    trim: true,
   },
   phone: {
     type: String,
     required: true,
-    trim: true,
   },
   email: {
     type: String,
     required: true,
-    lowercase: true,
   },
   doctorName: {
     type: String,
-    default: 'Not specified',
+    required: true,
   },
   doctor_id: {
     type: mongoose.Schema.Types.ObjectId,
-    default: null,
+    ref: "Doctor",
+    required: true,
   },
   specialization: {
     type: String,
-    default: 'Not specified',
+    required: true,
   },
   date: {
     type: Date,
@@ -52,29 +45,28 @@ const rejectedAppointmentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  slip: {
-    data: { type: Buffer, default: null },
-    contentType: { type: String, default: null },
+  patient_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
   status: {
     type: String,
-    enum: ["Rejected", "Reviewed", "Pending"],
     default: "Rejected",
-  },
-  rejectedAt: {
-    type: Date,
-    default: Date.now
   },
   rejectionReason: {
     type: String,
-    default: "Not specified"
+    required: true,
+  },
+  rejectedAt: {
+    type: Date,
+    default: Date.now,
   },
   originalAppointmentId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Appoinment"
-  }
-}, {
-  timestamps: true
+    ref: "Appointment",
+    required: true,
+  },
 });
 
-module.exports = mongoose.model('RejectedAppointment', rejectedAppointmentSchema);
+module.exports = mongoose.model("RejectedAppointment", rejectedAppointmentSchema);
