@@ -17,12 +17,14 @@ import Login from "./Components/User Component/Login";
 import Registration from "./Components/User Component/Registration";
 import UDashboard from "./Components/User Component/UserAdmin/Udashboard";
 import ForgotPassword from "./Components/User Component/UserProfile/ForgotPassword";
+import AddNewUser from "./Components/User Component/UserAdmin/AddNewUser";
 
 //Pharmacy Components
 import PDashboard from "./Components/Pharmacy Component/PDashboard";
 import StockAnalytics from "./Components/Pharmacy Component/StockAnalytics";
 import OrderAnalytics from "./Components/Pharmacy Component/OrderAnalytics";
 import StockAdding from "./Components/Pharmacy Component/StockAdding";
+import RecentOrders from "./Components/Prescription Component/RecentOrders";
 
 //Appointment Components
 import ADashboard from "./Components/Appointment Component/ADashboard";
@@ -38,8 +40,9 @@ import DDashboard from "./Components/Doctor Component/DDashboard";
 import ViewAppointments from "./Components/Doctor Component/ViewAppoinments";
 import DoctorLeave from "./Components/Doctor Component/DoctorLeave";
 import DoctorDiagnosis from "./Components/Doctor Component/DoctorDiagnosis";
+import DiagnosisView from "./Components/Doctor Component/DiagnosisView";
 
-import AddNewUser from "./Components/User Component/UserAdmin/AddNewUser";
+//Novelty Components
 import NoveltyComponent from "./Components/Novelty Component/NoveltyComponent";
 import AnalysisHistory from "./Components/Novelty Component/AnalysisHistory";
 import HealthTrends from "./Components/Novelty Component/HealthTrends";
@@ -49,10 +52,24 @@ import HealthChatBot from "./Components/Novelty Component/HealthChatBot";
 
 function App() {
   const [chatOpen, setChatOpen] = useState(false);
-  const location = useLocation(); // ⬅️ get current route
+  const location = useLocation(); // get current route
 
-  // ⛔️ Hide chatbot on login & registration
-  const hideChatbotOn = ["/login", "/registration"];
+  //  Hide chatbot on login & registration
+  const hideChatbotOn = [
+    "/login",
+    "/registration",
+    "/User-Management",
+    "/Add-New-Patient",
+    "/Pharmacy-Dashboard",
+    "/Pharmacy-Stocks",
+    "/Pharmacy-Orders",
+    "/Stock-Adding",
+    "/Appoinment-Management",
+    "/Rijected-Appoinment",
+    "/Doctor-Dashboard",
+    "/Appointment-Dashboard",
+    "/User-Dashboard",
+  ];
   const showChatbot = !hideChatbotOn.includes(location.pathname);
   return (
     <div>
@@ -64,6 +81,7 @@ function App() {
           <Route path="/Contact-Us" element={<ContactUs />} />
           <Route path="/Our-Facilities" element={<OurFacilities />} />
           <Route path="/Find-Doctor" element={<FindADoctor />} />
+
           {/*User Components*/}
           <Route path="/User-Management" element={<UserManagement />} />
           <Route path="/login" element={<Login />} />
@@ -72,6 +90,7 @@ function App() {
           <Route path="/User-Dashboard" element={<UDashboard />} />
           <Route path="/User-Account" element={<MyAccount />} />
           <Route path="/Add-New-Patient" element={<AddNewUser />} />
+
           {/* Novelty Component Route */}
           <Route path="/symptom-analysis" element={<NoveltyComponent />} />
           <Route path="/enter-vitals" element={<VitalsInputForm />} />
@@ -83,6 +102,8 @@ function App() {
           <Route path="/Pharmacy-Stocks" element={<StockAnalytics />} />
           <Route path="/Pharmacy-Orders" element={<OrderAnalytics />} />
           <Route path="/Stock-Adding" element={<StockAdding />} />
+          <Route path="/recent-orders" element={<RecentOrders />} />
+
           {/*Doctor Components*/}
           <Route path="/login-doctor" element={<DoctorLogin />} />
           <Route path="/register-doctor" element={<DoctorRegistration />} />
@@ -96,6 +117,8 @@ function App() {
             path="/Doctor-Dashboard/appointmnet/Diagnosis/:appointmentId"
             element={<DoctorDiagnosis />}
           />
+          <Route path="/Doctor-Dashboard/Diagnosis" element={<DiagnosisView  />}/>
+
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />
           <Route path="/Appoinment-Display" element={<AppoinmentDisplay />} />
@@ -104,10 +127,9 @@ function App() {
             path="/Appoinment-Management"
             element={<AppoinmentManagement />}
           />
-           <Route path="Rijected-Appoinment" element={<RejectedAppoinment/>}/>
+          <Route path="Rijected-Appoinment" element={<RejectedAppoinment />} />
         </Routes>
-       
-        {/* ✅ Conditionally show Chatbot */}
+        {/*  Conditionally show Chatbot */}
         {showChatbot && (
           <>
             <ChatbotLauncher onOpen={() => setChatOpen(true)} />

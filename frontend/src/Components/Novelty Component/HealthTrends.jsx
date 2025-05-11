@@ -91,7 +91,7 @@ function HealthTrends() {
 
     fetchVitals();
 
-    // ✅ Update prediction from localStorage (optional refresh)
+    //  Update prediction from localStorage (optional refresh)
     setLastPrediction(localStorage.getItem("lastPrediction"));
   }, []);
 
@@ -265,7 +265,7 @@ function HealthTrends() {
               variant="body1"
               sx={{ mb: 3, color: COLORS.pink, fontWeight: 500 }}
             >
-              ✅ Last AI Prediction: {lastPrediction}
+               Last AI Prediction: {lastPrediction}
             </Typography>
           )}
 

@@ -32,11 +32,7 @@ function DAdminLayout({ children }) {
   }, []);
 
   const menuItems = [
-    {
-      name: "Dashboard",
-      icon: <Home size={20} />,
-      path: "/Doctor-Dashboard",
-    },
+ 
     {
       name: "Appoinments",
       icon: <BarChart2 size={20} />,
@@ -47,11 +43,13 @@ function DAdminLayout({ children }) {
       icon: <BarChart2 size={20} />,
       path: "/Doctor-Dashboard/Leave",
     },
-    { name: "Patients", icon: <Package size={20} />, path: "#" },
+    { name: "Patients", 
+      icon: <Package size={20} />, 
+      path: "/Doctor-Dashboard/Diagnosis" },
   ];
 
   const currentPage = menuItems.find((item) => item.path === location.pathname);
-  const activeItem = currentPage ? currentPage.name : "";
+  const activeItem = currentPage ? currentPage.name : "/Doctor-Dashboard/diagnosis";
 
   // Handle logout
   const handleLogout = () => {

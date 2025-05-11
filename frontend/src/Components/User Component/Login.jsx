@@ -194,6 +194,7 @@ function Login() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  placeholder="Enter your email"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -210,6 +211,7 @@ function Login() {
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
+                  placeholder="Enter your password"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">

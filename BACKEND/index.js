@@ -32,6 +32,7 @@ app.use("/api/rejected-appointments", rejectedAppointmentRoutes);
 app.use("/api/doctor", doctorRoute); // Routes for Doctor Management
 app.use("/api/stock", stockRoute); // Routes for Stock Management
 app.use("/api/prescription", prescriptionRoute); // Routes for Prescription Management
+app.use("/api/prescriptions", require("./Routes/DoctorManagement/prescriptionRoute")); // Register prescription routes
 app.use("/api/doctorLeave", doctorLeaveRoutes); // Routes for Doctor Leave Management
 app.use("/api/diagnosis", diagnosisRoute); // Routes for Diagnosis Management
 
@@ -43,11 +44,20 @@ app.use("/api/novelty", noveltyRoutes); // This links the API to the Novelty Rou
 app.use("/api/analysis", analysisRoutes);
 app.use("/api/vitals", vitalsRoutes);
 
+//Medical Report Routes
+const medicalReportRoutes = require("./Routes/medicalReportRoutes");
+app.use("/api/reports", medicalReportRoutes);
+
+const path = require("path");
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
 // Database Connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("Connected to MongoDB");
+    console.log("Database URL:", process.env.MONGO_URI);
     app.listen(process.env.PORT, () =>
       console.log(`Server running on http://localhost:${process.env.PORT}`)
     );

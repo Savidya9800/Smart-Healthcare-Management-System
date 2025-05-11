@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DAdminLayout from "./DAdminLayout";
+import ViewPrescriptions from './ViewPrescription';
 import {
   TextField,
   Button,
@@ -13,9 +14,14 @@ import {
   FormLabel,
   TextareaAutosize,
   CircularProgress,
-  Divider
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton
 } from '@mui/material';
-import { Save, Cancel, MedicalInformation, Notes, Sick } from '@mui/icons-material';
+import { Save, Cancel, MedicalInformation, Notes, Sick, Add, Close } from '@mui/icons-material';
 
 const DiagnosisForm = () => {
   const { appointmentId } = useParams();
@@ -24,6 +30,8 @@ const DiagnosisForm = () => {
   const [appointment, setAppointment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [prescriptionOpen, setPrescriptionOpen] = useState(false);
+  const [viewPrescriptionsOpen, setViewPrescriptionsOpen] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -32,6 +40,12 @@ const DiagnosisForm = () => {
     diagnosisDescription: '',
     notes: '',
     currentSymptom: ''
+  });
+
+  // Prescription state
+  const [prescriptionData, setPrescriptionData] = useState({
+    medicine: [{ medicineName: '', dosage: '', description: '' }],
+    notes: ''
   });
 
   // Common symptoms for autocomplete
@@ -52,10 +66,12 @@ const DiagnosisForm = () => {
     const fetchAppointment = async () => {
       try {
         const response = await fetch(`http://localhost:5000/api/appoinment/${appointmentId}`);
+        console.log(response);
         if (!response.ok) {
           throw new Error('Failed to fetch appointment details');
         }
         const data = await response.json();
+        console.log("appointment",data);
         setAppointment(data);
       } catch (err) {
         setError(err.message);
@@ -113,7 +129,74 @@ const DiagnosisForm = () => {
       }
 
       // Redirect after successful submission
-      navigate('/appointments');
+      navigate('/Doctor-Dashboard/View-Appointment');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Prescription handlers
+  const handleAddMedicine = () => {
+    setPrescriptionData({
+      ...prescriptionData,
+      medicine: [...prescriptionData.medicine, { medicineName: '', dosage: '', description: '' }]
+    });
+  };
+
+  const handleRemoveMedicine = (index) => {
+    const newMedicine = [...prescriptionData.medicine];
+    newMedicine.splice(index, 1);
+    setPrescriptionData({
+      ...prescriptionData,
+      medicine: newMedicine
+    });
+  };
+
+  const handleMedicineChange = (index, field, value) => {
+    const newMedicine = [...prescriptionData.medicine];
+    newMedicine[index][field] = value;
+    setPrescriptionData({
+      ...prescriptionData,
+      medicine: newMedicine
+    });
+  };
+
+  const handlePrescriptionSubmit = async () => {
+    console.log('Submitting prescription:', prescriptionData);
+    console.log('Doctor:', doctor);
+    console.log('Appointment:', appointment);
+    if (!doctor || !appointment) return;
+    console.log("returning");
+    const prescriptionPayload = {
+      patientId: appointment.patient_id,
+      doctorId: doctor._id,
+      appointmentId: appointment._id,
+      medicine: prescriptionData.medicine.filter(med => 
+        med.medicineName.trim() && med.dosage.trim()
+      ),
+      notes: prescriptionData.notes
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/prescription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(prescriptionPayload)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit prescription');
+      }
+
+      // Close the prescription dialog
+      setPrescriptionOpen(false);
+      // Reset prescription form
+      setPrescriptionData({
+        medicine: [{ medicineName: '', dosage: '', description: '' }],
+        notes: ''
+      });
     } catch (err) {
       setError(err.message);
     }
@@ -354,35 +437,180 @@ const DiagnosisForm = () => {
             )}
 
             {/* Form Actions */}
-            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 mt-6 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 mt-6 border-t border-gray-200">
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={() => setPrescriptionOpen(true)}
+                className="h-11 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm"
+              >
+                Add Prescription
+              </Button>
               <Button
                 variant="outlined"
-                startIcon={<Cancel />}
-                onClick={() => navigate(-1)}
-                className="h-11 border-pink-500 text-pink-500 hover:border-pink-600 hover:text-pink-600 rounded-lg"
-                sx={{
-                  '&:hover': {
-                    backgroundColor: 'rgba(236, 72, 153, 0.08)'
-                  }
-                }}
+                startIcon={<Notes />}
+                onClick={() => setViewPrescriptionsOpen(true)}
+                className="h-11 border-indigo-600 text-indigo-600 hover:border-indigo-700 hover:text-indigo-700"
               >
-                Cancel
+                View Prescriptions
               </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                startIcon={<Save />}
-                onClick={handleSubmit}
-                className="h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm"
-                disabled={!formData.symptoms.length || !formData.assumedIllness || !formData.diagnosisDescription}
-              >
-                Save Diagnosis
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  variant="outlined"
+                  startIcon={<Cancel />}
+                  onClick={() => navigate(-1)}
+                  className="h-11 border-pink-500 text-pink-500 hover:border-pink-600 hover:text-pink-600 rounded-lg"
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'rgba(236, 72, 153, 0.08)'
+                    }
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  startIcon={<Save />}
+                  onClick={handleSubmit}
+                  className="h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm"
+                  disabled={!formData.symptoms.length || !formData.assumedIllness || !formData.diagnosisDescription}
+                >
+                  Save Diagnosis
+                </Button>
+              </div>
             </div>
           </Paper>
         </div>
       </div>
+
+      {/* Prescription Dialog */}
+      <Dialog 
+        open={prescriptionOpen} 
+        onClose={() => setPrescriptionOpen(false)} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          className: "rounded-xl overflow-hidden"
+        }}
+      >
+        <DialogTitle className="flex justify-between items-center bg-gradient-to-r from-indigo-600 to-blue-500 text-white p-4">
+          <div className="flex items-center">
+            <MedicalInformation className="mr-2" />
+            <span className="font-bold text-lg">Add Prescription</span>
+          </div>
+          <IconButton 
+            onClick={() => setPrescriptionOpen(false)}
+            className="text-white hover:bg-white/10"
+          >
+            <Close />
+          </IconButton>
+        </DialogTitle>
+        
+        <DialogContent className="p-6 bg-gray-50">
+          <div className="space-y-6">
+            {prescriptionData.medicine.map((med, index) => (
+              <div 
+                key={index} 
+                className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end p-4 bg-white rounded-lg border border-gray-200 shadow-sm"
+              >
+                <TextField
+                  label="Medicine Name"
+                  value={med.medicineName}
+                  onChange={(e) => handleMedicineChange(index, 'medicineName', e.target.value)}
+                  fullWidth
+                  required
+                  className="bg-white"
+                  InputProps={{
+                    className: "rounded-lg"
+                  }}
+                />
+                <TextField
+                  label="Dosage"
+                  value={med.dosage}
+                  onChange={(e) => handleMedicineChange(index, 'dosage', e.target.value)}
+                  fullWidth
+                  required
+                  className="bg-white"
+                  InputProps={{
+                    className: "rounded-lg"
+                  }}
+                />
+                <TextField
+                  label="Description"
+                  value={med.description}
+                  onChange={(e) => handleMedicineChange(index, 'description', e.target.value)}
+                  fullWidth
+                  className="bg-white"
+                  InputProps={{
+                    className: "rounded-lg"
+                  }}
+                />
+                {index > 0 && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => handleRemoveMedicine(index)}
+                    className="h-10 border-red-500 text-red-500 hover:bg-red-50"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            ))}
+            
+            <Button
+              variant="outlined"
+              startIcon={<Add />}
+              onClick={handleAddMedicine}
+              className="mb-4 border-indigo-500 text-indigo-500 hover:bg-indigo-50 w-full py-2"
+            >
+              Add Another Medicine
+            </Button>
+            
+            <TextField
+              label="Additional Notes"
+              multiline
+              rows={4}
+              fullWidth
+              value={prescriptionData.notes}
+              onChange={(e) => setPrescriptionData({...prescriptionData, notes: e.target.value})}
+              className="bg-white"
+              InputProps={{
+                className: "rounded-lg"
+              }}
+            />
+          </div>
+        </DialogContent>
+        
+        <DialogActions className="p-4 border-t border-gray-200 bg-gray-50">
+          <Button 
+            onClick={() => setPrescriptionOpen(false)} 
+            variant="outlined" 
+            color="secondary"
+            className="border-gray-500 text-gray-700 hover:bg-gray-100 px-6 py-2 rounded-lg"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handlePrescriptionSubmit} 
+            variant="contained" 
+            color="primary"
+            disabled={!prescriptionData.medicine.some(med => med.medicineName && med.dosage)}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg disabled:bg-gray-400 disabled:text-gray-100"
+          >
+            Save Prescription
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <ViewPrescriptions
+        open={viewPrescriptionsOpen}
+        onClose={() => setViewPrescriptionsOpen(false)}
+        appointmentId={appointmentId}
+      />
+
     </DAdminLayout>
+    
   );
 };
 
