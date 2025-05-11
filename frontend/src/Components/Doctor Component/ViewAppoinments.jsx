@@ -42,7 +42,7 @@ function ViewAppointments() {
   const [openDiagnosis, setOpenDiagnosis] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
 
-  
+
   
   // Table states
   const [page, setPage] = useState(0);
@@ -161,6 +161,7 @@ function ViewAppointments() {
         body: JSON.stringify({ status: "Completed" })
       });
       
+      console.log(response);
       if (!response.ok) {
         throw new Error("Failed to mark appointment as completed");
       }

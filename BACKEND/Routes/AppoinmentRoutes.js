@@ -8,6 +8,7 @@ const {
   deleteAppointment,
   sendConfirmationEmail,
   rejectAppointment,
+  updateAppointmentStatus,
 } = require("../Controllers/AppoinmentController");
 const authMiddleware = require("../Middleware/authMiddleware");
 
@@ -31,5 +32,7 @@ router.post("/send-confirmation", sendConfirmationEmail);
 
 // Reject appointment by ID (Protected)
 router.post("/:id/reject", authMiddleware, rejectAppointment);
+
+router.put("/:id/status", updateAppointmentStatus);
 
 module.exports = router;
