@@ -433,16 +433,6 @@ function PrescriptionDetails({ prescription }) {
                     {formatDate(prescription.dateIssued)}
                   </Typography>
                 </Box>
-
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Person sx={{ color: "#2fb297", mr: 1 }} />
-                  <Typography variant="body2" color="textSecondary">
-                    Patient ID:
-                  </Typography>
-                  <Typography variant="body1" sx={{ ml: 1 }}>
-                    {prescription.patientId}
-                  </Typography>
-                </Box>
               </Grid>
 
               <Grid item xs={12} md={6}>
