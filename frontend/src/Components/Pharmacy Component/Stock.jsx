@@ -389,12 +389,6 @@ function Stock() {
 
     const stockDetails = [
       { label: "Location:", value: item.location || "N/A" },
-      {
-        label: "Expiry Date:",
-        value: item.expiryDate
-          ? new Date(item.expiryDate).toLocaleDateString()
-          : "N/A",
-      },
     ];
 
     yPos = 125;
@@ -405,25 +399,6 @@ function Stock() {
       doc.text(String(detail.value), 145, yPos);
       yPos += 10;
     });
-
-    // Add expiry warning if needed
-    if (item.expiryDate) {
-      const expiryDate = new Date(item.expiryDate);
-      const today = new Date();
-      const thirtyDaysFromNow = new Date();
-      thirtyDaysFromNow.setDate(today.getDate() + 30);
-
-      if (expiryDate <= thirtyDaysFromNow && expiryDate >= today) {
-        doc.setFillColor(255, 240, 230);
-        doc.setDrawColor(255, 200, 170);
-        doc.roundedRect(110, 140, 80, 8, 2, 2, "FD");
-
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(230, 100, 50);
-        doc.setFontSize(8);
-        doc.text("EXPIRES SOON", 150, 145, { align: "center" });
-      }
-    }
 
     // --- NOTES SECTION ---
     if (item.notes) {
@@ -759,15 +734,6 @@ function Stock() {
                     fontWeight: "bold",
                   }}
                 >
-                  Expiry Date
-                </TableCell>
-                <TableCell
-                  sx={{
-                    bgcolor: "#2b2c6c",
-                    color: "white",
-                    fontWeight: "bold",
-                  }}
-                >
                   Pack Size
                 </TableCell>
                 <TableCell
@@ -794,7 +760,7 @@ function Stock() {
             <TableBody>
               {currentRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1">
                       No stock items found
                     </Typography>
@@ -812,11 +778,6 @@ function Stock() {
                     <TableCell>{item.company || "N/A"}</TableCell>
                     <TableCell>{item.quantity}</TableCell>
                     <TableCell>{item.batchNo || "N/A"}</TableCell>
-                    <TableCell>
-                      {item.expiryDate
-                        ? new Date(item.expiryDate).toLocaleDateString()
-                        : "N/A"}
-                    </TableCell>
                     <TableCell>{item.packSize || "N/A"}</TableCell>
                     <TableCell>{item.location || "N/A"}</TableCell>
                     <TableCell>

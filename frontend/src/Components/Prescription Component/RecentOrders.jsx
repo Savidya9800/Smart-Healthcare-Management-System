@@ -180,15 +180,6 @@ function RecentOrders() {
                       fontWeight: "bold",
                     }}
                   >
-                    Patient ID
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      bgcolor: "#2b2c6c",
-                      color: "white",
-                      fontWeight: "bold",
-                    }}
-                  >
                     Doctor
                   </TableCell>
                   <TableCell
@@ -232,7 +223,7 @@ function RecentOrders() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
+                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
                       <CircularProgress />
                       <Typography variant="body2" sx={{ mt: 1 }}>
                         Loading prescriptions...
@@ -241,7 +232,7 @@ function RecentOrders() {
                   </TableRow>
                 ) : filteredPrescriptions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
+                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
                       <Typography variant="body1">
                         No prescriptions found.
                       </Typography>
@@ -251,9 +242,6 @@ function RecentOrders() {
                   currentRecords.map((prescription, index) => (
                     <TableRow key={prescription._id} hover>
                       <TableCell>{indexOfFirstRecord + index + 1}</TableCell>
-                      <TableCell>
-                        {prescription.patientId?.name || prescription.patientId}
-                      </TableCell>
                       <TableCell>
                         {prescription.doctorId?.name || "Unknown"}
                         {prescription.doctorId?.specialization && (
