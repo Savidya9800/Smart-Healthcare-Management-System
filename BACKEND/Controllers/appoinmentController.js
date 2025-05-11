@@ -182,6 +182,34 @@ const sendConfirmationEmail = async (req, res) => {
   }
 };
 
+const updateAppointmentStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedAppointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    res.status(200).json({
+      message: "Appointment status updated successfully",
+      appointment: updatedAppointment,
+    });
+  } catch (error) {
+    console.error("Error updating appointment status:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // Reject appointment by ID
 const rejectAppointment = async (req, res) => {
   try {
@@ -269,4 +297,5 @@ module.exports = {
   deleteAppointment,
   sendConfirmationEmail,
   rejectAppointment,
+  updateAppointmentStatus,
 };
