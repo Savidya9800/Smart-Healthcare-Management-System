@@ -71,8 +71,8 @@ const DiagnosisForm = () => {
           throw new Error('Failed to fetch appointment details');
         }
         const data = await response.json();
-        console.log(data);
-        setAppointment(data.appoinment);
+        console.log("appointment",data);
+        setAppointment(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -129,7 +129,7 @@ const DiagnosisForm = () => {
       }
 
       // Redirect after successful submission
-      navigate('/appointments');
+      navigate('/Doctor-Dashboard/View-Appointment');
     } catch (err) {
       setError(err.message);
     }
@@ -162,8 +162,11 @@ const DiagnosisForm = () => {
   };
 
   const handlePrescriptionSubmit = async () => {
+    console.log('Submitting prescription:', prescriptionData);
+    console.log('Doctor:', doctor);
+    console.log('Appointment:', appointment);
     if (!doctor || !appointment) return;
-
+    console.log("returning");
     const prescriptionPayload = {
       patientId: appointment.patient_id,
       doctorId: doctor._id,

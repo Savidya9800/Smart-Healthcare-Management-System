@@ -62,7 +62,7 @@ const colors = {
 };
 
 const APPOINTMENTS_API = "http://localhost:5000/api/appoinment";
-const PRESCRIPTIONS_API = "http://localhost:5000/api/prescriptions";
+const PRESCRIPTIONS_API = "http://localhost:5000/api/prescription/";
 const LEAVES_API = "http://localhost:5000/api/doctor-leaves";
 
 const DDashboard = () => {
@@ -82,6 +82,7 @@ const DDashboard = () => {
   const [recentPrescriptions, setRecentPrescriptions] = useState([]);
   const [appointmentTypes, setAppointmentTypes] = useState([]);
   const [weeklyAppointments, setWeeklyAppointments] = useState([]);
+  const [doctor, setDoctor] = useState(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -109,8 +110,9 @@ const DDashboard = () => {
       const appointments = appointmentsResponse.data.appoinments || [];
 
       // Get doctor's prescriptions
-      const prescriptionsResponse = await axios.get(`${PRESCRIPTIONS_API}?doctorId=doctor123`);
+      const prescriptionsResponse = await axios.get(`${PRESCRIPTIONS_API}`);
       const prescriptions = prescriptionsResponse.data || [];
+      console.log("Prescriptions:", prescriptions);
 
       // Get doctor's leave requests
       const leavesResponse = await axios.get(`${LEAVES_API}?doctorId=doctor123`);
@@ -196,6 +198,13 @@ const DDashboard = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const storedDoctor = sessionStorage.getItem("doctor");
+    if (storedDoctor) {
+      setDoctor(JSON.parse(storedDoctor));
+    }
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();
