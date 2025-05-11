@@ -21,10 +21,16 @@ import {
   FormControl,
   InputLabel
 } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import CloseIcon from '@mui/icons-material/Close';
+//import IconButton from '@mui/material/IconButton';
 import { Search, PictureAsPdf, CheckCircle } from '@mui/icons-material';
 import { jsPDF } from 'jspdf';
 import {autoTable} from 'jspdf-autotable';
 import Logo22 from "../../Components/Appointment Component/images/Logo2.png";
+import DiagnosisView from "./DiagnosisView";
 
 function ViewAppointments() {
   const navigate = useNavigate();
@@ -33,6 +39,10 @@ function ViewAppointments() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [doctor, setDoctor] = useState(null);
+  const [openDiagnosis, setOpenDiagnosis] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+
+  
   
   // Table states
   const [page, setPage] = useState(0);
@@ -85,6 +95,7 @@ function ViewAppointments() {
         results = results.filter(appointment =>
           (appointment.name && appointment.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (appointment.status && appointment.status.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (appointment.indexno && appointment.indexno.toString().includes(searchTerm)) ||
           (appointment.date && appointment.date.includes(searchTerm)) ||
           (appointment.time && appointment.time.includes(searchTerm))
         );

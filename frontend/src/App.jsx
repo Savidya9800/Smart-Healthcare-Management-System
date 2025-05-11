@@ -40,6 +40,7 @@ import DDashboard from "./Components/Doctor Component/DDashboard";
 import ViewAppointments from "./Components/Doctor Component/ViewAppoinments";
 import DoctorLeave from "./Components/Doctor Component/DoctorLeave";
 import DoctorDiagnosis from "./Components/Doctor Component/DoctorDiagnosis";
+import DiagnosisView from "./Components/Doctor Component/DiagnosisView";
 
 //Novelty Components
 import NoveltyComponent from "./Components/Novelty Component/NoveltyComponent";
@@ -116,6 +117,7 @@ function App() {
             path="/Doctor-Dashboard/appointmnet/Diagnosis/:appointmentId"
             element={<DoctorDiagnosis />}
           />
+          <Route path="/Doctor-Dashboard/Diagnosis" element={<DiagnosisView  />}/>
 
           {/*Appoinment Components*/}
           <Route path="/Book-Appointment" element={<BookAppointent />} />
