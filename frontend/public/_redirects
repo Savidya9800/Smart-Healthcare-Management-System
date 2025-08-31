@@ -1,0 +1,5 @@
+/*
+  Netlify _redirects file to proxy API requests to backend server
+  Adjust the backend URL/port as needed
+*/
+/api/*  http://localhost:5000/:splat  200
