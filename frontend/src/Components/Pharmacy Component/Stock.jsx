@@ -67,7 +67,7 @@ function Stock() {
   const fetchStockData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/stock");
+  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/stock`);
       setStockData(response.data);
       setFilteredData(response.data);
       setError("");
@@ -134,7 +134,7 @@ function Stock() {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:5000/api/stock/${id}`);
+  await axios.delete(`${import.meta.env.VITE_API_URL}/api/stock/${id}`);
       setStockData(stockData.filter((item) => item._id !== id));
       setIsDeleteConfirmOpen(false);
       setStockToDelete(null);
@@ -156,7 +156,7 @@ function Stock() {
     try {
       setLoading(true);
       const response = await axios.put(
-        `http://localhost:5000/api/stock/${updatedStock._id}`,
+        `${import.meta.env.VITE_API_URL}/api/stock/${updatedStock._id}`,
         updatedStock
       );
       setStockData(

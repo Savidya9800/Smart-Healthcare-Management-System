@@ -44,7 +44,7 @@ function RecentOrders() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost:5000/api/prescriptions"
+        `${import.meta.env.VITE_API_URL}/api/prescriptions`
       );
       setPrescriptions(response.data);
       setFilteredPrescriptions(response.data);
@@ -86,7 +86,7 @@ function RecentOrders() {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:5000/api/prescriptions/${prescriptionId}`
+        `${import.meta.env.VITE_API_URL}/api/prescriptions/${prescriptionId}`
       );
       setSelectedPrescription(response.data);
       setOpenDetails(true);

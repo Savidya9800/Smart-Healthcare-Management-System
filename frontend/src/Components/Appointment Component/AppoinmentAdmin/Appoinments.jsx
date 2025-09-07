@@ -89,7 +89,7 @@ const colors = {
   lightblue: "#2B2C6C",
 };
 
-const URL = "http://localhost:5000/api/appoinment";
+const URL = `${import.meta.env.VITE_API_URL}/api/appoinment`;
 
 const fetchHandler = async () => {
   try {

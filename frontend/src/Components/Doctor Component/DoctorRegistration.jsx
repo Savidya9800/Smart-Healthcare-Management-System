@@ -31,7 +31,7 @@ function DoctorRegistration() {
     setError("");
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register-doctor", formData);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register-doctor`, formData);
       alert("Doctor registration successful! Please login.");
       navigate("/login-doctor"); // Redirect to doctor login page
     } catch (error) {

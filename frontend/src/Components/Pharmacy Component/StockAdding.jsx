@@ -149,7 +149,7 @@ function StockAdding() {
     if (firstValidation.isValid && secondValidation.isValid) {
       try {
         const response = await axios.post(
-          "http://localhost:5000/api/stock",
+          `${import.meta.env.VITE_API_URL}/api/stock`,
           stockData
         );
         console.log("Stock added:", response.data);

@@ -61,7 +61,7 @@ const colors = {
   lightGray: "#f5f5f5",
 };
 
-const APPOINTMENTS_API = "http://localhost:5000/api/appoinment";
+const APPOINTMENTS_API = `${import.meta.env.VITE_API_URL}/api/appoinment`;
 const PRESCRIPTIONS_API = "http://localhost:5000/api/prescription/";
 const LEAVES_API = "http://localhost:5000/api/doctor-leaves";
 

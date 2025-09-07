@@ -23,7 +23,7 @@ function AnalysisHistory() {
     const fetchAnalysis = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/analysis/my-analyses", {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/analysis/my-analyses`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

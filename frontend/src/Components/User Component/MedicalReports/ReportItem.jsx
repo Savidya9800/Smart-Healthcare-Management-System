@@ -166,7 +166,7 @@ function ReportItem({ report, onDelete }) {
           <Box sx={{ display: "flex" }}>
             <Tooltip title="Download">
               <IconButton
-                href={`http://localhost:5000/${report.filePath}`}
+                href={`${import.meta.env.VITE_API_URL}/${report.filePath}`}
                 target="_blank"
                 download
                 size="small"
@@ -207,7 +207,7 @@ function ReportItem({ report, onDelete }) {
         >
           <MenuItem 
             component="a" 
-            href={`http://localhost:5000/${report.filePath}`}
+            href={`${import.meta.env.VITE_API_URL}/${report.filePath}`}
             target="_blank"
             download
           >
@@ -219,7 +219,7 @@ function ReportItem({ report, onDelete }) {
           
           <MenuItem 
             component="a" 
-            href={`http://localhost:5000/${report.filePath}`}
+            href={`${import.meta.env.VITE_API_URL}/${report.filePath}`}
             target="_blank"
           >
             <ListItemIcon>

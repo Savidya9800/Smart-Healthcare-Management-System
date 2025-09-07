@@ -154,7 +154,7 @@ const NoveltyComponent = () => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const response = await fetch(
-        "http://localhost:5000/api/novelty/analyze",
+        `${import.meta.env.VITE_API_URL}/api/novelty/analyze`,
         {
           method: "POST",
           headers: {

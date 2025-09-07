@@ -43,7 +43,7 @@ const ViewPrescriptions = ({ open, onClose, appointmentId }) => {
 
   const fetchPrescriptions = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/prescription/');
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/prescription/`);
       const data = await response.json();
       const filtered = data.filter(p => p.appointmentId === appointmentId);
       setPrescriptions(filtered);

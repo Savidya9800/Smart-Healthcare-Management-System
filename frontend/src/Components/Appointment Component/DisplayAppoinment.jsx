@@ -43,7 +43,7 @@ function DisplayAppointment() {
     }
 
     axios
-      .get("http://localhost:5000/api/appoinment/", {
+  .get(`${import.meta.env.VITE_API_URL}/api/appoinment/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -103,7 +103,7 @@ function DisplayAppointment() {
     const token = localStorage.getItem("token");
     axios
       .put(
-        `http://localhost:5000/api/appoinment/${patientDetails._id}`,
+  `${import.meta.env.VITE_API_URL}/api/appoinment/${patientDetails._id}`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -147,7 +147,7 @@ function DisplayAppointment() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:5000/api/appoinment/send-confirmation",
+  `${import.meta.env.VITE_API_URL}/api/appoinment/send-confirmation`,
         { appointmentId: patientDetails._id },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -222,7 +222,7 @@ function DisplayAppointment() {
       if (result.isConfirmed) {
         const token = localStorage.getItem("token");
         axios
-          .delete(`http://localhost:5000/api/appoinment/${patientDetails._id}`, {
+          .delete(`${import.meta.env.VITE_API_URL}/api/appoinment/${patientDetails._id}`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then((response) => {

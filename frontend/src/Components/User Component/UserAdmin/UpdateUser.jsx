@@ -114,7 +114,7 @@ function UpdateUser({ user, onClose }) {
       if (result.isConfirmed) {
         try {
           const response = await axios.put(
-            `http://localhost:5000/api/users/${user._id}`,
+            `${import.meta.env.VITE_API_URL}/api/users/${user._id}`,
             formData
           );
           if (response.status === 200) {

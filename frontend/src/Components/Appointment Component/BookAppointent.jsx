@@ -85,7 +85,7 @@ function BookAppointment() {
       console.log("BookAppointment: Token found, fetching user profile...");
       setIsAuthenticated(true);
       axios
-        .get("http://localhost:5000/api/users/profile", {
+  .get(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
@@ -119,7 +119,7 @@ function BookAppointment() {
     console.log("BookAppointment: Fetching doctors...");
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/doctor/");
+  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/doctor/`);
         console.log("BookAppointment: Doctors fetched:", response.data);
         setDoctors(response.data);
       } catch (error) {
@@ -230,7 +230,7 @@ function BookAppointment() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:5000/api/appoinment",
+  `${import.meta.env.VITE_API_URL}/api/appoinment`,
         {
           ...input,
           doctor_id: input.doctor_id,

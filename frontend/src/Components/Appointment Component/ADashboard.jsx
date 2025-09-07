@@ -54,8 +54,8 @@ const colors = {
   lightGray: "#f5f5f5",
 };
 
-const APPOINTMENTS_API = "http://localhost:5000/api/appoinment";
-const REJECTED_API = "http://localhost:5000/api/rejected-appointments";
+const APPOINTMENTS_API = `${import.meta.env.VITE_API_URL}/api/appoinment`;
+const REJECTED_API = `${import.meta.env.VITE_API_URL}/api/rejected-appointments`;
 
 const ADashboard = () => {
   const navigate = useNavigate();

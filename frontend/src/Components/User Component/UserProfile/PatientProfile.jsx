@@ -58,7 +58,7 @@ function PatientProfile() {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "http://localhost:5000/api/users/profile",
+          `${import.meta.env.VITE_API_URL}/api/users/profile`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -147,7 +147,7 @@ function PatientProfile() {
         const token = localStorage.getItem("token");
 
         axios
-          .delete("http://localhost:5000/api/users/delete", {
+          .delete(`${import.meta.env.VITE_API_URL}/api/users/delete`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then(() => {

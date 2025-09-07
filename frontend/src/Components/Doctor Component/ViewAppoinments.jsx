@@ -68,7 +68,7 @@ function ViewAppointments() {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/appoinment");
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/appoinment`);
         if (!response.ok) {
           throw new Error("Failed to fetch appointments");
         }
@@ -153,7 +153,7 @@ function ViewAppointments() {
 
   const handleCompleteAppointment = async (appointmentId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/appoinment/${appointmentId}/status`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/appoinment/${appointmentId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

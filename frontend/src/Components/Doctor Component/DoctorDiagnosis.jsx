@@ -65,7 +65,7 @@ const DiagnosisForm = () => {
     // Fetch appointment details
     const fetchAppointment = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/appoinment/${appointmentId}`);
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/appoinment/${appointmentId}`);
         console.log(response);
         if (!response.ok) {
           throw new Error('Failed to fetch appointment details');
@@ -116,7 +116,7 @@ const DiagnosisForm = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/diagnosis', {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/diagnosis`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ const DiagnosisForm = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/prescription', {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/prescription`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -32,7 +32,7 @@ const DiagnosisView = ({ appointmentId, onClose }) => {
     const fetchDiagnoses = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5000/api/diagnosis');
+  const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/diagnosis`);
         setDiagnoses(response.data);
         setLoading(false);
       } catch (err) {

@@ -158,7 +158,7 @@ function UpdatePatientProfile({ user, onClose, onUpdate }) {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.put(
-        `http://localhost:5000/api/users/${user._id}`,
+        `${import.meta.env.VITE_API_URL}/api/users/${user._id}`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -74,7 +74,7 @@ const DoctorLeave = () => {
 
   useEffect(() => {
     if(doctor){
-    fetch(`http://localhost:5000/api/doctorLeave/filterBydoc/${doctor._id}`)
+  fetch(`${import.meta.env.VITE_API_URL}/api/doctorLeave/filterBydoc/${doctor._id}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.length === 0) {
@@ -136,7 +136,7 @@ const DoctorLeave = () => {
 
   const handleUpdateStatus = async (leaveId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/doctorLeave/${leaveId}/status`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/doctorLeave/${leaveId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ const DoctorLeave = () => {
 
   const handleDeleteLeave = async (leave) => {
     try {
-      await fetch(`http://localhost:5000/api/doctorLeave/${leave._id}`, {
+  await fetch(`${import.meta.env.VITE_API_URL}/api/doctorLeave/${leave._id}`, {
         method: 'DELETE',
       });
       setStatus('');
@@ -218,7 +218,7 @@ const DoctorLeave = () => {
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/api/doctorLeave/${currentLeaveId}/update`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/doctorLeave/${currentLeaveId}/update`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(leaveData),
@@ -256,7 +256,7 @@ const DoctorLeave = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/doctorLeave', {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/doctorLeave`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(leaveData),

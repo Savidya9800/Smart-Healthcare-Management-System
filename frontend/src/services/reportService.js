@@ -1,6 +1,6 @@
-import axios from "axios";
 
-const API = "http://localhost:5000/api/reports";
+import axios from "axios";
+const API = `${import.meta.env.VITE_API_URL}/api/reports`;
 
 export const getMedicalReports = async () => {
   const token = localStorage.getItem("token");

@@ -53,7 +53,7 @@ const colors = {
   lightblue: "#2B2C6C",
 };
 
-const REJECTED_API = "http://localhost:5000/api/rejected-appointments";
+const REJECTED_API = `${import.meta.env.VITE_API_URL}/api/rejected-appointments`;
 
 function RejectedAppointmentRow({ appointment, onDelete }) {
   const [open, setOpen] = useState(false);
