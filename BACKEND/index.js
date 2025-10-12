@@ -21,7 +21,10 @@ const analysisRoutes = require("./Routes/AnalysisRoutes");
 const vitalsRoutes = require("./Routes/VitalsRoutes");
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "https://healthcare257.netlify.app",
+  credentials: true // if you use cookies/auth
+}));
 app.use(express.json());
 
 // API Routes
