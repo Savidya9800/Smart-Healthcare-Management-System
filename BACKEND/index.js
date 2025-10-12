@@ -21,8 +21,21 @@ const analysisRoutes = require("./Routes/AnalysisRoutes");
 const vitalsRoutes = require("./Routes/VitalsRoutes");
 
 // Middleware
+const allowedOrigins = [
+  process.env.FRONTEND01,
+  process.env.FRONTEND02
+];
+
 app.use(cors({
-  origin: "https://healthcare257.netlify.app",
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true // if you use cookies/auth
 }));
 app.use(express.json());
@@ -61,7 +74,13 @@ mongoose
   .then(() => {
     console.log("Connected to MongoDB");
     console.log("Database URL:", process.env.MONGO_URI);
-    // Do not use app.listen() on Vercel
+    // Only start server locally, not on Vercel
+    if (process.env.NODE_ENV !== "production") {
+      const PORT = process.env.PORT || 5000;
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    }
   })
   .catch((err) => console.error("Database connection error:", err));
 
