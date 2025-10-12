@@ -9,7 +9,7 @@ const {
   sendConfirmationEmail,
   rejectAppointment,
   updateAppointmentStatus,
-} = require("../Controllers/AppoinmentController");
+} = require("../Controllers/AppointmentController");
 const authMiddleware = require("../Middleware/authMiddleware");
 
 // Create a new appointment (Protected)
