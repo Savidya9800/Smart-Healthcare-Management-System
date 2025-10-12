@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 //Insert Model
-const Stock = require("../Models/stockModel");
+const Stock = require("../Models/StockModel");
 //Insert Controller
 const StockController = require("../Controllers/StockController");
 
