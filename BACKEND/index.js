@@ -22,8 +22,7 @@ const vitalsRoutes = require("./Routes/VitalsRoutes");
 
 // Middleware
 const allowedOrigins = [
-  process.env.FRONTEND01,
-  process.env.FRONTEND02
+  process.env.FRONTEND01
 ];
 
 app.use(cors({
