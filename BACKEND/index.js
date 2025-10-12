@@ -61,8 +61,10 @@ mongoose
   .then(() => {
     console.log("Connected to MongoDB");
     console.log("Database URL:", process.env.MONGO_URI);
-    app.listen(process.env.PORT, () =>
-      console.log(`Server running on http://localhost:${process.env.PORT}`)
-    );
+    // app.listen(process.env.PORT, () =>
+    //   console.log(`Server running on http://localhost:${process.env.PORT}`)
+    // );
   })
   .catch((err) => console.error("Database connection error:", err));
+
+module.exports = app;
