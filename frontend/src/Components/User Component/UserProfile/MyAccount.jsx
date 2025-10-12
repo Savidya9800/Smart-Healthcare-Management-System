@@ -11,7 +11,7 @@ function MyAccount() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/Home"); // Redirect to home if not authenticated
+      navigate("/"); // Redirect to home if not authenticated
     } else {
       setLoading(false); // Token found, stop loading and display profile
     }

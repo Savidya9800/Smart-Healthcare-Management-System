@@ -41,7 +41,7 @@ class ErrorBoundary extends Component {
           <p className="text-[#828487] mb-6">
             An error occurred while loading the appointment booking page.
           </p>
-          <p className="text-red-500 mb-4">{this.state.error?.message}</p>
+          <p className="mb-4 text-red-500">{this.state.error?.message}</p>
           <button
             onClick={() => window.location.reload()}
             className="bg-[#2b2c6c] hover:bg-[#71717d] text-white py-3 px-6 rounded-lg transition duration-200"
@@ -263,7 +263,7 @@ function BookAppointment() {
         <h2 className="text-2xl font-bold text-[#2b2c6c] mb-4">Error</h2>
         <p className="text-[#828487] mb-6">{error}</p>
         <button
-          onClick={() => navigate("/Home")}
+          onClick={() => navigate("/")}
           className="bg-[#2b2c6c] hover:bg-[#71717d] text-white py-3 px-6 rounded-lg transition duration-200"
         >
           Return to Home
@@ -288,7 +288,7 @@ function BookAppointment() {
       <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[60vh]">
         <div className="w-full max-w-md overflow-hidden">
           {/* Card with glass morphism effect */}
-          <div className="backdrop-blur-sm bg-white/80 rounded-2xl shadow-xl border border-gray-100">
+          <div className="border border-gray-100 shadow-xl backdrop-blur-sm bg-white/80 rounded-2xl">
             {/* Top accent bar */}
             <div className="h-2 bg-gradient-to-r from-[#2b2c6c] via-[#8e44ad] to-[#e6317d]"></div>
             
@@ -309,7 +309,7 @@ function BookAppointment() {
               </p>
               
               {/* Buttons with hover effects */}
-              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+              <div className="flex flex-col justify-center gap-4 mb-6 sm:flex-row">
                 <button
                   onClick={() => navigate("/Login")}
                   className="bg-gradient-to-r from-[#2b2c6c] to-[#3b3c8c] hover:from-[#3b3c8c] hover:to-[#2b2c6c] text-white py-3 px-6 text-base rounded-2xl transition-all duration-300 font-medium shadow-md hover:shadow-lg hover:translate-y-[-2px] flex items-center justify-center"
@@ -351,7 +351,7 @@ function BookAppointment() {
         <Nav />
         <SectionHeader title="Book An Appointment" />
 
-        <div className="container mx-auto px-4 py-8 flex justify-center">
+        <div className="container flex justify-center px-4 py-8 mx-auto">
           <div className="w-full max-w-2xl">
             <div className="flex justify-center mb-6">
               <div className="flex items-center w-full max-w-md">
@@ -403,7 +403,7 @@ function BookAppointment() {
 
             <div className="bg-[#eaecee] rounded-xl shadow-lg overflow-hidden border border-[#2fb297]">
               <div className="bg-gradient-to-r from-[#2b2c6c] to-[#e6317d] py-5 px-6">
-                <h2 className="text-xl font-bold text-white flex items-center">
+                <h2 className="flex items-center text-xl font-bold text-white">
                   {step === 1 ? (
                     <>
                       <Calendar size={24} className="mr-2" />
@@ -416,7 +416,7 @@ function BookAppointment() {
                     </>
                   )}
                 </h2>
-                <p className="text-gray-200 mt-1">
+                <p className="mt-1 text-gray-200">
                   {step === 1
                     ? "Choose your preferred doctor and time"
                     : "Please provide your personal information"}
@@ -426,9 +426,9 @@ function BookAppointment() {
               <div className="p-6">
                 {/* Step 1 Form */}
                 {step === 1 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div>
-                      <label className="block text-gray-700 text-base font-medium mb-2">
+                      <label className="block mb-2 text-base font-medium text-gray-700">
                         Select Doctor
                       </label>
                       <div className="relative">
@@ -457,7 +457,7 @@ function BookAppointment() {
                     </div>
 
                     <div>
-                      <label className="block text-gray-700 text-base font-medium mb-2">
+                      <label className="block mb-2 text-base font-medium text-gray-700">
                         Specialization
                       </label>
                       <div className="relative">
@@ -496,7 +496,7 @@ function BookAppointment() {
                     </div>
 
                     <div>
-                      <label className="block text-gray-700 text-base font-medium mb-2">
+                      <label className="block mb-2 text-base font-medium text-gray-700">
                         Select Date
                       </label>
                       <div className="relative">
@@ -520,7 +520,7 @@ function BookAppointment() {
                     </div>
 
                     <div>
-                      <label className="block text-gray-700 text-base font-medium mb-2">
+                      <label className="block mb-2 text-base font-medium text-gray-700">
                         Select Time
                       </label>
                       <div className="relative">
@@ -548,7 +548,7 @@ function BookAppointment() {
                       )}
                     </div>
 
-                    <div className="md:col-span-2 mt-4">
+                    <div className="mt-4 md:col-span-2">
                       <button
                         onClick={() => {
                           if (validateStep1()) {
@@ -575,9 +575,9 @@ function BookAppointment() {
                 {/* Step 2 Form */}
                 {step === 2 && (
                   <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                       <div>
-                        <label className="block text-gray-700 text-sm font-medium mb-2">
+                        <label className="block mb-2 text-sm font-medium text-gray-700">
                           Full Name
                         </label>
                         <div className="relative">
@@ -602,7 +602,7 @@ function BookAppointment() {
                       </div>
 
                       <div>
-                        <label className="block text-gray-700 text-sm font-medium mb-2">
+                        <label className="block mb-2 text-sm font-medium text-gray-700">
                           Phone Number
                         </label>
                         <div className="relative">
@@ -627,7 +627,7 @@ function BookAppointment() {
                       </div>
 
                       <div>
-                        <label className="block text-gray-700 text-sm font-medium mb-2">
+                        <label className="block mb-2 text-sm font-medium text-gray-700">
                           NIC
                         </label>
                         <div className="relative">
@@ -652,7 +652,7 @@ function BookAppointment() {
                       </div>
 
                       <div>
-                        <label className="block text-gray-700 text-sm font-medium mb-2">
+                        <label className="block mb-2 text-sm font-medium text-gray-700">
                           Email
                         </label>
                         <div className="relative">
@@ -677,14 +677,14 @@ function BookAppointment() {
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-gray-700 text-sm font-medium mb-2">
+                        <label className="block mb-2 text-sm font-medium text-gray-700">
                           Address{" "}
                           <span className="text-xs text-gray-500">
                             (max 30 characters)
                           </span>
                         </label>
                         <div className="relative">
-                          <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
+                          <div className="absolute left-0 flex items-start pl-3 pointer-events-none top-3">
                             <MapPin size={24} className="text-[#2b2c6c]" />
                           </div>
                           <textarea
@@ -696,7 +696,7 @@ function BookAppointment() {
                             placeholder="Enter your address (max 30 characters)"
                             className="w-full pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:border-transparent h-12 resize-none"
                           />
-                          <div className="absolute bottom-2 right-2 text-xs text-gray-500">
+                          <div className="absolute text-xs text-gray-500 bottom-2 right-2">
                             {input.address.length}/30
                           </div>
                         </div>
@@ -707,7 +707,7 @@ function BookAppointment() {
                         )}
                       </div>
 
-                      <div className="md:col-span-2 mt-4 flex gap-4">
+                      <div className="flex gap-4 mt-4 md:col-span-2">
                         <button
                           type="button"
                           onClick={() => setStep(1)}
@@ -740,7 +740,7 @@ function BookAppointment() {
                 <h3 className="text-[#2b2c6c] font-medium text-sm">
                   Important Information
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="mt-1 text-sm text-gray-600">
                   Please arrive 15 minutes before your appointment time. Bring
                   your ID and insurance information if applicable.
                 </p>

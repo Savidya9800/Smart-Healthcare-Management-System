@@ -99,7 +99,7 @@ function Login() {
             navigate("/Appointment-Dashboard");
           }
         } else {
-          navigate("/Home");
+          navigate("/");
         }
       }, 2500);
     } catch (error) {

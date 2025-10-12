@@ -182,7 +182,7 @@ function DisplayAppointment() {
         if (result.isConfirmed) {
           generatePDF(patientDetails);
         }
-        navigate("/Home");
+        navigate("/");
       });
     } catch (error) {
       console.error("Error sending confirmation email:", error);
@@ -234,7 +234,7 @@ function DisplayAppointment() {
               showConfirmButton: false,
               timer: 2500,
             });
-            navigate("/Home");
+            navigate("/");
           })
           .catch((error) => {
             console.error("Error deleting appointment:", error);
@@ -538,7 +538,7 @@ function DisplayAppointment() {
               Your appointment information could not be found.
             </p>
             <button
-              onClick={() => navigate("/Home")}
+              onClick={() => navigate("/")}
               className="flex items-center justify-center mx-auto bg-[#2b2c6c] hover:bg-[#71717d] text-white py-3 px-6 rounded-lg transition duration-200"
             >
               <ArrowLeft size={18} className="mr-2" />
@@ -556,7 +556,7 @@ function DisplayAppointment() {
       <Nav />
       <SectionHeader title="Appointment Details" />
 
-      <div className="container mx-auto px-4 py-8 flex justify-center">
+      <div className="container flex justify-center px-4 py-8 mx-auto">
         <div className="w-full max-w-2xl">
           {emailStatus && (
             <div
@@ -572,7 +572,7 @@ function DisplayAppointment() {
 
           <div className="bg-[#eaecee] rounded-xl shadow-lg overflow-hidden border border-[#2fb297]">
             <div className="bg-gradient-to-r from-[#2b2c6c] to-[#e6317d] py-5 px-6">
-              <h2 className="text-xl font-bold text-white flex items-center">
+              <h2 className="flex items-center text-xl font-bold text-white">
                 {isEditing ? (
                   <>
                     <UserCircle size={24} className="mr-2" />
@@ -585,7 +585,7 @@ function DisplayAppointment() {
                   </>
                 )}
               </h2>
-              <p className="text-gray-200 mt-1">
+              <p className="mt-1 text-gray-200">
                 {isEditing
                   ? "Update your personal information"
                   : `Appointment with ${patientDetails.doctorName} - ${patientDetails.specialization}`}
@@ -593,13 +593,13 @@ function DisplayAppointment() {
             </div>
 
             {!isEditing && (
-              <div className="bg-indigo-50 p-4 border-b border-gray-200">
-                <div className="flex justify-between items-center">
+              <div className="p-4 border-b border-gray-200 bg-indigo-50">
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-sm font-medium">
+                    <p className="text-sm font-medium text-gray-600">
                       Date & Time
                     </p>
-                    <p className="text-indigo-800 font-medium">
+                    <p className="font-medium text-indigo-800">
                       {new Date(patientDetails.date).toLocaleDateString("en-GB")}{" "}
                       | {patientDetails.time}
                     </p>
@@ -615,10 +615,10 @@ function DisplayAppointment() {
               <div className="p-6">
                 <form
                   onSubmit={handleSubmit}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                  className="grid grid-cols-1 gap-3 md:grid-cols-2"
                 >
                   <div>
-                    <label className="block text-gray-700 text-base font-medium mb-2">
+                    <label className="block mb-2 text-base font-medium text-gray-700">
                       Full Name
                     </label>
                     <div className="relative">
@@ -643,7 +643,7 @@ function DisplayAppointment() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 text-base font-medium mb-2">
+                    <label className="block mb-2 text-base font-medium text-gray-700">
                       Phone Number
                     </label>
                     <div className="relative">
@@ -668,7 +668,7 @@ function DisplayAppointment() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 text-base font-medium mb-2">
+                    <label className="block mb-2 text-base font-medium text-gray-700">
                       NIC
                     </label>
                     <div className="relative">
@@ -692,7 +692,7 @@ function DisplayAppointment() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 text-base font-medium mb-2">
+                    <label className="block mb-2 text-base font-medium text-gray-700">
                       Email
                     </label>
                     <div className="relative">
@@ -717,11 +717,11 @@ function DisplayAppointment() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-gray-700 text-base font-medium mb-2">
+                    <label className="block mb-2 text-base font-medium text-gray-700">
                       Address
                     </label>
                     <div className="relative">
-                      <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
+                      <div className="absolute left-0 flex items-start pl-3 pointer-events-none top-3">
                         <MapPin size={24} className="text-[#2b2c6c]" />
                       </div>
                       <textarea
@@ -735,7 +735,7 @@ function DisplayAppointment() {
                     </div>
                   </div>
 
-                  <div className="md:col-span-2 mt-4 flex gap-4">
+                  <div className="flex gap-4 mt-4 md:col-span-2">
                     <button
                       type="button"
                       onClick={() => setIsEditing(false)}
@@ -757,7 +757,7 @@ function DisplayAppointment() {
               </div>
             ) : (
               <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <div className="md:col-span-2">
                     <h3 className="text-lg font-semibold text-[#2b2c6c]">
                       Patient Information
@@ -765,7 +765,7 @@ function DisplayAppointment() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">
                       Full Name
                     </label>
                     <div className="relative pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg">
@@ -777,7 +777,7 @@ function DisplayAppointment() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">
                       Phone
                     </label>
                     <div className="relative pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg">
@@ -789,7 +789,7 @@ function DisplayAppointment() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">
                       NIC
                     </label>
                     <div className="relative pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg">
@@ -801,7 +801,7 @@ function DisplayAppointment() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">
                       Email
                     </label>
                     <div className="relative pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg">
@@ -813,20 +813,20 @@ function DisplayAppointment() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">
                       Address
                     </label>
                     <div className="relative pl-12 pr-4 py-2.5 bg-[#f5f5f5] border border-[#828487] rounded-lg h-17">
-                      <div className="absolute top-3 left-0 flex items-start pl-3 pointer-events-none">
+                      <div className="absolute left-0 flex items-start pl-3 pointer-events-none top-3">
                         <MapPin size={24} className="text-[#2b2c6c]" />
                       </div>
-                      <p className="text-gray-700 py-2">
+                      <p className="py-2 text-gray-700">
                         {patientDetails.address}
                       </p>
                     </div>
                   </div>
 
-                  <div className="md:col-span-2 mt-4 grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-3 gap-4 mt-4 md:col-span-2">
                     <button
                       onClick={() => setIsEditing(true)}
                       className="py-2.5 bg-[#2b2c6c] hover:bg-[#71717d] text-white rounded-lg font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#2b2c6c] focus:ring-opacity-50 flex items-center justify-center"
@@ -856,7 +856,7 @@ function DisplayAppointment() {
                       {isSendingEmail ? (
                         <>
                           <svg
-                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            className="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"

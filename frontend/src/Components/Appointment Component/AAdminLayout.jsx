@@ -42,7 +42,7 @@ function AAdminLayout({ children }) {
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/Home";
+    window.location.href = "/";
   };
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">

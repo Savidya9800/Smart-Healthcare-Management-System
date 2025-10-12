@@ -126,7 +126,7 @@ function PatientProfile() {
           },
         });
         setTimeout(() => {
-          window.location.href = "/Home";
+          window.location.href = "/";
         }, 2500);
       }
     });
