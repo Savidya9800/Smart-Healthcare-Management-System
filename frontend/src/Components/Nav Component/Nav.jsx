@@ -67,7 +67,7 @@ function Nav() {
       {/* Main Navigation Bar */}
       <div className="w-full h-[70px] flex items-center mt-0">
         <div className="flex items-center ml-[60px]">
-          <Link to="/Home" className="flex items-center cursor-pointer">
+          <Link to="/" className="flex items-center cursor-pointer">
             <img src="/Logo.png" alt="Logo" className="h-[70px]" />
             <div className="text-[#2b2c6c] ml-2 font-bold text-lg">
               MEDI FLOW
@@ -78,7 +78,7 @@ function Nav() {
 
         <div className="ml-auto mr-[50px] flex space-x-10 font-semibold">
           {[
-            { name: "Home", path: "/Home" },
+            { name: "Home", path: "/" },
             { name: "Contact Us", path: "/Contact-Us" },
             { name: "Our Facilities", path: "/Our-Facilities" },
             { name: "About Us", path: "/About-Us" }
